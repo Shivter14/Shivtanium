@@ -1,2 +1,3 @@
-BOOT=Shivtanium Alpha 0.1.1 [24w17a]
-BEFI=1
+# SSVM Settings #
+mode=96,24
+temp.fadein=255
