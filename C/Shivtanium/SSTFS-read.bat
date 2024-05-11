@@ -1,37 +1,29 @@
 @echo off
 setlocal enabledelayedexpansion
-set "sstfs.temp=%~1"
-if "!sstfs.[%sstfs.temp%]!"=="" exit /b 404
-if not exist "!sstfs.mainfile!" goto initSSTFS
-set /a "sstfs.loc=!sstfs.[%sstfs.temp%]!", "sstfs.eof=!sstfs.[%sstfs.temp%].end!" 2>nul || call :halt "%~nx0:SSTFS.read" "Fatal filesystem error while trying to read:\n'!sstfs.temp:\n=\N!'"
-for /f "usebackq skip=%sstfs.loc% delims=" %%a in ("!sstfs.mainfile!") do (
+set "sstfs.path=%~1"
+set "sstfs.path=!sstfs.path:/=\!"
+
+if "!sstfs.path:~0,5!"=="\mnt\" (
+	for /f "tokens=1* delims=\" %%a in ("!sstfs.path:~5!") do (
+		set "sstfs.source=!sstfs.mnt[\mnt\%%~a]!"
+		if "!sstfs.source!"=="" exit /b 2
+		if "!sstfs.[\mnt\%%~a\%%~b]!"=="" exit /b 1
+		if not exist "!sstfs.source!" exit /b 2
+	)
+) else if "!sstfs.path:~0,6!"=="\temp\" (
+	if not exist "!sst.dir!!sstfs.path!" exit /b 1
+	for /f "delims=<>|:?~" %%0 in ("!sst.dir!!sstfs.path:..=!") do (
+		if "%%~0" neq "!sst.dir!!sstfs.path!" exit /b 1
+		set "temp=%%~f0"
+		if "!temp:%sst.dir%\temp\=!" neq "!temp!" exit /b 1
+	)
+	type "!sst.dir!!sstfs.path!" 2>nul || exit /b 2
+	exit /b
+)
+
+set /a "sstfs.loc=!sstfs.[%sstfs.path%]!", "sstfs.eof=!sstfs.[%sstfs.path%].end!" 2>nul
+for /f "usebackq skip=%sstfs.loc% delims=" %%a in ("!sstfs.source!") do (
     echo(%%a
-    if !sstfs.loc! geq %sstfs.eof% exit /b 0
+    if !sstfs.loc! geq !sstfs.eof! exit /b 0
     set /a sstfs.loc+=1
 )
-exit /b 0
-:halt
-set "halt.text=%~2"
-set halt.text=!halt.text:\n=","!
-set "halt.tracemsg= At %~1: "
-:halt.ready
-set "halt.pausemsg= The system cannot exit automatically. "
-for /f "tokens=2 delims=:" %%a in ('mode con') do (
-	set /a counter+=1
-	set "token=%%~a"
-	if "!counter!"=="2" set /a "halt.modeW=!token: =!-7"
-)
-for /l %%a in (!halt.modeW! -1 0) do (
-	<nul set /p "=%\e%[2;3H%\e%[48;2;255;0;0m%\e%[38;2;255;255;255m%\e%[?25l Execution halted %\e%[4;3H!halt.tracemsg:~%%a!"
-	for /l %%. in (0 1 10000) do rem
-	for %%b in ("!halt.text!") do (
-		set "halt.line=%%~b "
-		<nul set /p "=%\e%[E%\e%[3G     !halt.line:~%%a,%halt.modeW%!%\e%7"
-	)
-	<nul set /p "=%\e%[999;3H%\e%[A!halt.pausemsg:~%%a!%\e%[4;1H"
-)>con
-for /l %%. in () do (
-	echo(%\e%[H>con
-	pause>nul
-)
-exit
