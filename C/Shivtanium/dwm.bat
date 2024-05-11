@@ -7,71 +7,20 @@ for /f "tokens=2 delims=:" %%a in ('mode con') do (
 	if "!counter!"=="2" set /a "modeW=!token: =!"
 )
 
-REM 89 89 87
-set theme[classic]=^
-	"scene=%\e%[0m%\e%[48;2;58;110;155;38;5;231m%\e%[2J%\e%[!sst.boot.logoY!;!sst.boot.logoX!H!spr.[bootlogo.spr]!Classic theme"^
-	"BGcolor=2;229;227;222"^
-	"FGcolor=5;16"^
-	"TIcolor=5;247"^
-	"TTcolor=5;231"^
-	"CBUI=%\e%[48;5;8;38;5;231m -  □  × "
+for /f "delims=" %%a in ('dir /b /a:-D "!sys.dir!\resourcepacks\init\themes\*"') do (
+	set "theme[%%~a]= "
+	for /f "usebackq tokens=1* delims==" %%x in ("!sys.dir!\resourcepacks\init\themes\%%~a") do (
+		if /I "%%~x" neq "CBUIOffset" set theme[%%a]=!theme[%%a]! "%%~x=%%~y"
+	)
+	set "theme[%%~a]=!theme[%%~a]:~2!"
+)
 
-set theme[matrix]=^
-	"scene=%\e%[H%\e%[0m%\e%[48;2;0;15;0m%\e%[2JMatrix theme"^
-	"BGcolor=2;;15;"^
-	"FGcolor=5;82"^
-	"TIcolor=5;22"^
-	"TTcolor=5;83"^
-	"CBUI=%\e%[38;5;231m%\e%[48;2;0;127;0m - %\e%[48;2;0;191;0m □ %\e%[48;2;0;255;0m × "
-
-set theme[discord]=^
-	"scene=%\e%[H%\e%[0m%\e%[48;2;11;12;13m%\e%[2JDiscord theme"^
-	"BGcolor=2;49;51;56"^
-	"FGcolor=5;231"^
-	"TIcolor=2;36;40;44"^
-	"TTcolor=5;251"^
-	"CBUI=%\e%[38;5;231m -  □  × "
-
-set theme[rose]=^
-	"scene=%\e%[H%\e%[0m%\e%[48;2;160;31;40m%\e%[2JRose theme"^
-	"FGcolor=5;231"^
-	"BGcolor=5;210"^
-	"TIcolor=5;167"^
-	"TTcolor=5;231"^
-	"CBUI=%\e%[D%\e%[38;5;231;48;5;210m -  □  × %\e%[48;5;167m "
-
-set theme[eyeburn]=^
-	"scene=%\e%[H%\e%[0m%\e%[48;5;253;38;5;m%\e%[2J'Eyeburn' theme"^
-	"FGcolor=5;16"^
-	"BGcolor=5;231"^
-	"TIcolor=5;252"^
-	"TTcolor=5;242"^
-	"CBUI=%\e%[D%\e%[38;5;16;48;5;231m -  □  × %\e%[48;5;252m "
-
-set theme[green_apple]=^
-	"scene=%\e%[H%\e%[0m%\e%[48;5;22;38;5;m%\e%[2J'Green apple' theme"^
-	"FGcolor=5;22"^
-	"BGcolor=5;193"^
-	"TIcolor=5;10"^
-	"TTcolor=5;22"^
-	"CBUI=%\e%[48;5;82m -  □  × "
-
-set theme[red_apple]=^
-	"scene=%\e%[H%\e%[0m%\e%[48;5;88m%\e%[2J'Red apple' theme"^
-	"FGcolor=5;52"^
-	"BGcolor=5;216"^
-	"TIcolor=5;196"^
-	"TTcolor=5;231"^
-	"CBUI=%\e%[D%\e%[38;5;52;48;5;216m -  □  × %\e%[48;5;196m "
-
-set theme[aero]=scene=%\e%[H%\e%[0m%\e%[38;5;231m
 for /l %%a in (1 1 !modeH!) do (
 	set /a "green=255-(%%a*127/!modeH!)"
 	set theme[aero]=!theme[aero]!%\e%[48;2;63;!green!;255m%\e%[2K%\e%[B
 )
 set green=
 set theme[aero]="!theme[aero]!%\e%[999C%\e%[43DAero theme"
-
 for %%a in (
 	"ssvm"
 	"temp"
@@ -81,7 +30,6 @@ for %%a in (
 rem == Test theme ==
 for %%a in (
 	!theme[aero]!
-	!theme[classic]!
 ) do set "dwm.%%~a"
 set "dwm.scene=!dwm.scene! | Shivtanium !sys.tag! !sys.ver! !sys.subvinfo!"
 
@@ -97,7 +45,7 @@ for /l %%. in (.) do (
 	if defined io.input (
 		set "input=!io.input!"
 	) else set /p input=
-	if not defined input call :bsod "No input from system" "It seems like the Desktop Window Manager is no longer receiving input. This has been likely caused by a system crash." 0
+	if not defined input call :bsod "No input from system" "It seems like the Desktop Window Manager is no longer receiving input. This has been likely caused by a system crash." /b
 	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000)"
 	set /a "deltaTime=(t1 - t2), timer.100cs+=deltaTime, t2=t1, fpsFrames+=1"
 	
@@ -106,9 +54,13 @@ for /l %%. in (.) do (
 		if !timer.100cs! GEQ 100 set timer.100cs=0
 	)
 	
-	if "!input:~0,1!"=="¤" (for /f "tokens=1-8* delims=	" %%0 in ("!input:~1!") do (
+	if "!input:~0,1!"=="¤" for /f "tokens=1-8* delims=	" %%0 in ("!input:~1!") do (
 		if "%%~0"=="SPEED" (
-			title Shivtanium %sys.tag% %sys.ver% %sys.subvinfo% Time: %%3 TPS: %%1 TickTime: %%2cs FPS: !fps! Frametime: !deltaTime!
+			title Shivtanium %sys.tag% %sys.ver% %sys.subvinfo% Time: %%3 Exec/p: %%1 TickTime: %%2cs FPS: !fps! Frametime: !deltaTime!
+			if "%%~4;%%~5" neq "!dwm.mouseXpos!;!dwm.mouseYpos!" if "!random:~0,1!"=="1" set "mainbuffer=!dwm.scene!!mainbuffer!"
+			set "dwm.mouseXpos=%%~4"
+			set "dwm.mouseYpos=%%~5"
+			set "extbuffer=!extbuffer!%\e%[0m%\e%[!dwm.mouseYpos!;!dwm.mouseXpos!H "
 		) else if "%%~0"=="MW" (
 			set args=!input:~4!
 			set args=!args:	=" "!
@@ -119,8 +71,12 @@ for /l %%. in (.) do (
 				if "!temp.x:~0,1!"=="l" (
 					set /a "temp.x=!temp.x:~1!+1"
 					set "win[%%~1]l!temp.x!=%\e%8%\e%[C%\e%[38;!win[%%~1]FGcolor!m!temp.text!%\e%[38;!win[%%~1]TIcolor!m"
+				) else if "!temp.x:~0,1!"=="o" (
+					set /a "temp.x=!temp.x:~1!+1"
+					set "win[%%~1]o!temp.x!=%\e%8%\e%[38;!win[%%~1]TTcolor!;48;!win[%%~1]TIcolor!m!temp.text!%\e%[38;!win[%%~1]TIcolor!;48;!win[%%~1]BGcolor!m"
 				) else set "win[%%~1]%%~x=%%~y"
 			)
+			set temp.x=
 			if !win[%%~1]X! lss 0 set "win[%%~1]X=0"
 			if !win[%%~1]Y! lss 0 set "win[%%~1]Y=0"
 			if !win[%%~1]W! lss 12 set "win[%%~1]W=12"
@@ -169,17 +125,21 @@ for /l %%. in (.) do (
 			set temp.H=
 			set temp.tl=
 			set temp.tlb=
-			set mainbuffer=!dwm.scene!
+			set "mainbuffer=!dwm.scene!"
 		) else if "%%~0"=="FOCUS" (
 			set win.order=!win.order: "%%~1"=! "%%~1"
 			set mainbuffer=!mainbuffer!%\e%[H
-		)
-	)) else call :bsod "Recieved bogus data" "It seems like the system is recieving bogus data so enjoy the bluescreen lmfao" /b
+		) else if "%%~0"=="DW" (
+			for /f "tokens=1 delims==" %%a in ('set win[%%~1] 2^>nul') do set "%%a="
+			set win.order=!win.order: "%%~1"=!
+			set "mainbuffer=!dwm.scene!"
+		) else if "%%~0"=="EXIT" exit 0
+	)
 	if defined mainbuffer (
 		for %%w in (!win.order!) do (
 			set "mainbuffer=!mainbuffer!%\e%[!win[%%~w]Y!;!win[%%~w]X!H!win[%%~w]p1!"
 			for /l %%l in (2 1 !win[%%~w]H!) do (
-				set "mainbuffer=!mainbuffer!!win[%%~w]p%%l!!win[%%~w]l%%l!"
+				set "mainbuffer=!mainbuffer!!win[%%~w]p%%l!!win[%%~w]l%%l!!win[%%~w]o%%l!"
 			)
 		)
 		<nul set /p "=!mainbuffer!"
@@ -238,10 +198,13 @@ for %%l in ("!halt.message!") do (
 )
 set halt.finalmsg=!halt.finalmsg! "   !halt.templine!"
 set /a "halt.posX=!sst.boot.logoX!", "halt.posY=(!modeH!-!halt.lines!)/2"
-<nul set /p "=%\e%[48;2;;;255;38;5;231m%\e%[2J%\e%[!halt.posY!;!halt.posX!H!spr.[bootlogo.spr]!"
-for %%a in (!halt.finalmsg!) do (
-	<nul set /p "=%\e%[B%\e%[!halt.posX!G%%~a"
-)
-<nul set /p "=%\e%[2B%\e%[!halt.promptX!G%\e%[7m Press any key to exit. %\e%[27m"
-pause < con > nul
+(
+	set /p "=%\e%[48;2;;;255;38;5;231m%\e%[2J"
+	set /p "=%\e%[!halt.posY!;!halt.posX!H!spr.[bootlogo.spr]!"
+	for %%a in (!halt.finalmsg!) do (
+		set /p "=%\e%[B%\e%[!halt.posX!G%%~a"
+	)
+	<con set /p "=%\e%[2B%\e%[!halt.promptX!G%\e%[7m Press any key to exit. %\e%[27m"
+	pause < con > nul
+) <nul>con
 exit %3
