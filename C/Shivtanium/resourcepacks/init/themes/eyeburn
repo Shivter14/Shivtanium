@@ -1,0 +1,7 @@
+scene=[H[0m[48;5;253;38;5;m[2J'Eyeburn' theme
+FGcolor=5;16
+BGcolor=5;231
+TIcolor=5;252
+TTcolor=5;242
+CBUI=[D[38;5;16;48;5;231m -  □  × [48;5;252m 
+CBUIOffset=-1

@@ -1,0 +1,7 @@
+scene=[H[0m[48;5;88m[2J'Red apple' theme
+FGcolor=5;52
+BGcolor=5;216
+TIcolor=5;196
+TTcolor=5;231
+CBUI=[D[38;5;52;48;5;216m -  □  × [48;5;196m 
+CBUIOffset=-1
