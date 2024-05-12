@@ -25,7 +25,6 @@ for /f "tokens=2 delims=:" %%a in ('mode con') do (
 )
 set /a "sst.boot.msgY=!sys.modeH!/2+7"
 <nul set /p "=%\e%[H%\e%[48;2;0;0;0m%\e%[38;2;255;255;255m"
-call :halt "@bootstrap main.bat" "I told you not to download Shivtanium right now :troll:"
 for %%a in (
 	":clearEnv|Clearing environment"
 	":loadresourcepack init|Loading resources"
