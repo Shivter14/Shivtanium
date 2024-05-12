@@ -1,21 +1,32 @@
 @FILESYSTEM
 version=0
 @FILE init.sst
-set	title=This is a test.
+math	$sys.modeW$/2+6
+set	x=$result$
+math	$sys.modeH$/2+6
+createWindow	idk	x=$x$	y=$result$	w=48	h=8	title=Multi-theme support‼	theme=eyeburn
+modifyWindow	idk	l2=  This demonstrates the multi-theme	l3=  functionality.	l4=  Theme: eyeburn
+createWindow	anotherwindow	x=4	y=2	w=35	h=8	title=Yet another window	theme=red_apple
+modifyWindow	anotherwindow	l2=  Theme: red_apple
+if	1	==	1
+	setButton	anotherwindow	testbutton	3	4	29	:button	This button does nothing =)
+call	.\idk.sst
+call	.\ext.sst
+exit
+:button
+test
+@FILE idk.sst
+goto	x
+:x
+exit
+čšřščř
+@FILE ext.sst
 math	($sys.modeW$-64)/2+1
 set	x=$result$
 math	($sys.modeH$-16)/2+1
-createWindow	test	x=$x$	y=$result$	w=64	h=13	title=Shivtanium $sys.tag$ $sys.ver$ $sys.subvinfo$
+createWindow	test	x=$x$	y=$result$	w=64	h=13	title=Shivtanium $sys.tag$ $sys.ver$ $sys.subvinfo$	theme=discord
 modifyWindow	test	l2=  Welcome to Shivtanium‼	l4=  There is currently not much to see,	l5=  except for this counter:	l6=    0	l11=  Theme: discord
-math	$sys.modeW$/2
-set	x=$result$
-math	$sys.modeH$/2+4
-createWindow	idk	x=$x$	y=$result$	w=48	h=8	title=Multi-theme support‼	theme=eyeburn
-modifyWindow	idk	l2=  This demonstrates the multi-theme	l3=  functionality.	l4=  Theme: eyeburn
-createWindow	anotherwindow	x=4	y=2	w=32	h=8	title=Yet another window	theme=rose
-modifyWindow	anotherwindow	l2=  Theme: rose
 :main
 modifyWindow	test	l8=  X: $sys.mouseXpos$ Y: $sys.mouseYpos$ Click: $sys.click$
-wait	100
+wait	5
 goto	main
-exit
