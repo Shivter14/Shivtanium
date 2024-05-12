@@ -9,7 +9,7 @@ chcp 65001>nul || (
 	pause > nul
 	exit /b
 ) 2>nul
-set ssvm.ver=3.0.1
+set ssvm.ver=3.0.2
 title SSVM %ssvm.ver%
 if not exist "%~dp0ssvm.cww" (
 	echo(# SSVM Settings #> "%~dp0ssvm.cww:
