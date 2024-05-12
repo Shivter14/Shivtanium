@@ -70,10 +70,10 @@ for /l %%. in (.) do (
 				set "temp.text=%%~y"
 				if "!temp.x:~0,1!"=="l" (
 					set /a "temp.x=!temp.x:~1!+1"
-					set "win[%%~1]l!temp.x!=%\e%8%\e%[C%\e%[38;!win[%%~1]FGcolor!m!temp.text!%\e%[38;!win[%%~1]TIcolor!m"
+					set "win[%%~1]l!temp.x!=%\e%8%\e%[C%\e%[38;!win[%%~1]FGcolor!;48;!win[%%~1]BGcolor!m!temp.text!"
 				) else if "!temp.x:~0,1!"=="o" (
 					set /a "temp.x=!temp.x:~1!+1"
-					set "win[%%~1]o!temp.x!=%\e%8%\e%[38;!win[%%~1]TTcolor!;48;!win[%%~1]TIcolor!m!temp.text!%\e%[38;!win[%%~1]TIcolor!;48;!win[%%~1]BGcolor!m"
+					set "win[%%~1]o!temp.x!=%\e%8%\e%[38;!win[%%~1]TTcolor!;48;!win[%%~1]TIcolor!m!temp.text!"
 				) else set "win[%%~1]%%~x=%%~y"
 			)
 			set temp.x=
@@ -89,7 +89,6 @@ for /l %%. in (.) do (
 			set /a "win[%%~1]X=%%~2", "win[%%~1]Y=%%~3", "win[%%~1]W=%%~4", "win[%%~1]H=%%~5"
 			if !win[%%~1]W! lss 10 set "win[%%~1]W=10"
 			set /a "win[%%~1]BX=!win[%%~1]X!+!win[%%~1]W!-1", "win[%%~1]BY=!win[%%~1]Y!+!win[%%~1]H!-1", "temp.tl=0"
-			if !win[%%~1]BX! geq !modeW! set /a "win[%%~1]X=!modeW!-!win[%%~1]W!+1", "win[%%~1]BX=!modeW!"
 			set "win[%%~1]title= %%~6"
 			set "win[%%~1]theme=%%~7"
 			
@@ -117,10 +116,10 @@ for /l %%. in (.) do (
 			set /a "temp.tl+=1", "temp.bl=!win[%%~1]W!-9", "temp.H=!win[%%~1]H!-1"
 			for /f "tokens=1-3 delims=;" %%a in ("!temp.tl!;!temp.bl!") do (
 				set "temp.tlb=!dwm.barbuffer:~0,%%~b!"
-				set "win[%%~1]p1=%\e%7%\e%[48;!win[%%~1]TIcolor!m%\e%[38;!win[%%~1]TTcolor!m!win[%%~1]title:~0,%%~b!!temp.tlb:~-%%~b,-%%~a!!win[%%~1]CBUI!%\e%[48;!win[%%~1]BGcolor!m%\e%[38;!win[%%~1]TIcolor!m"
+				set "win[%%~1]p1=%\e%7%\e%[48;!win[%%~1]TIcolor!m%\e%[38;!win[%%~1]TTcolor!m!win[%%~1]title:~0,%%~b!!temp.tlb:~-%%~b,-%%~a!!win[%%~1]CBUI!"
 				
-				for /l %%y in (2 1 !temp.H!) do set "win[%%~1]p%%y=%\e%8%\e%[B%\e%7%dwm.char.L%!dwm.barbuffer:~0,%%~b!       %dwm.char.R%"
-				set "win[%%~1]p!win[%%~1]H!=%\e%8%\e%[B%dwm.char.S%!dwm.bottombuffer:~0,%%~b!%dwm.bottombuffer:~0,7%%dwm.char.S%"
+				for /l %%y in (2 1 !temp.H!) do set "win[%%~1]p%%y=%\e%8%\e%[B%\e%7%\e%[48;!win[%%~1]BGcolor!;38;!win[%%~1]TIcolor!m%dwm.char.L%!dwm.barbuffer:~0,%%~b!       %dwm.char.R%"
+				set "win[%%~1]p!win[%%~1]H!=%\e%8%\e%[B%\e%[48;!win[%%~1]BGcolor!;38;!win[%%~1]TIcolor!m%dwm.char.S%!dwm.bottombuffer:~0,%%~b!%dwm.bottombuffer:~0,7%%dwm.char.S%"
 			)
 			set temp.H=
 			set temp.tl=
@@ -138,7 +137,7 @@ for /l %%. in (.) do (
 	if defined mainbuffer (
 		for %%w in (!win.order!) do (
 			set "mainbuffer=!mainbuffer!%\e%[!win[%%~w]Y!;!win[%%~w]X!H!win[%%~w]p1!"
-			for /l %%l in (2 1 !win[%%~w]H!) do (
+			for /l %%l in (2 1 !win[%%~w]H!) do if %%l leq !modeH! (
 				set "mainbuffer=!mainbuffer!!win[%%~w]p%%l!!win[%%~w]l%%l!!win[%%~w]o%%l!"
 			)
 		)
