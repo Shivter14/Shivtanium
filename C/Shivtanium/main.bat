@@ -25,13 +25,14 @@ for /f "tokens=2 delims=:" %%a in ('mode con') do (
 )
 set /a "sst.boot.msgY=!sys.modeH!/2+7"
 <nul set /p "=%\e%[H%\e%[48;2;0;0;0m%\e%[38;2;255;255;255m"
+call :halt "@bootstrap main.bat" "I told you not to download Shivtanium right now :troll:"
 for %%a in (
 	":clearEnv|Clearing environment"
 	":loadresourcepack init|Loading resources"
 	":loadSettings|Loading settings"
 	":SSTFS.mount '!sstfs.mainfile!' \mnt\init|Mounting SSTFS file"
 	":createProcess 0 \mnt\init\init.sst|Creating init process"
-	%= "cmd /c boot_FAF.bat|Initialization completed" =%
+	"cmd /c boot_FAF.bat|Initialization completed"
 ) do for /f "tokens=1* delims=|" %%b in (%%a) do (
 	set "sst.boot.command=%%~b"
 	set sst.boot.command=!sst.boot.command:'="!
@@ -42,15 +43,31 @@ for %%a in (
 		for %%c in (!sst.boot.msglen!) do if "!sst.boot.msg:~%%c,1!" equ "" set /a "sst.boot.msglen&=~1<<%%b"
 	)
 	set /a "sst.boot.msgX=(!sys.modeW!-!sst.boot.msglen!+1)/2"
-	if not defined sst.boot.logoX if defined spr.[bootlogo.spr].W (
-		set /a "sst.boot.logoX=(!sys.modeW!-!spr.[bootlogo.spr].W!)/2+1", "sst.boot.logoY=(!sys.modeH!-!spr.[bootlogo.spr].H!)/2+1"
-		echo(%\e%[H%\e%[48;2;0;0;0m%\e%[38;2;255;255;255m%\e%[2J
-	)
-	<nul set /p "=%\e%[!sst.boot.logoY!;!sst.boot.logoX!H!spr.[bootlogo.spr]!%\e%[!sst.boot.msgY!;!sst.boot.msgX!H%\e%[2K!sst.boot.msg!%\e%[H"
+	<nul set /p "=%\e%[!sst.boot.logoY!;!sst.boot.logoX!H!spr.[bootlogo.spr]!%\e%[!sst.boot.msgY!;!sst.boot.msgX!H%\e%[2K!sst.boot.msg!%\e%[B%\e%[2K%\e%[H"
 	call !sst.boot.command! || call :halt "@boot %%~c" "%%~b: Something went wrong. Errorlevel: !errorlevel!"
 )
+for /f "tokens=1 delims==" %%a in ('set sst.boot') do if /I "%%~a" neq "sst.boot.logoX" if /I "%%~a" neq "sst.boot.logoY" set "%%a="
 sysEventHandeler.bat | Shivtanium.bat | dwm.bat
 exit /b 0
+:startup.submsg
+
+	set "sst.boot.msg=%~1"
+	set "sst.boot.submsg=%~2"
+	set sst.boot.msglen=0
+	set sst.boot.submsglen=0
+	for /l %%b in (9,-1,0) do (
+		set /a "sst.boot.msglen|=1<<%%b"
+		for %%c in (!sst.boot.msglen!) do if "!sst.boot.msg:~%%c,1!" equ "" set /a "sst.boot.msglen&=~1<<%%b"
+	)
+	
+	for /l %%b in (9,-1,0) do (
+		set /a "sst.boot.submsglen|=1<<%%b"
+		for %%c in (!sst.boot.submsglen!) do if "!sst.boot.submsg:~%%c,1!" equ "" set /a "sst.boot.submsglen&=~1<<%%b"
+	)
+	
+	set /a "sst.boot.msgX=(sys.modeW-sst.boot.msglen+1)/2", "sst.boot.submsgX=(sys.modeW-sst.boot.submsglen+1)/2"
+	<nul set /p "=%\e%[!sst.boot.logoY!;!sst.boot.logoX!H!spr.[bootlogo.spr]!%\e%[!sst.boot.msgY!;!sst.boot.msgX!H%\e%[2K!sst.boot.msg!%\e%[B%\e%[!sst.boot.submsgX!G%\e%[2K!sst.boot.submsg!%\e%[H"
+
 :memoryDump
 pushd "!sst.dir!\temp" || exit /b !errorlevel!
 set > memoryDump
@@ -94,7 +111,9 @@ exit /b 0
 REM == Modules ==
 :loadresourcepack
 if not exist "!sst.dir!\resourcepacks\%~1" exit /b 1
-for /f "delims=" %%a in ('dir /b "!sst.dir!\resourcepacks\%~1\sprites\*.spr"') do call :loadsprites "!sst.dir!\resourcepacks\%~1\sprites\%%~a" %%~a
+for /f "delims=" %%a in ('dir /b "!sst.dir!\resourcepacks\%~1\sprites\*.spr" 2^>nul') do call :loadsprites "!sst.dir!\resourcepacks\%~1\sprites\%%~a" %%~a
+set /a "sst.boot.logoX=(!sys.modeW!-!spr.[bootlogo.spr].W!)/2+1", "sst.boot.logoY=(!sys.modeH!-!spr.[bootlogo.spr].H!)/2+1"
+echo(%\e%[H%\e%[48;2;0;0;0m%\e%[38;2;255;255;255m%\e%[2J
 exit /b 0
 :loadSprites
 if not exist "%~1" call :halt "%~nx0:loadSprites" "File not found: %~1"
@@ -118,27 +137,21 @@ set spr.temp=
 set spr.tempW=
 exit /b 0
 :halt
-if defined getInputInitialized call :reInjectDLLs 0 100
-for /f "tokens=2 delims=:" %%a in ('mode con') do (
-	set /a counter+=1
-	set "token=%%~a"
-	if "!counter!"=="2" set /a "halt.modeW=!token: =!-7"
-)
 set "halt.text=%~2"
 set halt.text=!halt.text:\n=","!
 set "halt.pausemsg= Press any key to exit. . . "
 set "halt.tracemsg= At %~1: "
-for /l %%a in (!halt.modeW! -1 0) do (
+for /l %%a in (64 -1 0) do (
 	<nul set /p "=%\e%[2;3H%\e%[48;2;255;0;0m%\e%[38;2;255;255;255m%\e%[?25l Execution halted %\e%[4;3H!halt.tracemsg:~%%a!"
 	for /l %%. in (0 1 10000) do rem
 	for %%b in ("!halt.text!") do (
 		set "halt.line=%%~b "
-		<nul set /p "=%\e%[E%\e%[3G     !halt.line:~%%a,%halt.modeW%!%\e%7"
+		<nul set /p "=%\e%[E%\e%[3G     !halt.line:~%%a!%\e%7"
 	)
 	<nul set /p "=%\e%[999;3H%\e%[A!halt.pausemsg:~%%a!%\e%8%\e%[2E"
 )
 call :memorydump
-pause>nul
+pause>nul<con
 exit 0
 :clearEnv
 for /f "tokens=1 delims==" %%a in ('set') do for /f "tokens=1 delims=._" %%c in ("%%~a") do (
@@ -189,6 +202,7 @@ for /f "usebackq tokens=1*" %%a in ("%~f1") do (
 		set /a "sstfs.[!sstfs.dest!\!parameters!]"=!sstfs.tempcounter!+1
 		if defined sstfs.temp set /a "sstfs.[!sstfs.dest!\!sstfs.temp!].end=!sstfs.tempcounter!-1"
 		set "sstfs.temp=!parameters!"
+		call :startup.submsg "Mounting SSTFS File for !sstfs.dest!" "Registered file: !parameters!"
 	)
 	set /a sstfs.tempcounter+=1
 )
@@ -199,9 +213,9 @@ set sstfs.temp=
 set sstfs.tempcounter=
 exit /b 0
 :loadSettings
-set sys.ver=0.2.1
+set sys.ver=0.3.0
 set sys.tag=Alpha
-set sys.subvinfo=[24w19b]
+set sys.subvinfo=[24w20a]
 title Shivtanium version !sys.tag! !sys.ver!
 
 set dwm.scene=%\e%[H%\e%[0m%\e%[48;2;0;63;127m%\e%[2JDefault ^(Metro^) theme
