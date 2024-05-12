@@ -46,7 +46,7 @@ for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000
 
 	if "!keysPressed!"=="-27-" goto bootmenu
 	< nul set /p "=%\e%[38;2;!ssvm.temp.fadein!;!ssvm.temp.fadein!;!ssvm.temp.fadein!m%\e%[%ssvm.boot.logoY%;%ssvm.boot.logoX%H!spr.[SSVM]!"
-	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000)", "deltaTime=(t1 - t2)", "$TT+=deltaTime", "timer100cs+=deltaTime", "$sec=$TT / 100 %% 60", "$min=$TT / 100 / 60 %% 60", "t2=t1", "global.frameCount=(global.frameCount + 1) %% 0x7FFFFFFF", "fpsFrames+=1", "ssvm.temp.fadein+=deltaTime*3"
+	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000)", "deltaTime=(t1 - t2)", "$TT+=deltaTime", "timer100cs+=deltaTime", "$sec=$TT / 100 %% 60", "$min=$TT / 100 / 60 %% 60", "t2=t1", "global.frameCount=(global.frameCount + 1) %% 0x7FFFFFFF", "fpsFrames+=1", "ssvm.temp.fadein+=deltaTime*4"
 	if !timer100cs! GEQ 100 (
 		set /a "timer100cs-=100,fps=fpsFrames,fpsFrames=0"
 		if !timer100cs! GEQ 100 set /a timer100cs=0
@@ -55,7 +55,6 @@ for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000
 	title Time: !$min!:!$sec! FPS:!fps! FrameTime: !deltaTime!cs Frames:!global.frameCount! totalTime:!$TT!
 if !ssvm.temp.fadein! lss 255 goto bootanim.1
 set ssvm.temp.fadein=
-
 
 for /f "delims=" %%a in ('dir /b /a:d "%~dp0"') do if /I "%%~a" neq "A" (
 	call :boot "%~dp0%%a"
@@ -175,7 +174,7 @@ cd "%~dp0"
 exit /b !ssvm.exitcode!
 :bootanim.fadeout
 	< nul set /p "=%\e%[38;2;!ssvm.temp.fadein!;!ssvm.temp.fadein!;!ssvm.temp.fadein!m%\e%[%ssvm.boot.logoY%;%ssvm.boot.logoX%H!spr.[SSVM]!%\e%[%ssvm.modeH%;%ssvm.modeW%H%\e%[27DPress ESC to enter boot menu"
-	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000)", "deltaTime=(t1 - t2)", "$TT+=deltaTime", "timer100cs+=deltaTime", "$sec=$TT / 100 %% 60", "$min=$TT / 100 / 60 %% 60", "t2=t1", "global.frameCount=(global.frameCount + 1) %% 0x7FFFFFFF", "fpsFrames+=1", "ssvm.temp.fadein-=deltaTime*3"
+	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000)", "deltaTime=(t1 - t2)", "$TT+=deltaTime", "timer100cs+=deltaTime", "$sec=$TT / 100 %% 60", "$min=$TT / 100 / 60 %% 60", "t2=t1", "global.frameCount=(global.frameCount + 1) %% 0x7FFFFFFF", "fpsFrames+=1", "ssvm.temp.fadein-=deltaTime*4"
 	if !timer100cs! GEQ 100 (
 		set /a "timer100cs-=100,fps=fpsFrames,fpsFrames=0"
 		if !timer100cs! GEQ 100 set /a timer100cs=0
