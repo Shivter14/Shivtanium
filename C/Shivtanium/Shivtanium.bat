@@ -66,22 +66,25 @@ for /l %%- in (.) do (
 	if "!sst.click!"=="1" (
 		if "!sys.click!"=="0" (
 			set sys.click=1
-			set temp.focus=
-			for %%w in (!windows!) do if not defined temp.focus (
+			set win.focused=
+			for %%w in (!windows!) do if not defined win.focused (
 				if !sys.mouseXpos! geq !win[%%~w]X! if !sys.mouseXpos! leq !win[%%~w]BX! if !sys.mouseYpos! geq !win[%%~w]Y! if !sys.mouseYpos! leq !win[%%~w]BY! (
 					set /a iobuffers+=1
 					echo=¤FOCUS	%%~w
 					set windows="%%~w" !windows:"%%~w"=!
 					set windows=!windows:  = !
 					set "win.focused=%%~w"
-					set temp.focus=True
 					if "!sys.mouseYpos!"=="!win[%%~w]Y!" (
 						set "win.moving=%%~w"
 						set /a "win.moving.offset=sys.mouseXpos-!win[%%~w]X!"
 					)
 				)
 			)
-			set temp.focus=
+			if defined win.focused for /f "delims=" %%w in ("!win.focused!") do for %%b in (!win[%%~w]buttons!) do (
+				if "!sys.mouseYpos!"=="!win[%%~w]btn[%%~b]Y!" if !sys.mouseXpos! geq !win[%%~w]btn[%%~b]X! if !sys.mouseXpos! leq !win[%%~w]btn[%%~b]B! (
+					exit
+				)
+			)
 		) else (
 			set /a sys.click+=1
 			if defined win.moving (
@@ -176,8 +179,10 @@ for /l %%- in (.) do (
 				set temp.pass=-1
 				for /f "tokens=1,2* delims=	" %%1 in ("!compare!") do (
 					set "temp.comp=%%~2"
-					       if "%%~2" == "==" ( if "%%~1"=="%%~3" set temp.pass=1
-					) else if "%%~2" == "x=" ( if "%%~1" neq "%%~3" set temp.pass=1
+					if "%%~2" == "==" (
+						if "%%~1"=="%%~3" set temp.pass=1
+					) else if "%%~2" == "x=" (
+						if "%%~1" neq "%%~3" set temp.pass=1
 					) else if "%%~2" == ">=" (
 						set "val1=%%~1"
 						set "val2=%%~3"
@@ -206,7 +211,8 @@ for /l %%- in (.) do (
 						if !val1! lss !val2! set temp.pass=1
 						set val1=
 						set val2=
-					) else if "%%~2" == "=" ( if /I "%%~1"=="%%~3" set temp.pass=1
+					) else if "%%~2" == "=" (
+						if /I "%%~1"=="%%~3" set temp.pass=1
 					) else call :haltScripts %%p "Invalid Syntax for command 'if'" "'%%~2' was unexpected at the time.\nFull command: !expanded!" if.syntax_error
 				)
 				set /a temp.pass*=temp.IFA
@@ -274,18 +280,21 @@ for /l %%- in (.) do (
 				)
 				set temp.exec=
 			) else if "!expanded:~0,10!"=="setButton	" (
-				for /f "tokens=1-5* delims=	" %%0 in ("!expanded:~10!") do (
+				for /f "tokens=1-6* delims=	" %%0 in ("!expanded:~10!") do (
 					if "!win[%%~p.%%~0]!"=="" call :haltScripts %%p "Attempt to modify non-existent window" "Window ID: '%%~0'\nAction: 'setButton'"
 					set "temp.id=#%%~1"
 					for %%c in (a b c d e f g h i j k l m n o p q r s t u v w x y z _ . 1 2 3 4 5 6 7 8 9 0) do set "temp.id=!temp.id:%%c=!"
 					if "!temp.id!" neq "#" call :haltScripts %%p "Whitespace error" "Invalid button ID: '%%~1'\nInvalid characters: '!temp.id!'" command.whitespace
 					set "win[%%~p.%%~0]btn[%%~1]=%%~5"
-					set "win[%%~p.%%~0]btn[%%~1]X=%%~2"
-					set "win[%%~p.%%~0]btn[%%~1]Y=%%~3"
+					set "win[%%~p.%%~0]btn[%%~1]#= %%~6 "
+					set "win[%%~p.%%~0]btn[%%~1]WX=%%~2"
+					set "win[%%~p.%%~0]btn[%%~1]WY=%%~3"
 					set "win[%%~p.%%~0]btn[%%~1]W=%%~4"
-					set /a "win[%%~p.%%~0]btn[%%~1]X=win[%%~p.%%~0]btn[%%~1]X", "win[%%~p.%%~0]btn[%%~1]Y=win[%%~p.%%~0]btn[%%~1]Y", "win[%%~p.%%~0]btn[%%~1]W=win[%%~p.%%~0]btn[%%~1]W", "win[%%~p.%%~0]btn[%%~1]B=win[%%~p.%%~0]btn[%%~1]X+win[%%~p.%%~0]btn[%%~1]W-1", "iobuffers+=1"
+					set /a "win[%%~p.%%~0]btn[%%~1]WX=win[%%~p.%%~0]btn[%%~1]WX", "win[%%~p.%%~0]btn[%%~1]WY=win[%%~p.%%~0]btn[%%~1]WY", "win[%%~p.%%~0]btn[%%~1]W=win[%%~p.%%~0]btn[%%~1]W",^
+					       "win[%%~p.%%~0]btn[%%~1]X=win[%%~p.%%~0]X+win[%%~p.%%~0]btn[%%~1]WX", "win[%%~p.%%~0]btn[%%~1]Y=win[%%~p.%%~0]Y+win[%%~p.%%~0]btn[%%~1]WX",^
+						   "win[%%~p.%%~0]btn[%%~1]B=win[%%~p.%%~0]btn[%%~1]X+win[%%~p.%%~0]btn[%%~1]W-1", "iobuffers+=1"
 					set win[%%~p.%%~0]buttons=!pid[%%~p]buttons! "%%~1"
-					echo(¤MW	%%~p.%%~0	o!win[%%~p.%%~0]btn[%%~1]Y!=%\e%[!win[%%~p.%%~0]btn[%%~1]X!C !win[%%~p.%%~0]btn[%%~1]! 
+					echo(¤MW	%%~p.%%~0	o!win[%%~p.%%~0]btn[%%~1]WY!=%\e%[!win[%%~p.%%~0]btn[%%~1]Y!;!win[%%~p.%%~0]btn[%%~1]X!H!win[%%~p.%%~0]btn[%%~1]#:~0,%%~4!
 				)
 			) else if "!expanded:~0,13!"=="createWindow	" (
 				set temp.args=!expanded:	=" "!
@@ -316,6 +325,7 @@ for /l %%- in (.) do (
 						set "win[%%~i]CBUI=!themeCBUI[%%~a]!"
 					)
 					set /a "win[%%~i]X=win[%%~i]X", "win[%%~i]Y=win[%%~i]Y", "win[%%~i]W=win[%%~i]W", "win[%%~i]H=win[%%~i]H", "win[%%~i]BX=win[%%~i]X+win[%%~i]W-1", "win[%%~i]BY=win[%%~i]Y+win[%%~i]H-1", "iobuffers+=1"
+					if !win[%%~i]BX! gtr !sys.modeW! set /a "win[%%~i]X=sys.modeW-win[%%~i]W+1", "win[%%~i]BX=sys.modeW"
 					echo(¤CW	%%~i	!win[%%~i]X:~0,3!	!win[%%~i]Y:~0,3!	!win[%%~i]W:~0,3!	!win[%%~i]H:~0,3!	!win[%%~i]title:~0,255!	!win[%%~i]theme!
 				)
 				set temp.id=
@@ -323,7 +333,7 @@ for /l %%- in (.) do (
 			) else if "!expanded:~0,5!"=="call	" (
 				for /f "tokens=1,2* delims=	" %%0 in ("!expanded:~5!") do if "!expanded:~5,1!" neq ":" (
 					set "temp.path=%%~0"
-					if "!temp.path:~0,2!" == ".\" for /f %%P in ("!pid[%%~p]!") do set "temp.path=%%~dpP\!temp.path:~2!"
+					if "!temp.path:~0,2!" == ".\" for /f %%P in ("!pid[%%~p]!") do set "temp.path=%%~pP!temp.path:~2!"
 					call :createProcess "%%~p" "!temp.path!"
 					if "!errorlevel!" neq "1" (
 						set "pid[!errorlevel!]P=%%~p"
