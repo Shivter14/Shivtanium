@@ -46,7 +46,7 @@ for %%a in (
 	call !sst.boot.command! || call :halt "@boot %%~c" "%%~b: Something went wrong. Errorlevel: !errorlevel!"
 )
 for /f "tokens=1 delims==" %%a in ('set sst.boot') do if /I "%%~a" neq "sst.boot.logoX" if /I "%%~a" neq "sst.boot.logoY" set "%%a="
-sysEventHandeler.bat | Shivtanium.bat | dwm.bat
+Shivtanium.bat < nul | dwm.bat
 exit /b 0
 :startup.submsg
 
