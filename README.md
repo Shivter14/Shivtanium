@@ -6,7 +6,7 @@ It uses a custom-written file system: SSTFS
 That's the reason why you need a SSTFS file for it to boot.
 An SSTFS file can contain applications, assets, and all kinds of stuff
 - Shivtanium Applications have the `.sst` extension
-- Sprites have the `.spr` extension
+- Sprites with normal ASCII art have the `.spr` extension
 ### How does SSTFS work?
 An SSTFS file contains *File headers* to seperate files.
 Here is an example of a filesystem with 2 files:
@@ -26,13 +26,16 @@ Creating themes requires VT100 knowledge.
 The format is easy to understand just by looking at a theme located in: `C\Shivtanium\resourcepacks\init\themes\`
 
 It's even easier to create sprites, it's just raw ASCII art located in: `C\Shivtanium\resourcepacks\init\sprites\`
-The sprite loader automatically detects the width of the sprite.
+The sprite loader automatically detects and assigns the width of loading sprites.
 ## Customization
 The display dimensions can be changed in `ssvm.cww` value `mode`.
 
 The OS name seen in SSVM can be changed in `C\SSVM.cww`.
 
 And of course, the `ShivtaniumOS.sstfs` filesystem can be modified with knowledge of the Shivtanium Programming Language.
-## How can i write applications for Shivtanium?
+## How can i write `.sst` applications for Shivtanium?
 Applications are written in the Shivtanium Programming Language which is interpreted.
 More info about it will be revealed soon.
+## How can i create interactive batch scripts compatible with Shivtanium?
+With the help of the Shivtanium Library.
+More info about it will also be revealed soon.
