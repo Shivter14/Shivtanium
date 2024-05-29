@@ -39,3 +39,12 @@ More info about it will be revealed soon.
 ## How can i create interactive batch scripts compatible with Shivtanium?
 With the help of the Shivtanium Library.
 More info about it will also be revealed soon.
+## How can i create external commands for Shivtanium and the interpreter?
+- Create a batch file in `C\Shivtanium\core`.
+- Name it with the following format: `ic-<command>.bat`
+- Do not use `@echo off` nor `setlocal enableDelayedExpansion`.
+To call your newly created command, use `call \bin\<command>`.
+More information about interacting with the process' environment and Shivtanium:
+- `%~1` is the PID of the calling process.
+- To modify it's variables, use `"pid[%~1]v<variable>"`.
+- Printing anything will be redirected straight into DWM.
