@@ -1,5 +1,12 @@
 @echo off
 setlocal enabledelayedexpansion
+set arg=%1
+if "!arg:~0,1!"==":" (
+	endlocal
+	call %*
+	exit /b
+)
+set arg=
 title Shivtanium Engine !sys.tag! !sys.ver! !sys.subvinfo!: Interpreter thread
 for %%a in (
 	"sst.boot"
@@ -12,12 +19,15 @@ REM Yeah uhh i just like to save lines :))))))
 for /f "delims=" %%a in ('dir /b /a:-D "!sys.dir!\resourcepacks\init\themes\*"') do for /f "usebackq tokens=1* delims==" %%x in ("!sys.dir!\resourcepacks\init\themes\%%~a") do if /I "%%~x" == "CBUIOffset" set "themeCBUI[%%~a]=%%~y"
 for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000),t2=t1,sendtimer=0"
 set "windows= "
+set txtIn.focused=
+set txtIn.focused.host=
 set win.focused=
 set win.moving=
-set sys.virtualMouse=True
+set sys.mouseHasCancer=True
 set /a "sst.mouseXpos=sys.modeW*2", "sst.mouseYpos=sys.modeH*4"
 set "tabbuffer=	"
 call :reload
+echo(¤OV	%\e%[!sys.modeH!;1H%\e%[48;2;191;0;191;38;2;255;255;255m Shivtanium %\e%[48;2;127;0;127m%\e%[0J
 for /l %%- in (.) do (
 	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000)"
 	set /a "deltaTime=(t1 - t2)", "$TT+=deltaTime", "timer.100cs+=deltaTime", "$sec=$TT / 100 %% 60", "$min=$TT / 100 / 60 %% 60", "tpsTicks+=1", "t2=t1"
@@ -29,14 +39,14 @@ for /l %%- in (.) do (
 	for %%p in (!sst.processes.paused!) do if defined pid[%%p].timeout (
 		set /a "pid[%%p].timeout-=deltaTime"
 		if !pid[%%~p].timeout! leq 0 (
-			set sst.processes.paused=!sst.processes.paused: %%p=!
-			set sst.processes=!sst.processes! %%p
+			set "sst.processes.paused=!sst.processes.paused: %%p = !"
+			set "sst.processes=!sst.processes!%%p "
 		)
 	)
 	set "sst.click=!click!"
 	set "sys.keys= !keysPressed!"
 	if "!sys.keys:-27-=!" neq "!sys.keys!" call :memoryDump
-	if "!sys.virtualMouse!"=="True" (
+	if "!sys.mouseHasCancer!"=="True" (
 		set sst.virtualMouseSpeed=2
 		if "!sys.keys:-16-=!" neq "!sys.keys!" set sst.virtualMouseSpeed=1
 		if "!sys.keys:-37-=!" neq "!sys.keys!" (
@@ -63,6 +73,12 @@ for /l %%- in (.) do (
 		set sys.mouseXpos=!mouseXpos!
 		set sys.mouseYpos=!mouseYpos!
 	)
+	if defined keysPressed if defined txtIn.focused (
+		set keysPressedRN=!keysPressed:-= !
+		for %%k in (!keysPressedOld!) do set "keysPressedRN=!keysPressedRN:%%k=!"
+		set keysPressedOld=!keysPressed:-= !
+		set "txtIn=!txtIn!!keysPressedRN!"
+	) else set keysPressedOld=
 	if "!sst.click!"=="1" (
 		if "!sys.click!"=="0" (
 			set sys.click=1
@@ -70,9 +86,8 @@ for /l %%- in (.) do (
 			for %%w in (!windows!) do if not defined win.focused (
 				if !sys.mouseXpos! geq !win[%%~w]X! if !sys.mouseXpos! leq !win[%%~w]BX! if !sys.mouseYpos! geq !win[%%~w]Y! if !sys.mouseYpos! leq !win[%%~w]BY! (
 					set /a iobuffers+=1
-					echo=¤FOCUS	%%~w
-					set windows="%%~w" !windows:"%%~w"=!
-					set windows=!windows:  = !
+					echo(¤FOCUS	%%~w
+					set "windows= "%%~w"!windows: "%%~w" = !"
 					set "win.focused=%%~w"
 					if "!sys.mouseYpos!"=="!win[%%~w]Y!" (
 						set "win.moving=%%~w"
@@ -82,11 +97,17 @@ for /l %%- in (.) do (
 			)
 			if defined win.focused for /f "delims=" %%w in ("!win.focused!") do for %%b in (!win[%%~w]buttons!) do (
 				if "!sys.mouseYpos!"=="!win[%%~w]btn[%%~b]Y!" if !sys.mouseXpos! geq !win[%%~w]btn[%%~b]X! if !sys.mouseXpos! leq !win[%%~w]btn[%%~b]B! (
-					exit
+					for /f "tokens=1 delims=." %%p in ("%%~w") do if "!sst.processes.paused!"=="!sst.processes.paused: %%p = !" (
+						rem   This means the button's process is not paused
+					) else (
+						call :copyProcess "%%~p" "!pid[%%~p]!" "!win[%%~w]btn[%%~b]!" || call :haltScripts %%p "Failed to launch button scripts" "%%~p\n!pid[%%~p]!\n!win[%%~w]btn[%%~b]!"
+						set "pid[!temp.pid!]P="
+						set temp.pid=
+					)
 				)
 			)
 		) else (
-			set /a sys.click+=1
+			set /a sys.click+=deltaTime
 			if defined win.moving (
 				if !sys.mouseYpos! lss 1 set sys.mouseYpos=1
 				set /a "temp.X=(leq=((1-(sys.mouseXpos-win.moving.offset))>>31)+1)  +  (geq=(((sys.mouseXpos-win.moving.offset)-(sys.modeW-win[!win.moving!]W+1))>>31)+1)*(sys.modeW-win[!win.moving!]W+1)  +  ^!(leq+geq)*(sys.mouseXpos-win.moving.offset)"
@@ -95,7 +116,10 @@ for /l %%- in (.) do (
 					set /a "win[!win.moving!]BX=temp.X+win[!win.moving!]W-1", "win[!win.moving!]BY=sys.mouseYpos+win[!win.moving!]H-1", iobuffers+=1
 					set "win[!win.moving!]X=!temp.X!"
 					set "win[!win.moving!]Y=!sys.mouseYpos!"
-					echo=¤MW	!win.moving!	X=!temp.X!	Y=!sys.mouseYpos!
+					for /f "delims=" %%0 in ("!win.moving!") do for %%1 in (!win[%%~0]buttons!) do (
+						set /a "win[%%~0]btn[%%~1]X=win[%%~0]X+win[%%~0]btn[%%~1]WX", "win[%%~0]btn[%%~1]B=win[%%~0]btn[%%~1]X+win[%%~0]btn[%%~1]W-1", "win[%%~0]btn[%%~1]Y=win[%%~0]Y+win[%%~0]btn[%%~1]WY"
+					)
+					echo(¤MW	!win.moving!	X=!temp.X!	Y=!sys.mouseYpos!
 					set temp.oX=!temp.X!
 					set temp.oY=!sys.mouseYpos!
 				)
@@ -159,11 +183,14 @@ for /l %%- in (.) do (
 					set "pid[%%~p]vresult=!sys.%%b!"
 				) else set "pid[%%~p]vresult=!pid[%%~p]v%%v!"
 			) else if "!expanded:~0,5!"=="wait	" (
-				set "expanded=!expanded:~5!"
-				set /a "pid[%%~p].timeout=expanded" 2>nul || call :haltScripts %%p "Invalid Syntax for command 'wait'" "Expected: wait <number>\nFull command: !expanded:	= !" wait.syntax_error
-				set sst.processes=!sst.processes: %%p=!
-				set sst.processes.paused=!sst.processes.paused! %%p
-				set runtick=
+				set "temp.timeout=!expanded:~5!"
+				if "!expanded:~5!" neq "forTrigger" (
+					set /a "pid[%%~p].timeout=temp.timeout" 2>nul
+					if "!pid[%%~p].timeout!"=="0" if "!temp.timeout!" neq "0" call :haltScripts %%p "Invalid Syntax for command 'wait'" "Expected: wait <number>\nFull command: !expanded:	= !" wait.syntax_error
+				)
+				set "sst.processes=!sst.processes: %%p = !"
+				set "sst.processes.paused=!sst.processes.paused!%%p "
+				set temp.timeout=
 			) else if "!expanded:~0,3!"=="if	" (
 				set temp.IFSM=
 				set temp.IFA=1
@@ -178,7 +205,6 @@ for /l %%- in (.) do (
 				)
 				set temp.pass=-1
 				for /f "tokens=1,2* delims=	" %%1 in ("!compare!") do (
-					set "temp.comp=%%~2"
 					if "%%~2" == "==" (
 						if "%%~1"=="%%~3" set temp.pass=1
 					) else if "%%~2" == "x=" (
@@ -233,8 +259,15 @@ for /l %%- in (.) do (
 					set "temp=%%~a"
 					if defined temp.id (
 						set "win[!temp.id!]%%~a" >nul 2>nul
-						if "!temp:~0,2!"=="X=" (set /a "win[!temp.id!]X=win[!temp.id!]X", "win[!temp.id!]BX=win[!temp.id!]X+win[!temp.id!]W-1"
-						) else if "!temp:~0,2!"=="Y=" set /a "win[!temp.id!]Y=win[!temp.id!]Y", "win[!temp.id!]BY=win[!temp.id!]Y+win[!temp.id!]H-1"
+						if /I "!temp:~0,2!"=="X=" (
+							set /a "win[!temp.id!]X=win[!temp.id!]X", "win[!temp.id!]BX=win[!temp.id!]X+win[!temp.id!]W-1"
+							for /f "delims=" %%0 in ("!temp.id!") do for %%1 in (!win[%%~0]buttons!) do (
+								set /a "win[%%~0]btn[%%~1]X=win[%%~0]X+win[%%~0]btn[%%~1]WX", "win[%%~0]btn[%%~1]B=win[%%~0]btn[%%~1]X+win[%%~0]btn[%%~1]W-1"
+							)
+						) else if /I "!temp:~0,2!"=="Y=" (
+							set /a "win[!temp.id!]Y=win[!temp.id!]Y", "win[!temp.id!]BY=win[!temp.id!]Y+win[!temp.id!]H-1"
+							for /f "delims=" %%0 in ("!temp.id!") do for %%1 in (!win[%%~0]buttons!) do set /a "win[%%~0]btn[%%~1]Y=win[%%~0]Y+win[%%~0]btn[%%~1]WY"
+						)
 					) else (
 						set "temp.id=#%%~p.%%~a"
 						for %%c in (a b c d e f g h i j k l m n o p q r s t u v w x y z _ . 1 2 3 4 5 6 7 8 9 0) do set "temp.id=!temp.id:%%c=!"
@@ -268,12 +301,11 @@ for /l %%- in (.) do (
 					echo(!iobuffer!
 					set iobuffer=
 				) else (
-					set sst.processes=!sst.processes: %%p=!
+					set "sst.processes=!sst.processes: %%p = !"
 					set /a sst.proccount-=1
-					set sst.processes=!sst.processes: %%p=!
 					if "!pid[%%~p]P!" neq "" for /f "delims=" %%a in ("!pid[%%~p]P!") do (
-						set sst.processes=!sst.processes: %%a=! %%a
-						set sst.processes.paused=!sst.processes.paused: %%a=!
+						set "sst.processes=!sst.processes: %%a = !%%a "
+						set "sst.processes.paused=!sst.processes.paused: %%a = !"
 						set "pid[%%~a]vreturn0=CLOSED"
 					)
 					for /f "tokens=1 delims==" %%v in ('set "pid[%%~p]"') do set "%%v="
@@ -285,16 +317,21 @@ for /l %%- in (.) do (
 					set "temp.id=#%%~1"
 					for %%c in (a b c d e f g h i j k l m n o p q r s t u v w x y z _ . 1 2 3 4 5 6 7 8 9 0) do set "temp.id=!temp.id:%%c=!"
 					if "!temp.id!" neq "#" call :haltScripts %%p "Whitespace error" "Invalid button ID: '%%~1'\nInvalid characters: '!temp.id!'" command.whitespace
-					set "win[%%~p.%%~0]btn[%%~1]=%%~5"
-					set "win[%%~p.%%~0]btn[%%~1]#= %%~6 "
+					set "win[%%~p.%%~0]btn[%%~1]=%%~6"
+					if "!win[%%~p.%%~0]btn[%%~1]:~0,1!" neq ":" call :haltScripts %%p "Invalid label" "Expected: ':label'\nRecieved: %%~6\nFull command: !expanded!"
+					for /f "tokens=1 delims=	" %%a in ("!win[%%~p.%%~0]btn[%%~1]:~1!") do (
+						if "!pid[%%~p]#%%a!"=="" call :haltScripts %%p "Invalid label" "Label not found: '%%~a'"
+						set "win[%%~p.%%~0]btn[%%~1]=%%~a"
+					)
+					set "win[%%~p.%%~0]btn[%%~1]#= %%~5 "
 					set "win[%%~p.%%~0]btn[%%~1]WX=%%~2"
 					set "win[%%~p.%%~0]btn[%%~1]WY=%%~3"
 					set "win[%%~p.%%~0]btn[%%~1]W=%%~4"
 					set /a "win[%%~p.%%~0]btn[%%~1]WX=win[%%~p.%%~0]btn[%%~1]WX", "win[%%~p.%%~0]btn[%%~1]WY=win[%%~p.%%~0]btn[%%~1]WY", "win[%%~p.%%~0]btn[%%~1]W=win[%%~p.%%~0]btn[%%~1]W",^
-					       "win[%%~p.%%~0]btn[%%~1]X=win[%%~p.%%~0]X+win[%%~p.%%~0]btn[%%~1]WX", "win[%%~p.%%~0]btn[%%~1]Y=win[%%~p.%%~0]Y+win[%%~p.%%~0]btn[%%~1]WX",^
+					       "win[%%~p.%%~0]btn[%%~1]X=win[%%~p.%%~0]X+win[%%~p.%%~0]btn[%%~1]WX", "win[%%~p.%%~0]btn[%%~1]Y=win[%%~p.%%~0]Y+win[%%~p.%%~0]btn[%%~1]WY",^
 						   "win[%%~p.%%~0]btn[%%~1]B=win[%%~p.%%~0]btn[%%~1]X+win[%%~p.%%~0]btn[%%~1]W-1", "iobuffers+=1"
 					set win[%%~p.%%~0]buttons=!pid[%%~p]buttons! "%%~1"
-					echo(¤MW	%%~p.%%~0	o!win[%%~p.%%~0]btn[%%~1]WY!=%\e%[!win[%%~p.%%~0]btn[%%~1]Y!;!win[%%~p.%%~0]btn[%%~1]X!H!win[%%~p.%%~0]btn[%%~1]#:~0,%%~4!
+					for /f "delims=" %%y in ("!win[%%~p.%%~0]btn[%%~1]WY!") do echo(¤MW	%%~p.%%~0	o%%y=!win[%%~p.%%~0]o%%y!%\e%[!win[%%~p.%%~0]btn[%%~1]WX!C!win[%%~p.%%~0]btn[%%~1]#:~0,%%~4!
 				)
 			) else if "!expanded:~0,13!"=="createWindow	" (
 				set temp.args=!expanded:	=" "!
@@ -315,7 +352,8 @@ for /l %%- in (.) do (
 				) else set temp.args=
 				if "!temp.id:~127,1!" neq "" call :haltScripts %%p "Parameter too long" "Parameter: ID, lenght: Greater than 127.\nFull command: '!expanded:~0,512!'"
 				for /f "delims=;" %%i in ("!temp.id:~0,127!") do (
-					set windows="%%~i" !windows!
+					set "windows= "%%~i"!windows!"
+					set "pid[%%~p]windows=!pid[%%~p]windows!"%%~i" "
 					for %%a in (X Y W H title) do if not defined win[!temp.id!]%%a (
 						call :haltScripts %%p "Missing window property" "Property not specified: %%a\nFull command: '!expanded!'"
 					)
@@ -331,27 +369,42 @@ for /l %%- in (.) do (
 				set temp.id=
 				set temp.args=
 			) else if "!expanded:~0,5!"=="call	" (
-				for /f "tokens=1,2* delims=	" %%0 in ("!expanded:~5!") do if "!expanded:~5,1!" neq ":" (
+				for /f "tokens=1* delims=	" %%0 in ("!expanded:~5!") do if "!expanded:~5,1!" neq ":" (
 					set "temp.path=%%~0"
 					if "!temp.path:~0,2!" == ".\" for /f %%P in ("!pid[%%~p]!") do set "temp.path=%%~pP!temp.path:~2!"
-					call :createProcess "%%~p" "!temp.path!"
-					if "!errorlevel!" neq "1" (
-						set "pid[!errorlevel!]P=%%~p"
-						set sst.processes=!sst.processes: %%p=!
-						set sst.processes.paused=!sst.processes.paused! %%p
+					if "!temp.path:~0,5!" == "\bin\" (
+						set "temp.ic=!temp.path:~5!"
+						call "%~dp0core\ic-!temp.ic:..=.!.bat" %%p	"%%~1"
+						set "pid[%%~p]vreturn0=!errorlevel!"
+						set temp.ic=
+					) else (
+						call :createProcess "%%~p" "!temp.path!"
+						if "!errorlevel!" neq "1" (
+							set "pid[!errorlevel!]P=%%~p"
+							set "sst.processes=!sst.processes: %%p = !"
+							set "sst.processes.paused=!sst.processes.paused!%%p "
+						)
 					)
 					set temp.path=
 				) else (
 					call :copyProcess "%%~p" "!pid[%%~p]!" "%%~1" "%%~2" || call :haltScripts %%p "Invalid function call" "Label not found: %%~1"
+					set "sst.processes=!sst.processes: %%p = !"
+					set "sst.processes.paused=!sst.processes.paused!%%p "
 				)
 			) else if "!expanded:~0,4!"=="exit" (
 				set /a sst.proccount-=1
-				set sst.processes=!sst.processes: %%p=!
-				if "!pid[%%~p]P!" neq "" for /f "delims=" %%a in ("!pid[%%~p]P!") do (
-					set sst.processes=!sst.processes: %%a=! %%a
-					set sst.processes.paused=!sst.processes.paused: %%a=!
+				set "sst.processes=!sst.processes: %%p = !"
+				if "!pid[%%~p]P!" neq "" for /f "delims=" %%a in ("!pid[%%~p]P!") do if "!sst.processes.paused: %%a = !" neq "!sst.processes.paused!" (
+					set "sst.processes=!sst.processes: %%a = !%%a "
+					set "sst.processes.paused=!sst.processes.paused: %%a = !"
+				)
+				for %%a in (!pid[%%~p]windows!) do (
+					set "windows=!windows: %%a = !"
+					set /a iobuffers+=1
+					echo(¤DW	%%a
 				)
 				for /f "tokens=1 delims==" %%v in ('set "pid[%%~p]"') do set "%%v="
+				for /f "tokens=1 delims==" %%v in ('set "win[%%~p." 2^>nul') do set "%%v="
 			) else (
 				set temp=
 				if "!pid[%%~p]cb!" neq "0" if "!line:~0,%%~o!" neq "!tabbuffer:~0,%%~o!" (
@@ -359,11 +412,11 @@ for /l %%- in (.) do (
 					set /a "pid[%%~p]cl-=1", "pid[%%~p]cb-=1"
 					set temp=True
 				)
-				if not defined temp if "!expanded:~0,6!" neq "nocap	" call :haltScripts %%p "Unknown/Invalid command" "Full command: '!expanded!'" command.unknown
+				if not defined temp if "!expanded:~0,6!" neq "nocap	" call :killScripts %%p "Unknown/Invalid command" "Full command: '!expanded!'" command.unknown
 				set temp=
 			)
 		)
-		set /a "pid[%%~p]cl+=1"
+		if "!pid[%%~p]cl!" neq "" set /a "pid[%%~p]cl+=1"
 	)
 	
 	if "!$sec:~1!" equ "" set "$sec=0!$sec!"
@@ -375,14 +428,15 @@ for /l %%- in (.) do (
 :copyProcess
 set temp.pid=!random!
 if defined pid[!temp.pid!] goto copyProcess
-if "!pid[%~1]#%~3!"=="" exit /b 1
+if "!pid[%~1]#%~3!"=="" call :halt "Invalid label: %~3"
 set "pid[!temp.pid!]=%~2"
 set "pid[!temp.pid!]C=%~1"
+set "pid[!temp.pid!]P=%~1"
 set "pid[!temp.pid!]ss=!pid[%~1]ss!"
 set "pid[!temp.pid!]cb=0"
-for /f "tokens=1* delims=]" %%a in ('set "pid[%~1]l" 2^>nul ^&^& set "pid[%~1]#"') do set "pid[!temp.pid!]%%a"
+for /f "tokens=1* delims=]" %%a in ('set "pid[%~1]l" 2^>nul ^&^& set "pid[%~1]#" 2^>nul') do set "pid[!temp.pid!]%%b"
 set "pid[!temp.pid!]cl=!pid[%~1]#%~3!"
-set temp.pid=
+set "sst.processes=!sst.processes!!temp.pid! "
 set /a sst.proccount+=1
 exit /b 0
 :createProcess
@@ -412,12 +466,30 @@ for /f "eol=# delims=" %%a in ('SSTFS-read.bat "!temp.scriptname!"') do (
 
 set "pid[!temp.pid!]cl=1"
 set "pid[!temp.pid!]ss=!temp.lines!"
-set sst.processes=!sst.processes! !temp.pid!
+set "sst.processes=!sst.processes!!temp.pid! "
 set /a sst.proccount+=1
 set temp.scriptname=
 set temp.lines=
 set temp.line=
 set temp.pid=&&exit /b %temp.pid%
+:killScripts
+
+set /a sst.proccount-=1
+set "sst.processes=!sst.processes: %~1 = !"
+if "!pid[%~1]P!" neq "" for /f "delims=" %%a in ("!pid[%~1]P!") do (
+	set "sst.processes=!sst.processes: %%a = !%%a"
+	set "sst.processes.paused=!sst.processes.paused: %%a = !"
+	set "pid[%%~a]vreturn0=KILLED"
+)
+for %%a in (!pid[%~1]windows!) do (
+	set "windows=!windows: %%a = !"
+	set /a iobuffers+=1
+	echo(¤DW	%%a
+	for /l %%. in (1 1 1000) do rem
+)
+for /f "tokens=1 delims==" %%v in ('set "pid[%~1]"') do set "%%v="
+for /f "tokens=1 delims==" %%v in ('set "win[%~1." 2^>nul') do set "%%v="
+exit /b
 :reload
 
 :injectDLLs
@@ -427,19 +499,24 @@ if not exist core\getInput64.dll call :halt "%~nx0:injectDLLs" "Missing File: co
 rundll32.exe core\getInput64.dll,inject|| call :halt "%~nx0:injectDLLs" "Failed to inject getInput64.dll\nErrorlevel: !errorlevel!"
 if not defined getInputInitialized call :halt "%~nx0:injectDLLs" "Failed to inject getInput64.dll: Unknown error.\nErrorlevel: %errorlevel%"
 exit /b
-:haltScripts
-set "halt.text=%~3"
+:haltIC
+set "halt.color=;127;"
+set "halt.text=  %~3\n%~4"
 set "halt.text=!halt.text:	= !"
-set halt.text=!halt.text:\n=","!
+set "halt.tracemsg= At process PID=%~2, NAME='!pid[%~2]!' Line !pid[%~2]cl!: Command '%~1' failed "
+goto halt.ready
+:haltScripts
+set "halt.color=;127;255"
+set "halt.text=    %~3"
+set "halt.text=!halt.text:	= !"
 set "halt.tracemsg= At process PID=%~1, NAME='!pid[%~1]!' Line !pid[%~1]cl!: %~2 "
-set /p "=%\e%[9;1H" < nul > con
-set pid[
 goto halt.ready
 :halt
-set "halt.text=%~2"
-set halt.text=!halt.text:\n=","!
+set "halt.color=255;;"
+set "halt.text=    %~2"
 set "halt.tracemsg= At %~1: "
 :halt.ready
+set "halt.text=!halt.text:\n=","    !"
 set "halt.pausemsg= The system cannot exit automatically. "
 for /f "tokens=2 delims=:" %%a in ('mode con') do (
 	set /a counter+=1
@@ -447,11 +524,11 @@ for /f "tokens=2 delims=:" %%a in ('mode con') do (
 	if "!counter!"=="2" set /a "halt.modeW=!token: =!-7"
 )>nul
 for /l %%a in (!halt.modeW! -1 0) do (
-	set /p "=%\e%[2;3H%\e%[48;2;0;127;255m%\e%[38;2;255;255;255m%\e%[?25l Execution halted %\e%[4;3H!halt.tracemsg:~%%a!"
+	set /p "=%\e%[2;3H%\e%[48;2;!halt.color!m%\e%[38;2;255;255;255m%\e%[?25l Execution halted %\e%[4;3H!halt.tracemsg:~%%a!"
 	for /l %%. in (0 1 10000) do rem
 	for %%b in ("!halt.text!") do (
 		set "halt.line=%%~b "
-		set /p "=%\e%[E%\e%[3G     !halt.line:~%%a,%halt.modeW%!%\e%7"
+		set /p "=%\e%[E%\e%[3G !halt.line:~%%a,%halt.modeW%!%\e%7"
 	)
 	set /p "=%\e%[999;3H%\e%[A!halt.pausemsg:~%%a!%\e%[4;1H"
 ) <nul>con

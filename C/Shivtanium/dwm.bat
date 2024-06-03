@@ -1,5 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
+if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
+if not defined sys.dir set "sys.dir=!cd!"
 for /f "tokens=2 delims=:" %%a in ('mode con') do (
 	set /a counter+=1
 	set "token=%%~a"
@@ -15,12 +17,7 @@ for /f "delims=" %%a in ('dir /b /a:-D "!sys.dir!\resourcepacks\init\themes\*"')
 	set "theme[%%~a]=!theme[%%~a]:~2!"
 )
 
-for /l %%a in (1 1 !modeH!) do (
-	set /a "green=255-(%%a*127/!modeH!)"
-	set theme[aero]=!theme[aero]!%\e%[48;2;63;!green!;255m%\e%[2K%\e%[B
-)
-set green=
-set theme[aero]="!theme[aero]!%\e%[999C%\e%[43DAero theme"
+set theme[disable_aero]="aero="
 for %%a in (
 	"ssvm"
 	"temp"
@@ -29,10 +26,17 @@ for %%a in (
 
 rem == Test theme ==
 for %%a in (
-	!theme[aero]!
+	!theme[lo-fi]!
 ) do set "dwm.%%~a"
-set "dwm.scene=!dwm.scene! | Shivtanium !sys.tag! !sys.ver! !sys.subvinfo!"
-
+if defined dwm.aero (
+	set "dwm.scene=%\e%[H"
+	set /a temp=modeH-1
+	for /l %%x in (1 1 !temp!) do (
+		set /a "x=%%x", "!dwm.aero:×=*!"
+		set dwm.scene=!dwm.scene!%\e%[48;2;!r!;!g!;!b!m%\e%[2K%\e%[B
+	)
+	set temp=
+)
 set "dwm.barbuffer=                                                                                                                                                                                                                                                                "
 set "dwm.bottombuffer=▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄"
 set mainbuffer=!dwm.scene!
@@ -45,7 +49,7 @@ for /l %%. in (.) do (
 	if defined io.input (
 		set "input=!io.input!"
 	) else set /p input=
-	if not defined input call :bsod "No input from system" "It seems like the Desktop Window Manager is no longer receiving input. This has been likely caused by a system crash." /b
+	rem if not defined input call :bsod "No input from system" "It seems like the Desktop Window Manager is no longer receiving input. This has been likely caused by a system crash." /b
 	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000)"
 	set /a "deltaTime=(t1 - t2), timer.100cs+=deltaTime, t2=t1, fpsFrames+=1"
 	
@@ -57,10 +61,13 @@ for /l %%. in (.) do (
 	if "!input:~0,1!"=="¤" for /f "tokens=1-8* delims=	" %%0 in ("!input:~1!") do (
 		if "%%~0"=="SPEED" (
 			title Shivtanium %sys.tag% %sys.ver% %sys.subvinfo% Time: %%3 Exec/p: %%1 TickTime: %%2cs FPS: !fps! Frametime: !deltaTime!
-			if "%%~4;%%~5" neq "!dwm.mouseXpos!;!dwm.mouseYpos!" if "!random:~0,1!"=="1" set "mainbuffer=!dwm.scene!!mainbuffer!"
-			set "dwm.mouseXpos=%%~4"
-			set "dwm.mouseYpos=%%~5"
-			set "extbuffer=!extbuffer!%\e%[0m%\e%[!dwm.mouseYpos!;!dwm.mouseXpos!H "
+			if "!random:~0,2!" == "10" set "mainbuffer=!dwm.scene!!mainbuffer!"
+			if "%%~4;%%~5" neq "!dwm.mouseXpos!;!dwm.mouseYpos!" (
+				if !random:~-1! == 1 set "mainbuffer=!dwm.scene!"
+				set "dwm.mouseXpos=%%~4"
+				set "dwm.mouseYpos=%%~5"
+			)
+			set "extbuffer=!extbuffer!%\e%[48;2;!timer.100cs!;!timer.100cs!;!timer.100cs!m%\e%[!dwm.mouseYpos!;!dwm.mouseXpos!H "
 		) else if "%%~0"=="MW" (
 			set args=!input:~4!
 			set args=!args:	=" "!
@@ -70,21 +77,24 @@ for /l %%. in (.) do (
 				set "temp.text=%%~y"
 				if "!temp.x:~0,1!"=="l" (
 					set /a "temp.x=!temp.x:~1!+1"
-					set "win[%%~1]l!temp.x!=%\e%8%\e%[C%\e%[38;!win[%%~1]FGcolor!;48;!win[%%~1]BGcolor!m!temp.text!"
+					set "win[%%~1]l!temp.x!=%\e%8%\e%[C%\e%[38;!win[%%~1]FGcolor!m!temp.text!"
 				) else if "!temp.x:~0,1!"=="o" (
 					set /a "temp.x=!temp.x:~1!+1"
 					set "win[%%~1]o!temp.x!=%\e%8%\e%[38;!win[%%~1]TTcolor!;48;!win[%%~1]TIcolor!m!temp.text!"
 				) else set "win[%%~1]%%~x=%%~y"
 			)
 			set temp.x=
-			if !win[%%~1]X! lss 0 set "win[%%~1]X=0"
-			if !win[%%~1]Y! lss 0 set "win[%%~1]Y=0"
-			if !win[%%~1]W! lss 12 set "win[%%~1]W=12"
+			if !win[%%~1]X! lss 1 set "win[%%~1]X=1"
+			if !win[%%~1]Y! lss 1 set "win[%%~1]Y=1"
+			if !win[%%~1]W! gtr !modeW! (
+				set "win[%%~1]W=!modeW!"
+			) else if !win[%%~1]W! lss 12 set "win[%%~1]W=12"
 			if !win[%%~1]H! lss 3 set "win[%%~1]H=3"
-			if !win[%%~1]W! gtr !modeW! set "win[%%~1]=!modeW!"
-			if !win[%%~1]H! gtr !modeH! set "win[%%~1]=!modeH!"
 			set mainbuffer=!mainbuffer!%\e%[H
 			if "!olddim!" neq "!win[%%~1]X!;!win[%%~1]Y!;!win[%%~1]W!;!win[%%~1]H!" set mainbuffer=!dwm.scene!
+		) else if "%%~0"=="OV" (
+			set "overlay=%%~1"
+			set "mainbuffer=!mainbuffer!%\e%[H"
 		) else if "%%~0"=="CW" (
 			set /a "win[%%~1]X=%%~2", "win[%%~1]Y=%%~3", "win[%%~1]W=%%~4", "win[%%~1]H=%%~5"
 			if !win[%%~1]W! lss 10 set "win[%%~1]W=10"
@@ -99,6 +109,7 @@ for /l %%. in (.) do (
 			set "win[%%~1]NTcolor=!dwm.TTcolor!"
 			set "win[%%~1]NIcolor=!dwm.TIcolor!"
 			set "win[%%~1]CBUI=!dwm.CBUI!"
+			set "win[%%~1]aero=!dwm.aero!"
 			
 			for %%a in (!win[%%~1]theme!) do (
 				for %%b in (!theme[%%~a]!) do (
@@ -118,13 +129,26 @@ for /l %%. in (.) do (
 				set "temp.tlb=!dwm.barbuffer:~0,%%~b!"
 				set "win[%%~1]p1=%\e%7%\e%[48;!win[%%~1]TIcolor!m%\e%[38;!win[%%~1]TTcolor!m!win[%%~1]title:~0,%%~b!!temp.tlb:~-%%~b,-%%~a!!win[%%~1]CBUI!"
 				
-				for /l %%y in (2 1 !temp.H!) do set "win[%%~1]p%%y=%\e%8%\e%[B%\e%7%\e%[48;!win[%%~1]BGcolor!;38;!win[%%~1]TIcolor!m%dwm.char.L%!dwm.barbuffer:~0,%%~b!       %dwm.char.R%"
-				set "win[%%~1]p!win[%%~1]H!=%\e%8%\e%[B%\e%[48;!win[%%~1]BGcolor!;38;!win[%%~1]TIcolor!m%dwm.char.S%!dwm.bottombuffer:~0,%%~b!%dwm.bottombuffer:~0,7%%dwm.char.S%"
+				if "!win[%%~1]aero!" neq "" (
+					for /l %%y in (2 1 !temp.H!) do (
+						set /a "x=(%%y+!win[%%~1]Y!-1)", "!win[%%~1]aero:×=*!"
+						set "win[%%~1]p%%y=%\e%8%\e%[B%\e%7%\e%[48;2;!r!;!g!;!b!;38;!win[%%~1]TIcolor!m%dwm.char.L%!dwm.barbuffer:~0,%%~b!       %dwm.char.R%"
+					)
+					set "win[%%~1]p!win[%%~1]H!=%\e%8%\e%[B%\e%[48;2;!r!;!g!;!b!;38;!win[%%~1]TIcolor!m%dwm.char.S%!dwm.bottombuffer:~0,%%~b!%dwm.bottombuffer:~0,7%%dwm.char.S%"
+					set r=
+					set g=
+					set b=
+				) else (
+					for /l %%y in (2 1 !temp.H!) do (
+						set "win[%%~1]p%%y=%\e%8%\e%[B%\e%7%\e%[48;!win[%%~1]BGcolor!;38;!win[%%~1]TIcolor!m%dwm.char.L%!dwm.barbuffer:~0,%%~b!       %dwm.char.R%"
+					)
+					set "win[%%~1]p!win[%%~1]H!=%\e%8%\e%[B%\e%[48;!win[%%~1]BGcolor!;38;!win[%%~1]TIcolor!m%dwm.char.S%!dwm.bottombuffer:~0,%%~b!%dwm.bottombuffer:~0,7%%dwm.char.S%"
+				)
 			)
 			set temp.H=
 			set temp.tl=
 			set temp.tlb=
-			set "mainbuffer=!dwm.scene!"
+			set "mainbuffer=!mainbuffer!%\e%[H"
 		) else if "%%~0"=="FOCUS" (
 			set win.order=!win.order: "%%~1"=! "%%~1"
 			set mainbuffer=!mainbuffer!%\e%[H
@@ -132,22 +156,40 @@ for /l %%. in (.) do (
 			for /f "tokens=1 delims==" %%a in ('set win[%%~1] 2^>nul') do set "%%a="
 			set win.order=!win.order: "%%~1"=!
 			set "mainbuffer=!dwm.scene!"
+		) else if "%%~0"=="DUMP" (
+			if "%%~1"=="WIN" (
+				set win%%~2 >&3
+			) else if "%%~1"=="ORDER" (
+				set win.order >&3
+			) else if "%%~1"=="MODE" (
+				set mode >&3
+			) else if "%%~1"=="LOAD" (
+				for /f "usebackq tokens=1* delims==" %%x in ("%%~2") do set "%%x=%%y"
+			)
 		) else if "%%~0"=="EXIT" exit 0
 	)
 	if defined mainbuffer (
+		rem set dwm.scene=%\e%[H
+		rem for /l %%x in (1 1 !modeH!) do (
+		rem 	set /a "r=255-(%%x*127/modeH), g=!random:~0,2!/2, b=r*2"
+		rem 	set dwm.scene=!dwm.scene!%\e%[48;2;!r!;!g!;!b!m%\e%[2K%\e%[B
+		rem )
+		rem set "dwm.scene=!dwm.scene!%\e%[999C%\e%[44D%\e%[38;5;15mLo-Fi theme | Shivtanium !sys.tag! !sys.ver! !sys.subvinfo!"
+		rem set r=
+		rem set g=
+		rem set b=
 		for %%w in (!win.order!) do (
 			set "mainbuffer=!mainbuffer!%\e%[!win[%%~w]Y!;!win[%%~w]X!H!win[%%~w]p1!"
 			for /l %%l in (2 1 !win[%%~w]H!) do if %%l leq !modeH! (
 				set "mainbuffer=!mainbuffer!!win[%%~w]p%%l!!win[%%~w]l%%l!!win[%%~w]o%%l!"
 			)
 		)
-		<nul set /p "=!mainbuffer!"
-		set mainbuffer=
+		<nul set /p "=!mainbuffer!!overlay!!extbuffer!"
+	) else if defined extbuffer (
+		<nul set /p "=!overlay!!extbuffer!"
 	)
-	if defined extbuffer (
-		<nul set /p "=!extbuffer!"
-		set extbuffer=
-	)
+	set mainbuffer=
+	set extbuffer=
 )
 :reload
 
@@ -197,13 +239,11 @@ for %%l in ("!halt.message!") do (
 )
 set halt.finalmsg=!halt.finalmsg! "   !halt.templine!"
 set /a "halt.posX=!sst.boot.logoX!", "halt.posY=(!modeH!-!halt.lines!)/2"
-(
-	set /p "=%\e%[48;2;;;255;38;5;231m%\e%[2J"
-	set /p "=%\e%[!halt.posY!;!halt.posX!H!spr.[bootlogo.spr]!"
-	for %%a in (!halt.finalmsg!) do (
-		set /p "=%\e%[B%\e%[!halt.posX!G%%~a"
-	)
-	<con set /p "=%\e%[2B%\e%[!halt.promptX!G%\e%[7m Press any key to exit. %\e%[27m"
-	pause < con > nul
-) <nul>con
+
+<nul>con set /p "=%\e%[48;2;;;255;38;5;231m%\e%[2J%\e%[!halt.posY!;!halt.posX!H!spr.[bootlogo.spr]!"
+for %%a in (!halt.finalmsg!) do (
+	<nul>con set /p "=%\e%[B%\e%[!halt.posX!G%%~a"
+)
+<con>con set /p "=%\e%[2B%\e%[!halt.promptX!G%\e%[7m Press any key to exit. %\e%[27m"
+
 exit %3

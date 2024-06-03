@@ -18,10 +18,10 @@ if "!sstfs.path:~0,5!"=="\mnt\" (
 		if "!temp:%sst.dir%\temp\=!" neq "!temp!" exit /b 1
 	)
 	type "!sst.dir!!sstfs.path!" 2>nul || exit /b 2
-	exit /b
-)
+	exit /b 0
+) else exit /b 3
 
-set /a "sstfs.loc=!sstfs.[%sstfs.path%]!", "sstfs.eof=!sstfs.[%sstfs.path%].end!" 2>nul
+set /a "sstfs.loc=!sstfs.[%sstfs.path%]!", "sstfs.eof=!sstfs.[%sstfs.path%].end!"
 for /f "usebackq skip=%sstfs.loc% delims=" %%a in ("!sstfs.source!") do (
     echo(%%a
     if !sstfs.loc! geq !sstfs.eof! exit /b 0
