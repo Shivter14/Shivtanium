@@ -1,0 +1,4 @@
+aero=r=63, g=255-(x×127/modeH), b=255
+FGcolor=5;15
+TIcolor=5;12
+TTcolor=5;231

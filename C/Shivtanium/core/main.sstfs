@@ -1,7 +1,8 @@
 @FILE init.sst
 math	($sys.modeW$-48)/2+1
 set	X=$result$
-math	($sys.modeH$-12)/2+1
-createWindow	main	x=$x$	y=$result$	w=48	h=12	title=Shivtanium $sys.tag$ $sys.ver$ $sys.subvinfo$
-modifyWindow	main	l2=  Welcome to Shivtanium.	l3=  You need a SSTFS file to start the system.	l5=  == Changelog ==	l6=  - Changed SSTFS to support mounting,	l7=    also made it UNIX-like.	l8=  - Fixed out-of-bounds windows issues.	l9=  - Fixed windows issues on other terminals.	l10= < Use arrow keys to move the cursor around >
+math	($sys.modeH$-11)/2+1
+createWindow	main	x=$x$	y=$result$	w=48	h=11	title=Shivtanium $sys.tag$ $sys.ver$ $sys.subvinfo$
+modifyWindow	main	l2=  Welcome to Shivtanium.	l3=  You need a SSTFS file to start the system.	l5=  == Changelog ==	l6=  - Removed some naming cancer	l7=  - Added aero themes	l8=  - Buttons are finally 100% working
+wait	forTrigger
 exit
