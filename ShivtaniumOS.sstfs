@@ -8,8 +8,6 @@ createWindow	idk	x=$x$	y=$result$	w=48	h=8	title=Multi-theme support‼	theme=ey
 modifyWindow	idk	l2=  This demonstrates the multi-theme	l3=  functionality.	l4=  Theme: eyeburn
 createWindow	anotherwindow	x=4	y=2	w=35	h=8	title=Yet another window	theme=red_apple
 modifyWindow	anotherwindow	l2=  Theme: red_apple
-if	1	==	1
-	setButton	anotherwindow	testbutton	3	4	29	:button	This button does nothing =)
 call	.\idk.sst
 call	.\ext.sst
 exit
