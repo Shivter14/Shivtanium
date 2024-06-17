@@ -3,6 +3,6 @@ math	($sys.modeW$-48)/2+1
 set	X=$result$
 math	($sys.modeH$-11)/2+1
 createWindow	main	x=$x$	y=$result$	w=48	h=11	title=Shivtanium $sys.tag$ $sys.ver$ $sys.subvinfo$
-modifyWindow	main	l2=  Welcome to Shivtanium.	l3=  You need a SSTFS file to start the system.	l5=  == Changelog ==	l6=  - Removed some naming cancer	l7=  - Added aero themes	l8=  - Buttons are finally 100% working
+modifyWindow	main	l2=  Welcome to Shivtanium.	l3=  You need a SSTFS file to start the system.	l5=  == Changelog ==	l6=  - Added text inputs.	l7=  - Added ic-WinAPI.	l8=  - Added the Shivtanium API. for batch	l9=    programming.
 wait	forTrigger
 exit
