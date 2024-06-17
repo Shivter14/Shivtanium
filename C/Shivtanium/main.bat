@@ -6,13 +6,27 @@ if "%~1"==":waitForBootServices" goto waitForBootServices.service
 if not exist "%~dp0" exit /b 404
 chcp.com 65001>nul
 cd "%~dp0" || exit /b 404
+pushd ..
+set "sst.root=!cd!"
+popd
 set "sst.dir=!cd!"
 if not exist temp md temp
 rd /s /q temp > nul || del /F /Q temp > nul
-md temp
+if not exist temp md temp
 set sst.localtemp=!random!
-set "sstfs.mainfile=%~f1"
-if not exist "!sstfs.mainfile!" set "sstfs.mainfile=!sst.dir!\core\main.sstfs"
+if "%~x1"==".bat" (
+	set "sst.env=%~f1"
+	set sst.boot="!sst.env! /init|Initializing %~n1"
+) else (
+	set "sst.env=Shivtanium.bat"
+	set "sstfs.mainfile=%~f1"
+	if not exist "!sstfs.mainfile!" set "sstfs.mainfile=!sst.dir!\core\main.sstfs"
+	set sst.boot=^
+	":SSTFS.mount '!sstfs.mainfile!' \mnt\init|Mounting SSTFS file"^
+	":createProcess 0 \mnt\init\init.sst|Creating init process"
+	
+	if not exist "!sst.root!\users" set sst.boot=!sst.boot! ":sysDeploy|Getting ready"
+)
 set counter=0
 for /f "tokens=2 delims=:" %%a in ('mode con') do (
 	set /a counter+=1
@@ -23,16 +37,17 @@ for /f "tokens=2 delims=:" %%a in ('mode con') do (
 set /a "sst.boot.msgY=!sys.modeH!/2+7"
 <nul set /p "=%\e%[H%\e%[48;2;0;0;0m%\e%[38;2;255;255;255m"
 copy nul "temp\bootStatus-!sst.localtemp!" > nul
-start /b cmd /c boot\renderer.bat < "temp\bootStatus-!sst.localtemp!"
+start /b "" cmd /c boot\renderer.bat "temp\bootStatus-!sst.localtemp!" < "temp\bootStatus-!sst.localtemp!"
 for %%a in (
 	":clearEnv|Clearing environment"
 	":loadresourcepack init|Loading resources"
 	":loadSettings|Loading settings"
-	":SSTFS.mount '!sstfs.mainfile!' \mnt\init|Mounting SSTFS file"
-	":createProcess 0 \mnt\init\init.sst|Creating init process"
+	":checkCompat|Checking compatibility"
+	%sst.boot%
 	":startServices|Starting services"
 	"start /b cmd /c boot\cfmsf.bat|Checking for missing files"
-	"start /b cmd /c boot\fadeout.bat|Startup finished"
+	"start /b cmd /c boot\updateCheckSvc.bat|Checking for updates"
+	"cmd /c boot\fadeout.bat|Startup finished"
 	":waitForBootServices"
 ) do for /f "tokens=1-2* delims=|" %%b in (%%a) do (
 	set "sst.boot.command=%%~b"
@@ -51,14 +66,12 @@ for %%a in (
 	)
 	call !sst.boot.command! || call :halt "Boot" "Something went wrong.\nCommand: %%~b\nText: %%~c\nErrorlevel: !errorlevel!"
 )
-echo(>> "temp\bootStatus-!sst.localtemp!"
-echo(¤EXIT>> "temp\bootStatus-!sst.localtemp!"
 for /f "tokens=1 delims==" %%a in ('set sst.boot') do if /I "%%~a" neq "sst.boot.logoX" if /I "%%~a" neq "sst.boot.logoY" set "%%a="
 
 copy nul "temp\DWM-!sst.localtemp!" > nul
 copy nul "temp\DWMResp-!sst.localtemp!" > nul
-start /b dwm.bat < "temp\DWM-!sst.localtemp!" 3> "temp\DWMResp-!sst.localtemp!"
-call Shivtanium.bat > "temp\DWM-!sst.localtemp!"
+start /b "" cmd /c dwm.bat < "temp\DWM-!sst.localtemp!" 3> "temp\DWMResp-!sst.localtemp!"
+call !sst.env! > "temp\DWM-!sst.localtemp!" < nul
 exit /b 0
 :startup.submsg
 
@@ -77,8 +90,11 @@ exit /b 0
 	)
 	
 	set /a "sst.boot.msgX=(sys.modeW-sst.boot.msglen+1)/2", "sst.boot.submsgX=(sys.modeW-sst.boot.submsglen+1)/2"
-	echo=%\e%[!sst.boot.logoY!;!sst.boot.logoX!H!spr.[bootlogo.spr]!%\e%[!sst.boot.msgY!;!sst.boot.msgX!H%\e%[2K!sst.boot.msg!%\e%[B%\e%[!sst.boot.submsgX!G%\e%[2K!sst.boot.submsg!%\e%[H>> "temp\bootStatus-!sst.localtemp!"
+	set "buffer=%\e%[!sst.boot.logoY!;!sst.boot.logoX!H!spr.[bootlogo.spr]!"
+	if "%~3"=="/nologo" set buffer=
+	echo=!buffer!%\e%[!sst.boot.msgY!;!sst.boot.msgX!H%\e%[2K!sst.boot.msg!%\e%[B%\e%[!sst.boot.submsgX!G%\e%[2K!sst.boot.submsg!%\e%[H
 
+exit /b
 :memoryDump
 pushd "!sst.dir!\temp" || exit /b !errorlevel!
 set > memoryDump
@@ -129,6 +145,7 @@ for /f "delims=" %%a in ('dir /b /a:-D "!sst.dir!\resourcepacks\%~1\sprites\*.sp
 for /f "delims=" %%a in ('dir /b /a:-D "!sst.dir!\resourcepacks\%~1\sounds\*.*" 2^>nul') do set "asset[\sounds\%%~a]=!sst.dir!\resourcepacks\%~1\sounds\%%~a"
 set /a "sst.boot.logoX=(!sys.modeW!-!spr.[bootlogo.spr].W!)/2+1", "sst.boot.logoY=(!sys.modeH!-!spr.[bootlogo.spr].H!)/2+1"
 echo(%\e%[H%\e%[48;2;0;0;0m%\e%[38;2;255;255;255m%\e%[2J
+if exist "!sst.dir!\resourcepacks\%~1\keyboard_init.bat" call "!sst.dir!\resourcepacks\%~1\keyboard_init.bat"
 exit /b 0
 :loadSprites
 if not exist "%~1" call :halt "%~nx0:loadSprites" "File not found: %~1"
@@ -157,7 +174,6 @@ set "halt.text=%~2"
 set halt.text=!halt.text:\n=","!
 set "halt.pausemsg= Press any key to exit. . . "
 set "halt.tracemsg= At %~1: "
-echo(¤EXIT
 for /l %%a in (64 -1 0) do (
 	<nul set /p "=%\e%[2;3H%\e%[48;2;255;0;0m%\e%[38;2;255;255;255m%\e%[?25l Execution halted %\e%[4;3H!halt.tracemsg:~%%a!"
 	for /l %%. in (0 1 10000) do rem
@@ -174,16 +190,17 @@ exit 0
 for /f "tokens=1 delims==" %%a in ('set') do for /f "tokens=1 delims=._" %%c in ("%%~a") do (
 	set "unload=True"
 	for %%b in (
-		ComSpec SystemRoot SystemDrive
+		ComSpec SystemRoot SystemDrive temp windir
 		ssvm sst sstfs sys
-		temp path
-		PATHEXT
 		\n \e
 		PROCESSOR
-		NUMBER_OF_PROCESSORS
+		NUMBER
+		USERNAME
 	) do if /i "%%~c"=="%%~b" set "unload=False"
 	if "!unload!"=="True" set "%%a="
 )
+set PATHEXT=.COM;.EXE;.BAT
+set "PATH=!windir!\system32;!windir!"
 set unload=
 exit /b 0
 :SSTFS.mount
@@ -218,7 +235,7 @@ for /f "usebackq tokens=1*" %%a in ("%~f1") do (
 		set /a "sstfs.[!sstfs.dest!\!parameters!]"=!sstfs.tempcounter!+1
 		if defined sstfs.temp set /a "sstfs.[!sstfs.dest!\!sstfs.temp!].end=!sstfs.tempcounter!-1"
 		set "sstfs.temp=!parameters!"
-		call :startup.submsg "Mounting SSTFS File for !sstfs.dest!" "Registered file: !parameters!"
+		call :startup.submsg "Mounting SSTFS File for !sstfs.dest!" "Registered file: !parameters!">> "temp\bootStatus-!sst.localtemp!"
 	)
 	set /a sstfs.tempcounter+=1
 )
@@ -231,9 +248,9 @@ set command=
 set parameters=
 exit /b 0
 :loadSettings
-set sys.ver=1.0.0 Pre-2
-set sys.tag=Beta
-set sys.subvinfo=[24w23a]
+set "sys.ver=1.0.0"
+set "sys.tag=Beta"
+set "sys.subvinfo=[Milestone 1]"
 set "sst.processes= "
 set "sst.processes.paused= "
 
@@ -270,6 +287,7 @@ for %%a in (
 	"PROCESSOR_REVISION=sys.CPU.revision"
 	"NUMBER_OF_PROCESSORS=sys.CPU.count"
 	"FIRMWARE_TYPE=sys.FIRMWARE_TYPE"
+	"USERNAME=sys.host.USERNAME"
 ) do for /f "tokens=1,2 delims==" %%b in ("%%~a") do (
 	set "%%~c=!%%~b!"
 	set "%%~b="
@@ -283,13 +301,13 @@ exit /b 0
 cmd /c "%~f0" :waitForBootServices
 exit /b
 :waitForBootServices.service
-set "services=fadeout cfmsf "
+set "services=cfmsf updateCheckSvc fadeout"
 for /l %%. in () do (
 	for %%F in (!services!) do if exist "!sst.dir!\temp\pf-%%~F" (
 		set svcIn=
 		set /p svcIn=<"!sst.dir!\temp\pf-%%~F"
 		if defined svcIn (
-			cmd /c timeout 1 /nobreak > nul
+			start /b /wait "" cmd /c timeout 1 /nobreak > nul
 			call :halt "service %%~F" "!svcIn!"
 		)
 		del "!sst.dir!\temp\pf-%%~F" > nul
@@ -298,6 +316,23 @@ for /l %%. in () do (
 		if not defined new_services exit 0
 		set "services=!new_services!"
 		set new_services=
-		if "!services!" == "!services:fadeout=!" call :startup.submsg "Waiting for startup tasks:" "!services!"
+		if "!services!" == "!services:fadeout=!" call :startup.submsg "Waiting for startup tasks:" "!services!" /nologo
 	)
 )
+:checkCompat
+if "!sys.CPU.architecture!" neq "AMD64" call :halt "%~nx0:checkCompat" "Incompatible processor architecture: !sys.CPU.architecture!\nShivtanium requires processor architecture AMD64/x86_64"
+exit /b
+:sysDeploy
+exit /b 0
+(
+	echo=
+	echo=¤EXIT
+	echo=
+) >> "temp\bootStatus-!sst.localtemp!"
+cd "!sst.dir!" >nul 2>&1 || exit /b 4
+<nul set /p "=%\e%[H"
+call BPM.bat --install batch-lib
+if errorlevel 1 (
+	pause<con>nul
+)
+exit /b
