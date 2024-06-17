@@ -6,25 +6,43 @@ set	x=$result$
 math	$sys.modeH$/2+6
 createWindow	idk	x=$x$	y=$result$	w=48	h=8	title=Multi-theme support‼	theme=eyeburn
 modifyWindow	idk	l2=  This demonstrates the multi-theme	l3=  functionality.	l4=  Theme: eyeburn
-createWindow	anotherwindow	x=4	y=2	w=35	h=8	title=Yet another window	theme=red_apple
-modifyWindow	anotherwindow	l2=  Theme: red_apple
+setButton	idk	shutdown	3	6	10	Shutdown	:shutdown
+createWindow	anotherwindow	x=4	y=2	w=35	h=7	title=Yet another window	theme=aero
+modifyWindow	anotherwindow	l2=  Yet another window
+setButton	anotherwindow	testbutton	3	4	29	This button does nothing =)	:spawnWindow
 call	.\idk.sst
 call	.\ext.sst
-exit
-:button
 test
-@FILE idk.sst
-goto	x
-:x
 exit
-čšřščř
+:shutdown
+call	\bin\shutdown
+exit
+:spawnWindow
+set	theme[0]=default
+set	theme[1]=classic
+set	theme[2]=matrix
+set	theme[3]=eyeburn
+set	theme[4]=green_apple
+set	theme[5]=discord
+set	theme[6]=red_apple
+set	theme[7]=rose
+set	theme[8]=lo-fi
+set	theme[9]=aero
+expand	theme[$sys.random:~-1$]
+set	theme=$result$
+math	$sys.random:~-1$+2
+createWindow	$sys.random$	x=$sys.random:~-2$	y=$sys.random:~-1$	w=$sys.random:~0,2$	h=$result$	title=$sys.random$	theme=$theme$
+wait	100
+exit
 @FILE ext.sst
 math	($sys.modeW$-64)/2+1
 set	x=$result$
 math	($sys.modeH$-16)/2+1
-createWindow	test	x=$x$	y=$result$	w=64	h=13	title=Shivtanium $sys.tag$ $sys.ver$ $sys.subvinfo$	theme=discord
-modifyWindow	test	l2=  Welcome to Shivtanium‼	l4=  There is currently not much to see,	l5=  except for this counter:	l6=    0	l11=  Theme: discord
+createWindow	test	x=$x$	y=$result$	w=64	h=13	title=Shivtanium $sys.tag$ $sys.ver$ $sys.subvinfo$
+modifyWindow	test	l2=  Welcome to Shivtanium‼	l4=  There is currently not much to see.
+call	\bin\WinAPI	setTextInput	test	login
+set	ResumeOnReturn=True
 :main
-modifyWindow	test	l8=  X: $sys.mouseXpos$ Y: $sys.mouseYpos$ Click: $sys.click$
-wait	5
+modifyWindow	test	l8=  X: $sys.mouseXpos$ Y: $sys.mouseYpos$ Click: $sys.click$	o9=  $login$
+wait	10
 goto	main
