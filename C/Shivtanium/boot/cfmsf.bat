@@ -28,3 +28,4 @@ copy nul "!sst.dir!\temp\pf-%~n0" > nul
 if defined msfl (
 	>"!sst.dir!\temp\pf-%~n0" echo=Missing files:!msfl!
 )
+exit
