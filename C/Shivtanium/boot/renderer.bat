@@ -51,7 +51,9 @@ for /l %%. in () do (
 	)
 	if !tr! lss 255 set "framebuffer=!framebuffer!%\e%[38;2;255;255;255m"
 	if "!input:~-5!"=="¤EXIT" (
+		echo(%\e%[2J
 		exit
+		if exist "%~f1" del "%~f1" >nul 2>&1 < nul
 	) else if "!input:~-5!"=="¤FADE" set ts=!t1!
 	<nul set /p "=!input!%\e%[48;2;;;m!framebuffer!"
 )
