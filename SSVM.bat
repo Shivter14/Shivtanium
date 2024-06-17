@@ -1,16 +1,25 @@
 @echo off
 setlocal enabledelayedexpansion
 for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
+goto init
+
 set "ssvm.args=%~1"
+if "!ssvm.args:~0,1!" neq ":" goto start
+	call %*
+	exit /b
+:start
+start "SSVM Launcher" conhost.exe cmd.exe /c %0 :init %*
+exit
 :init
+set "ssvm.args=%~1"
+set ssvm.ver=3.0.3
+title SSVM %ssvm.ver%
 <nul set /p "=%\e%[1;1H%\e%[48;2;0;0;0m%\e%[38;2;255;255;255m%\e%[?25l%\e%[J"
-chcp 65001>nul || (
-	< nul set /p "=%\e%[2;3HYour computer doesn't support UTF-8 [Codepage 65001]%\e%[4;3HThe system cannot continue. Press any key to exit. . .%\e%[?25h"
+chcp 65001>nul 2>&1 || (
+	< nul set /p "=%\e%[2;3HYour system doesn't support UTF-8 [Codepage 65001]%\e%[4;3HThe system cannot continue. Press any key to exit. . .%\e%[?25h"
 	pause > nul
 	exit /b
 ) 2>nul
-set ssvm.ver=3.0.2
-title SSVM %ssvm.ver%
 if not exist "%~dp0ssvm.cww" (
 	echo(# SSVM Settings #> "%~dp0ssvm.cww:
 	for %%a in (
@@ -33,8 +42,8 @@ call :loadsprites "%~dp0SSVM.sprite"
 cd "%~dp0" || exit /b
 set GetInputPath=getInput64.dll
 if not exist "!GetInputPath!" (
-	if not exist "C\Shivtanium\core\getInput64.dll" goto skipGetInput
-	set getInputPath=C\Shivtanium\core\getInput64.dll
+	if not exist "C\Shivtanium\core\!GetInputPath!" goto skipGetInput
+	set "getInputPath=C\Shivtanium\core\!GetInputPath!"
 )
 rundll32.exe !getInputPath!,inject >nul 2>&1 || goto skipGetInput
 
@@ -58,10 +67,10 @@ set ssvm.temp.fadein=
 
 for /f "delims=" %%a in ('dir /b /a:d "%~dp0"') do if /I "%%~a" neq "A" (
 	call :boot "%~dp0%%a"
-	if not "!ssvm.exitcode!" == "27" goto init
-	exit /b
+	if "!ssvm.exitcode!" == "27" goto init
+	exit 0
 )
-exit /b
+
 :bootmenu
 title SSVM !ssvm.ver! boot menu
 cd "%~dp0" || exit /b
