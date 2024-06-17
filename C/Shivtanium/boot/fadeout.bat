@@ -2,6 +2,8 @@
 setlocal enabledelayedexpansion
 for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000),t2=t1"
 set fadeout=255
+echo(>> "temp\bootStatus-!sst.localtemp!"
+echo(¤EXIT>> "temp\bootStatus-!sst.localtemp!"
 for /l %%. in () do (
 	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000)", "DeltaTime=(t1-t2)", "t2=t1", "fadeout-=deltaTime*800/fadeout"
 	if "!deltaTime!" neq "0" (
