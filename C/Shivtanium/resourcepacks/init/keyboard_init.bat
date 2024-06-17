@@ -1,0 +1,3 @@
+set "charset_L=                                                0123456789       abcdefghijklmnopqrstuvwxyz     0123456789*+=-,                                                                           ů%==%=%=%,-.´;                          ú¨)§"
+set "charset_U=                                                é+ěščřžýáí       ABCDEFGHIJKLMNOPQRSTUVWXYZ     0123456789*+=-.                                                                           “%=%%%%=%¿_:ˇ°                          /'(‼"
+set "charset_A=                                     ←↑→↓       ˝~ˇ ˘°˛`˙´        {&Đ€[]   łŁ }  \ đ  @|#                                                                                                 $%==%¨%=%<☼>¸                           ÷¤×ß"
