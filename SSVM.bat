@@ -19,10 +19,8 @@ chcp 65001>nul 2>&1 || (
 	exit /b
 ) 2>nul
 if not exist "%~dp0ssvm.cww" (
-	echo(# SSVM Settings #> "%~dp0ssvm.cww:
-	for %%a in (
-		"mode=128,32	# The default text mode"
-	) do echo(%%~a>> "%~dp0ssvm.cww"
+	echo=# SSVM Settings #> "%~dp0ssvm.cww:
+	for %%a in ("mode=128,32	# The default text mode") do echo=%%~a>> "%~dp0ssvm.cww"
 )
 for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
 
