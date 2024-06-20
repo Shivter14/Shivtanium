@@ -1,5 +1,5 @@
 @FILESYSTEM
-version=0
+shivtanium=1
 @FILE init.sst
 math	$sys.modeW$/2+6
 set	x=$result$
