@@ -38,6 +38,20 @@ And of course, the `ShivtaniumOS.sstfs` filesystem can be modified with knowledg
 ## How can i write `.sst` applications for Shivtanium?
 Applications are written in the Shivtanium Programming Language which is interpreted.
 More info about it will be revealed soon. (Milestone 3)
+
+This language has a `command<tab>parameters` syntax. Parameters aren't enclosed with quotes, instead, they are seperated by `<tab>`
+Code examples:
+```
+math  1
+nocap  The 'math' command works very similarly to 'set /a' in batch. It outputs the result into the `return` variable
+:main
+if  1  ==  1
+  nocap  This is a comment.
+if  $return$  >  3
+  exit
+goto  main
+```
+
 ## How can i create interactive batch scripts compatible with Shivtanium?
 With the help of the Shivtanium Library.
 More info about it will also be revealed soon.
