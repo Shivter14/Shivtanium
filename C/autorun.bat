@@ -1,5 +1,4 @@
 @echo off
-REM == Shivtanium 4 bootloader ==
 setlocal enabledelayedexpansion
 if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
 echo(%\e%[?25l
