@@ -34,7 +34,7 @@ The OS name seen in SSVM can be changed in `C\SSVM.cww`.
 
 And of course, the `ShivtaniumOS.sstfs` filesystem can be modified with knowledge of the Shivtanium Programming Language.
 ### Keyboard & typing
-// in progress
+// In progress #1
 ## How can i write `.sst` applications for Shivtanium?
 Applications are written in the Shivtanium Programming Language which is interpreted.
 More info about it will be revealed soon.
