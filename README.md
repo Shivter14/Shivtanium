@@ -37,7 +37,7 @@ And of course, the `ShivtaniumOS.sstfs` filesystem can be modified with knowledg
 // In progress #1
 ## How can i write `.sst` applications for Shivtanium?
 Applications are written in the Shivtanium Programming Language which is interpreted.
-More info about it will be revealed soon.
+More info about it will be revealed soon. (Milestone 3)
 ## How can i create interactive batch scripts compatible with Shivtanium?
 With the help of the Shivtanium Library.
 More info about it will also be revealed soon.
