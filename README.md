@@ -8,7 +8,7 @@ An SSTFS file can contain applications, assets, and all kinds of stuff
 - Shivtanium Applications have the `.sst` extension
 - Sprites with normal ASCII art have the `.spr` extension
 ### How does SSTFS work?
-An SSTFS file contains *File headers* to seperate files.
+A SSTFS file contains *File headers* to seperate files.
 Here is an example of a filesystem with 2 files:
 ```
 @FILE test1
@@ -33,6 +33,8 @@ The display dimensions can be changed in `ssvm.cww` value `mode`.
 The OS name seen in SSVM can be changed in `C\SSVM.cww`.
 
 And of course, the `ShivtaniumOS.sstfs` filesystem can be modified with knowledge of the Shivtanium Programming Language.
+### Keyboard & typing
+// in progress
 ## How can i write `.sst` applications for Shivtanium?
 Applications are written in the Shivtanium Programming Language which is interpreted.
 More info about it will be revealed soon.
