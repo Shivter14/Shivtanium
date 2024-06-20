@@ -1,5 +1,5 @@
 @echo off & setlocal enableDelayedExpansion
-mode 144,30
+mode 144,28
 chcp 65001>nul
 for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
 echo(%\e%[H%\e%[48;2;;;;38;5;231m%\e%[2J[%time%] Loading font/VGA/Shivtanium-Simple...
