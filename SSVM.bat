@@ -1,7 +1,5 @@
-@echo off
-setlocal enabledelayedexpansion
+@echo off & setlocal enableDelayedExpansion
 for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
-goto init
 
 set "ssvm.args=%~1"
 if "!ssvm.args:~0,1!" neq ":" goto start
