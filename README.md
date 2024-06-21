@@ -40,6 +40,7 @@ Applications are written in the Shivtanium Programming Language which is interpr
 More info about it will be revealed soon. (Milestone 3)
 
 This language has a `command<tab>parameters` syntax. Parameters aren't enclosed with quotes, instead, they are seperated by `<tab>`
+
 Code examples:
 ```
 math  1
