@@ -1,5 +1,5 @@
 ![Shivtanium Logo](https://raw.githubusercontent.com/Shivter14/Shivtanium/main/Shivtanium.png)
-## Shivtanium is a secure batch OS Engine/Kernel + Interpreter
+## Shivtanium is a secure batch OS Engine/Kernel + Interpreter.
 
 ### How does it work?
 It uses a custom-written file system: SSTFS
