@@ -11,7 +11,7 @@ exit
 :init
 set "ssvm.args=%~1"
 set ssvm.ver=3.0.3
-title SSVM %ssvm.ver%
+title SSVM !ssvm.ver!
 <nul set /p "=%\e%[1;1H%\e%[48;2;0;0;0m%\e%[38;2;255;255;255m%\e%[?25l%\e%[J"
 chcp 65001>nul 2>&1 || (
 	< nul set /p "=%\e%[2;3HYour system doesn't support UTF-8 [Codepage 65001]%\e%[4;3HThe system cannot continue. Press any key to exit. . .%\e%[?25h"
