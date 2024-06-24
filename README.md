@@ -36,7 +36,7 @@ And of course, the `ShivtaniumOS.sstfs` filesystem can be modified with knowledg
 ### Keyboard & typing
 // In progress #1
 ## How can i write `.sst` applications for Shivtanium?
-Applications are written in the Shivtanium Programming Language which is interpreted.
+Applications are written in the Shivtanium Subsystem which is interpreted.
 More info about it will be revealed soon. (Milestone 3)
 
 This language has a `command<tab>parameters` syntax. Parameters aren't enclosed with quotes, instead, they are seperated by `<tab>`
