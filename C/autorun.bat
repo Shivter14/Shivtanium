@@ -2,10 +2,9 @@
 
 	%= Standard BEFI boot menu rev1 =%
 	     %= Created by Shivter =%
-	 %= *Customized for Shivtanium =%
 
 if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
-echo=%\e%[?25l
+<nul set /p "=%\e%[?25l"
 :main
 (
 	cd "%~dp0"
@@ -23,7 +22,7 @@ echo=%\e%[?25l
 		set "sst.boot.path=%%~a"
 		if not exist "%%~a" (
 			call :halt "%~nx0" "Invalid boot entry: File not found."
-		) else cmd /c %%a "%~1" || set sst.boot.errorlevel=!errorlevel!
+		) else cmd /c %%a %* || set sst.boot.errorlevel=!errorlevel!
 	) else goto bootmenu
 	cd "%~dp0"
 	if defined sst.boot.errorlevel (
@@ -44,12 +43,54 @@ exit %~3 %~4
 :bootmenu
 for /f "tokens=2 delims=:" %%a in ('mode con') do (
 	set /a counter+=1
-	set "token=%%~a"
-	if "!counter!"=="1" set /a "modeH=!token: =!"
-	if "!counter!"=="2" set /a "modeW=!token: =!"
+	set "temp.token=%%~a"
+	if "!counter!"=="1" set /a "modeH=!temp.token: =!"
+	if "!counter!"=="2" set /a "modeW=!temp.token: =!", "textW=modeW - 4"
 )
-<nul set /p "=%\e%[?25l%\e%[0m%\e%[38;2;0;0;0;48;2;255;255;255m%\e%[H%\e%[2K Shivtanium Boot Menu%\e%[48;2;0;0;0;38;2;255;255;255m%\e%[E%\e%[0J%\e%[3;5H"
-for %%a in (!sst.boot.entries!) do (
-	<nul set /p "=%%~a%\e%[E    "
+set selection=1
+set parameters=
+:bootmenu.main
+set current=0
+(
+	set /p "=%\e%[?25l%\e%[0m%\e%[38;2;0;0;0;48;2;255;255;255m%\e%[H%\e%[2K BEFI Boot Menu%\e%[48;2;0;0;0;38;2;255;255;255m%\e%[E%\e%[0J%\e%[3;3HSelect an operating system.%\e%[4;3HControlls: W = up, S = down, X = select, E = quit, P = set parameters%\e%[999;3H%\e%[A!parameters_disp!%\e%[6;3H"
+	for %%a in (!sst.boot.entries!) do for /f "tokens=1* delims=:" %%b in ("%%~a") do (
+		set /a current+=1
+		set "temp.bootentry[!current!]=%%~b"
+		set "temp.text=%%~c"
+		set "temp.prefix=%\e%[48;2;0;0;0m"
+		if "!selection!"=="!current!" (
+			set temp.prefix=%\e%[38;2;0;0;0;48;2;255;255;255m
+		)
+		set /p "=!temp.prefix! !temp.text:~0,%textW%! %\e%[E%\e%[48;2;0;0;0;38;2;255;255;255m  "
+	)
+) < nul
+choice /c "swxep" /N > nul
+set input=!errorlevel!
+if "!input!"=="1" (
+	set /a selection+=1
+	if !selection! gtr !sst.boot.entrycount! set selection=!sst.boot.entrycount!
 )
-pause<con>nul
+if "!input!"=="2" (
+	set /a selection-=1
+	if !selection! lss 1 set selection=1
+)
+if "!input!"=="4" exit /b 0
+if "!input!"=="5" (
+	set parameters=
+	set /p "parameters=%\e%[?25h%\e%[0m%\e%[38;2;0;0;0;48;2;255;255;255m%\e%[H%\e%[2K BEFI Boot Menu%\e%[48;2;0;0;0;38;2;255;255;255m%\e%[E%\e%[0J%\e%[3;4HType your parameters:%\e%[5;4H%\e%[38;2;0;0;0;48;2;255;255;255m%\e%[2K"
+	set "parameters_disp=!parameters:~0,%textW%!"
+)
+if "!input!" neq "3" goto bootmenu.main
+set sst.boot.errorlevel=
+set "sst.boot.path=!temp.bootentry[%selection%]!"
+for %%a in (
+	"input" "temp" "current" "parameters_disp" "selection" "sst.boot.entr"
+) do for /f "tokens=1 delims==" %%b in ('set %%a 2^>nul') do set "%%~a="
+cmd /c !sst.boot.path! !parameters! %* || set sst.boot.errorlevel=!errorlevel!
+cd "%~dp0"
+if defined sst.boot.errorlevel (
+	if "!sst.boot.errorlevel!"=="1" if not exist "!sst.boot.path!" call :halt "@CrashHandeler !sst.boot.path!" "The system files were lost.\nIf you're running this off a removable storage device,\nIt might have been disconnected causing this crash.\nIf this problem occurs after a reboot,\nYou should reinstall the system."
+	if "!sst.boot.errorlevel!" neq "5783" if "!sst.boot.errorlevel!" neq "27" call :halt "@Errorlevel !sst.boot.path!" "System exited with code !sst.boot.errorlevel!"
+)
+
+exit /b
