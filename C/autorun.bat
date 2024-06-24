@@ -1,5 +1,8 @@
-@echo off
-setlocal enabledelayedexpansion
+@echo off & setlocal enabledelayedexpansion
+
+	%= Standard BEFI boot menu rev1 =%
+	     %= Created by Shivter =%
+
 if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
 echo(%\e%[?25l
 :main
