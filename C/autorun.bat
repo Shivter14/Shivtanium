@@ -2,6 +2,7 @@
 
 	%= Standard BEFI boot menu rev1 =%
 	     %= Created by Shivter =%
+	 %= *Customized for Shivtanium =%
 
 if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
 echo(%\e%[?25l
