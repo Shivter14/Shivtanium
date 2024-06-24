@@ -6,6 +6,7 @@ Sprite_Meta;36;7;SSVM
       ▄  █                          
        ▀▀                           
       Extended Virtual Machine      
+
 # This is a sprite created using the Shivter's standard sprite format.
 # Everything under the first line and except the last line can be ignored and used as ASCII / comment space
 # But putting a lot of stuff is not recommended as it may cause loading slowdowns.
