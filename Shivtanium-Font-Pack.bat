@@ -4,7 +4,7 @@ chcp 65001>nul
 for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
 echo(%\e%[H%\e%[48;2;;;;38;5;231m%\e%[2J[%time%] Loading font/VGA/Shivtanium-Simple...
 call :font/VGA/Shivtanium-Simple
-echo([%time%] Creating sprite...
+echo([!time!] Creating sprite...
 set "string=Font Shivtanium-Simple"
 
 set "str=x!string!"
@@ -19,9 +19,9 @@ for /l %%i in (0,1,!length!) do (
 	for %%c in (A B C D E F G H I J K L M N O P Q R S T U V W X Y Z) do if "!add!"=="%%~c" set "add=#%%~c"
 	set "return=!return!"!add!" "
 )
-for %%i in (%return%) do set "icon=!icon!![%%~i]! "
+for %%i in (!return!) do set "icon=!icon!![%%~i]! "
 
-echo([%time%] Finished.[4;8H%icon%
+echo=[!time!] Finished.[4;8H!icon!
 
 pause >nul
 exit /b 0
