@@ -6,6 +6,7 @@ if "!ssvm.args:~0,1!" neq ":" goto start
 	call %*
 	exit /b
 :start
+%= This makes sure that SSVM runs inside of conhost.exe and not any other terminal =%
 start "SSVM Launcher" conhost.exe cmd.exe /c %0 :init %*
 exit
 :init
