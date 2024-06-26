@@ -2,7 +2,7 @@
 ## Shivtanium is a secure batch OS Engine/Kernel + Interpreter.
 
 ### How does it work?
-// In dev: This information might change.
+// In dev: This information might change...!
 It uses a custom-written file system: SSTFS
 That's the reason why you need a SSTFS file for it to boot.
 An SSTFS file can contain applications, assets, and all kinds of stuff
