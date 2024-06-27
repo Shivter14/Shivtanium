@@ -5,6 +5,8 @@
 Shivtanium uses *sub systems*, like the Shivtanium engine which can be used to safely create GUI applications.
 These subsystems can run in pararell, and can communicate with each other.
 
+Input is handeled with an input handeling service, which automatically stops giving input when the program isn't focused.
+
 ### How does SSTFS work?
 Shivtanium uses a custom-written file system: SSTFS
 That's the reason why you need a SSTFS file for it to boot.
@@ -30,7 +32,7 @@ Creating themes requires VT100 knowledge.
 The format is easy to understand just by looking at a theme located in: `C\Shivtanium\resourcepacks\init\themes\`
 
 It's even easier to create sprites, it's just raw ASCII art located in: `C\Shivtanium\resourcepacks\init\sprites\`
-The sprite loader automatically detects and assigns the width of loading sprites.
+The sprite loader automatically detects and assigns the width of a sprite.
 ## Customization
 The display dimensions can be changed in `ssvm.cww` value `mode`.
 
