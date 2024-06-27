@@ -2,13 +2,16 @@
 ## Shivtanium is a secure batch OS Engine/Kernel + Interpreter.
 
 ### How does it work?
-// In dev: This information might change... Tommorow!
-It uses a custom-written file system: SSTFS
+Shivtanium uses *sub systems*, like the Shivtanium engine which can be used to safely create GUI applications.
+These subsystems can run in pararell, and can communicate with each other.
+
+### How does SSTFS work?
+Shivtanium uses a custom-written file system: SSTFS
 That's the reason why you need a SSTFS file for it to boot.
 An SSTFS file can contain applications, assets, and all kinds of stuff
 - Shivtanium Applications have the `.sst` extension
 - Sprites with normal ASCII art have the `.spr` extension
-### How does SSTFS work?
+
 A SSTFS file contains *File headers* to seperate files.
 Here is an example of a filesystem with 2 files:
 ```
