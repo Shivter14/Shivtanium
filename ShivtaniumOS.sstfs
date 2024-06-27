@@ -10,7 +10,7 @@ modifyWindow	idk	l2=  This demonstrates the multi-theme	l3=  functionality.	l4= 
 setButton	idk	shutdown	3	6	10	Shutdown	:shutdown
 createWindow	anotherwindow	x=4	y=2	w=35	h=7	title=Yet another window	theme=aero
 modifyWindow	anotherwindow	l2=  Yet another window
-setButton	anotherwindow	testbutton	3	4	29	This button does nothing =)	:spawnWindow
+setButton	anotherwindow	testbutton	3	4	29	This button does nothing ;)	:spawnWindow
 call	.\idk.sst
 call	.\ext.sst
 test
