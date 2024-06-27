@@ -32,7 +32,7 @@ Creating themes requires VT100 knowledge.
 The format is easy to understand just by looking at a theme located in: `C\Shivtanium\resourcepacks\init\themes\`
 
 It's even easier to create sprites, it's just raw ASCII art located in: `C\Shivtanium\resourcepacks\init\sprites\`
-The sprite loader automatically detects and assigns the width of a sprite.
+The sprite loader automatically detects and assigns the width of sprites while loading.
 ## Customization
 The display dimensions can be changed in `ssvm.cww` value `mode`.
 
