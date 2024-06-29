@@ -42,7 +42,12 @@ The OS name seen in SSVM can be changed in `C\SSVM.cww`.
 
 And of course, the `ShivtaniumOS.sstfs` filesystem can be modified with knowledge of the Shivtanium Programming Language.
 ### Keyboard & typing
-// In progress #1
+Shivtanium uses a keyboard layout system, where the keyboard layout is a batch file located in the resource pack:
+`keyboard_init.bat`
+This batch file may contain 3 variable definitions:
+- `charset_L` - Lower case (keycode -> Character)
+- `charset_U` - Upper case (Shift + keycode -> Upper case character)
+- `charset_A` - Alternative (Alt + keycode -> Alternative character)
 ## How can i write `.sst` applications for Shivtanium?
 Applications are written in the Shivtanium Subsystem which is interpreted.
 More info about it will be revealed soon. (Milestone 3)
