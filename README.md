@@ -57,7 +57,7 @@ This batch file may contain 3 variable definitions:
 
 > Keycode is a keyboard key value from WinAPI (used in: getInput64.dll, cmdwiz.exe, getInput.exe)
 
-Example: `A` is pressed without `Shift`;
+Example: `A` is pressed without `Shift` nor `Alt`;
 - Keycode of `A` is 65.
 - `!charset_L:~65,1!`
 
