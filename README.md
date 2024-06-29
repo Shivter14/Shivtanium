@@ -50,6 +50,7 @@ This batch file may contain 3 variable definitions:
 - `charset_A` - Alternative (Alt + keycode -> Alternative character)
 > You can get a character from a character set using the following expansion method: `!charset_#:~<keycode>,1!`
 > Keycode is a keyboard key value from WinAPI (used in: getInput64.dll, cmdwiz.exe, getInput.exe)
+
 Example: `A` is pressed; keycode is 65
   !charset_L:~65,1!
 ## How can i write `.sst` applications for Shivtanium?
