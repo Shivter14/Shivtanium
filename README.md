@@ -48,6 +48,9 @@ This batch file may contain 3 variable definitions:
 - `charset_L` - Lower case (keycode -> Character)
 - `charset_U` - Upper case (Shift + keycode -> Upper case character)
 - `charset_A` - Alternative (Alt + keycode -> Alternative character)
+
+> The variable definitions are long strings containing all the possible characters that can be input.
+
 > You can get a character from a character set using the following expansion method: `!charset_#:~<keycode>,1!`
 
 > Keycode is a keyboard key value from WinAPI (used in: getInput64.dll, cmdwiz.exe, getInput.exe)
@@ -55,6 +58,12 @@ This batch file may contain 3 variable definitions:
 Example: `A` is pressed without `Shift`;
 - Keycode of `A` is 65.
 - `!charset_L:~65,1!`
+
+Modifying the keyboard layout can be done in the following way:
+* Open the `keyboard_init.bat` file in the specified resource pack (default: `init`)
+* Change one of the character sets (`charset_L` - Lower case, `charset_U` - Upper case, `charset_A` - Alternative)
+* To *re-bind* a key to a different character, find the character, and replace it with a different one.
+* To *bind a key by it's keycode*, change the character at the position based on the keycode (Example: Keycode of `F1` is 112; go to the 112th place)
 ## How can i write `.sst` applications for Shivtanium?
 Applications are written in the Shivtanium Subsystem which is interpreted.
 More info about it will be revealed soon. (Milestone 3)
