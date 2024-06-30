@@ -7,7 +7,6 @@ if "!arg:~0,1!"==":" (
 	exit /b
 )
 set arg=
-title Shivtanium Engine !sys.tag! !sys.ver! !sys.subvinfo!: Interpreter thread
 for %%a in (
 	"sst.boot"
 	"ssvm"
@@ -24,11 +23,11 @@ set txtIn.focused.host=
 set win.focused=
 set win.moving=
 set sys.mouseHasCancer=True
-set /a "sst.mouseXpos=sys.modeW*2", "sst.mouseYpos=sys.modeH*4"
+set /a "sst.mouseXpos=sys.modeW*5/2", "sst.mouseYpos=sys.modeH*5", "sys.mouseXpos=sst.mouseXpos/5", "sys.mouseYpos=sst.mouseYpos/10"
 set "tabbuffer=	"
 call :reload
-start /b cmd /c dwm.bat
-echo(¤OV	%\e%[!sys.modeH!;1H%\e%[48;2;191;0;191;38;2;255;255;255m Shivtanium %\e%[48;2;127;0;127m%\e%[0J
+echo=¤SPEED	0	0	0:00	!sys.mouseXpos!	!sys.mouseYpos!
+echo=¤OV	%\e%[!sys.modeH!;1H%\e%[48;2;191;0;191;38;2;255;255;255m Shivtanium %\e%[48;2;127;0;127m%\e%[0J
 for /l %%- in (.) do (
 	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000)",^
 		"deltaTime=(t1 - t2)", "$TT+=deltaTime", "timer.100cs+=deltaTime", "$sec=$TT / 100 %% 60", "$min=$TT / 100 / 60 %% 60", "tpsTicks+=1", "t2=t1", "tt=t1 %% 4"
@@ -52,29 +51,29 @@ for /l %%- in (.) do (
 		if "!sys.keys:-16-=!" neq "!sys.keys!" set sst.virtualMouseSpeed=1
 		if "!sys.keys:-37-=!" neq "!sys.keys!" (
 			set /a sst.mouseXpos-=DeltaTime*sst.virtualMouseSpeed
-			if !sst.mouseXpos! lss 4 set sst.mouseXpos=4
+			if !sst.mouseXpos! lss 5 set sst.mouseXpos=4
 		) else if "!sys.keys:-39-=!" neq "!sys.keys!" (
 			set /a sst.mouseXpos+=DeltaTime*sst.virtualMouseSpeed
 		)
 		if "!sys.keys:-38-=!" neq "!sys.keys!" (
 			set /a sst.mouseYpos-=DeltaTime*sst.virtualMouseSpeed
-			if !sst.mouseYpos! lss 8 set sst.mouseYpos=8
+			if !sst.mouseYpos! lss 10 set sst.mouseYpos=8
 		) else if "!sys.keys:-40-=!" neq "!sys.keys!" (
 			set /a sst.mouseYpos+=DeltaTime*sst.virtualMouseSpeed
 		)
-		set /a "sys.mouseXpos=!sst.mouseXpos!/4", "sys.mouseYpos=!sst.mouseYpos!/8"
+		set /a "sys.mouseXpos=sst.mouseXpos/5", "sys.mouseYpos=sst.mouseYpos/10"
 		if !sys.mouseXpos! gtr !sys.modeW! (
-			set /a "sys.mouseXpos=!sys.modeW!", "sst.mouseXpos=!sys.modeW!*4"
+			set /a "sys.mouseXpos=sys.modeW", "sst.mouseXpos=sys.modeW*5"
 		)
 		if !sys.mouseYpos! gtr !sys.modeH! (
-			set /a "sys.mouseYpos=!sys.modeH!", "sst.mouseYpos=!sys.modeH!*8"
+			set /a "sys.mouseYpos=sys.modeH", "sst.mouseYpos=sys.modeH*10"
 		)
 		if "!sys.keys:-13-=!" neq "!sys.keys!" set sst.click=1
 	) else (
 		set sys.mouseXpos=!mouseXpos!
 		set sys.mouseYpos=!mouseYpos!
 	)
-	if "!sys.keys!" neq " " (if defined txtIn.focused for /f "tokens=1* delims=." %%p in ("!txtIn.focused!") do (
+	if "!sys.keys!" neq " " (if defined txtIn.focused for /f "tokens=1,2* delims=." %%p in ("!txtIn.focused!") do (
 		set "sys.keysRN=!sys.keys:-= !"
 		for %%k in (!keysPressedOld!) do set "sys.keysRN=!sys.keysRN: %%k = !"
 		if "!sys.keys!" neq "!sys.keys:-112-=!" if "!tt!"=="0" if !deltaTime! geq 1 set "sys.keysRN=!sys.keys:-= !"
@@ -87,15 +86,30 @@ for /l %%- in (.) do (
 			if "!char!"==" " (
 				if "%%~k" neq "32" set char=
 				if "%%~k"=="8" (
-					if "!pid[%%~p]v%%~q!" neq "" set "pid[%%~p]v%%~q=!pid[%%~p]v%%~q:~0,-1!"
+					if "!pid[%%~p]v%%~r!" neq "" set "pid[%%~p]v%%~r=!pid[%%~p]v%%~r:~0,-1!"
 				)
 			)
-			set "pid[%%~p]v%%~q=!pid[%%~p]v%%~q!!char!"
+			set "pid[%%~p]v%%~r=!pid[%%~p]v%%~r!!char!"
+
+			for /l %%y in (1 1 !win[%%~p.%%~q]H!) do set "win[%%~p.%%~q]o%%y="
+			for %%b in (!win[%%~p.%%~q]buttons!) do for /f "delims=" %%y in ("!win[%%~p.%%~q]btn[%%~b]WY!") do (
+				set "win[%%~p.%%~q]o%%y=!win[%%~p.%%~q]o%%y!%\e%[!win[%%~p.%%~0]btn[%%~b]WX!C!win[%%~p.%%~q]btn[%%~b]#:~0,%%~4!"
+				echo=¤MW	%%~p.%%~q	o%%y=!win[%%~p.%%~q]o%%y!
+			)
+			for /f "tokens=1* delims=;" %%y in ("!win[%%~p.%%~q]txt[%%~r]Y!;!win[%%~p.%%~q]txt[%%~r]W!") do (
+				set "temp= !pid[%%~p]v%%~r!"
+				set "win[%%~p.%%~q]o%%y=!win[%%~p.%%~q]o%%y!%\e%8%\e%[!win[%%~p.%%~q]txt[%%~r]X!C%\e%[%%~zX!temp:~-%%~z!"
+				set temp=
+				echo=¤MW	%%~p.%%~q	o%%y=!win[%%~p.%%~q]o%%y!
+			)
 		)
-		
-		if "!sys.keysRN!" neq "!sys.keysRN: 13 =!" if /I "!pid[%%~p]vResumeOnReturn!"=="True" (
-			set "sst.processes.paused=!sst.processes.paused: %%p = !"
-			set "sst.processes=!sst.processes: %%p = !%%p "
+
+		if "!sys.keysRN!" neq "!sys.keysRN: 13 =!" (
+			set "pid[%%~p]vEvent=textReturn %%q"
+			if /I "!pid[%%~p]vResumeOnReturn!"=="True" (
+				set "sst.processes.paused=!sst.processes.paused: %%p = !"
+				set "sst.processes=!sst.processes: %%p = !%%p "
+			)
 		)
 	)) else set keysPressedOld=
 	
@@ -117,15 +131,15 @@ for /l %%- in (.) do (
 			)
 			if defined win.focused for /f "delims=" %%w in ("!win.focused!") do for %%b in (!win[%%~w]buttons!) do (
 				if "!sys.mouseYpos!"=="!win[%%~w]btn[%%~b]Y!" if !sys.mouseXpos! geq !win[%%~w]btn[%%~b]X! if !sys.mouseXpos! leq !win[%%~w]btn[%%~b]B! (
-					for /f "tokens=1* delims=." %%p in ("%%~w") do if "!sst.processes.paused!"=="!sst.processes.paused: %%p = !" (
+					for /f "tokens=1* delims=." %%p in ("%%~w") do if "!sst.processes.paused!" neq "!sst.processes.paused: %%p = !" (
 						if /I "!pid[%%~p]vResumeOnButtonClick[%%~q.%%~b]!"=="True" (
 							set "sst.processes.paused=!sst.processes.paused: %%p = !"
 							set "sst.processes=!sst.processes: %%p = !%%p "
+						) else (
+							call :copyProcess "%%~p" "!pid[%%~p]!" "!win[%%~w]btn[%%~b]!" || call :haltScripts %%p "Failed to launch button scripts" "%%~p\n!pid[%%~p]!\n!win[%%~w]btn[%%~b]!"
+							set "pid[!temp.pid!]P="
+							set temp.pid=
 						)
-					) else (
-						call :copyProcess "%%~p" "!pid[%%~p]!" "!win[%%~w]btn[%%~b]!" || call :haltScripts %%p "Failed to launch button scripts" "%%~p\n!pid[%%~p]!\n!win[%%~w]btn[%%~b]!"
-						set "pid[!temp.pid!]P="
-						set temp.pid=
 					)
 				)
 			)
@@ -364,11 +378,11 @@ for /l %%- in (.) do (
 					set "win[%%~p.%%~0]btn[%%~1]WX=%%~2"
 					set "win[%%~p.%%~0]btn[%%~1]WY=%%~3"
 					set "win[%%~p.%%~0]btn[%%~1]W=%%~4"
-					set /a "win[%%~p.%%~0]btn[%%~1]WX=win[%%~p.%%~0]btn[%%~1]WX", "win[%%~p.%%~0]btn[%%~1]WY=win[%%~p.%%~0]btn[%%~1]WY", "win[%%~p.%%~0]btn[%%~1]W=win[%%~p.%%~0]btn[%%~1]W",^
+					set /a "win[%%~p.%%~0]btn[%%~1]WX=win[%%~p.%%~0]btn[%%~1]WX+1", "win[%%~p.%%~0]btn[%%~1]WY=win[%%~p.%%~0]btn[%%~1]WY", "win[%%~p.%%~0]btn[%%~1]W=win[%%~p.%%~0]btn[%%~1]W",^
 					       "win[%%~p.%%~0]btn[%%~1]X=win[%%~p.%%~0]X+win[%%~p.%%~0]btn[%%~1]WX", "win[%%~p.%%~0]btn[%%~1]Y=win[%%~p.%%~0]Y+win[%%~p.%%~0]btn[%%~1]WY",^
 						   "win[%%~p.%%~0]btn[%%~1]B=win[%%~p.%%~0]btn[%%~1]X+win[%%~p.%%~0]btn[%%~1]W-1", "iobuffers+=1"
 					set win[%%~p.%%~0]buttons=!pid[%%~p]buttons! "%%~1"
-					set "win[%%~p.%%~0]o%%y="
+					for /l %%y in (1 1 !win[%%~p.%%~0]H!) do set "win[%%~p.%%~0]o%%y="
 					for %%b in (!win[%%~p.%%~0]buttons!) do for /f "delims=" %%y in ("!win[%%~p.%%~0]btn[%%~b]WY!") do (
 						set "win[%%~p.%%~0]o%%y=!win[%%~p.%%~0]o%%y!%\e%[!win[%%~p.%%~0]btn[%%~b]WX!C!win[%%~p.%%~0]btn[%%~b]#:~0,%%~4!"
 						echo=¤MW	%%~p.%%~0	o%%y=!win[%%~p.%%~0]o%%y!
