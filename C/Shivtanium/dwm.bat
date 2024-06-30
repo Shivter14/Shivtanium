@@ -26,7 +26,9 @@ for %%a in (
 	"pid"
 ) do for /f "tokens=1 delims==" %%b in ('set %%a 2^>nul') do set "%%b="
 
+goto skipThemes
 rem == Test theme ==
+
 for %%a in (
 	!theme[lo-fi]!
 ) do set "dwm.%%~a"
@@ -39,12 +41,14 @@ if defined dwm.aero (
 	)
 	set temp=
 )
+
+:skipThemes
 set "dwm.barbuffer=                                                                                                                                                                                                                                                                "
 set "dwm.bottombuffer=▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄"
 set mainbuffer=!dwm.scene!
 set "win.order= "
 set win.focused=
-for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000),t2=t1"
+for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000),t2=t1", "dwm.mouseXpos=modeW/2, dwm.mouseYpos=modeH/2"
 call :reload
 set dub=
 for /l %%. in () do (
@@ -52,7 +56,6 @@ for /l %%. in () do (
 	if defined io.input (
 		set "input=!io.input!"
 	) else set /p input=
-	rem if not defined input call :bsod "No input from system" "It seems like the Desktop Window Manager is no longer receiving input. This has been likely caused by a system crash." /b
 	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000)", "deltaTime=(t1 - t2), timer.100cs+=deltaTime, t2=t1, fpsFrames+=1", "doubletimer=!dub! timer.100cs"
 	
 	if !timer.100cs! GEQ 100 (
@@ -138,7 +141,7 @@ for /l %%. in () do (
 				if "!win[%%~1]aero!" neq "" (
 					for /l %%y in (2 1 !temp.H!) do (
 						set /a "x=(%%y+!win[%%~1]Y!-1)", "!win[%%~1]aero:×=*!"
-						set "win[%%~1]p%%y=%\e%[48;2;!r!;!g!;!b!;38;!win[%%~1]TIcolor!m%dwm.char.L%!dwm.barbuffer:~0,%%~b!       %dwm.char.R%"
+						set "win[%%~1]p%%y=%\e%[48;2;!r!;!g!;!b!;38;!win[%%~1]TIcolor!m%dwm.char.L%%\e%[%%~bX%\e%[%%~bC       %dwm.char.R%"
 					)
 					set "win[%%~1]p!win[%%~1]H!=%\e%[48;2;!r!;!g!;!b!;38;!win[%%~1]TIcolor!m%dwm.char.S%!dwm.bottombuffer:~0,%%~b!%dwm.bottombuffer:~0,7%%dwm.char.S%"
 					set r=
@@ -179,33 +182,25 @@ for /l %%. in () do (
 				set mode >&3
 			) else if "%%~1"=="LOAD" (
 				for /f "usebackq tokens=1* delims==" %%x in ("%%~2") do set "%%x=%%y"
+			) else if "%%~1"=="BSOD" (
+				call :bsod "%%~1" "%%~2"
 			)
-		) else if "%%~0"=="EXIT" (
-			exit 0
-		)
-	)
-	if defined mainbuffer (
-		rem set dwm.scene=%\e%[H
-		rem for /l %%x in (1 1 !modeH!) do (
-		rem 	set /a "r=255-(%%x*127/modeH), g=!random:~0,2!/2, b=r*2"
-		rem 	set dwm.scene=!dwm.scene!%\e%[48;2;!r!;!g!;!b!m%\e%[2K%\e%[B
-		rem )
-		rem set "dwm.scene=!dwm.scene!%\e%[999C%\e%[44D%\e%[38;5;15mLo-Fi theme | Shivtanium !sys.tag! !sys.ver! !sys.subvinfo!"
-		rem set r=
-		rem set g=
-		rem set b=
-		for %%w in (!win.order!) do (
-			set "mainbuffer=!mainbuffer!%\e%[!win[%%~w]Y!;!win[%%~w]X!H!win[%%~w]p1!"
-			for /l %%l in (2 1 !win[%%~w]H!) do (
-				set "mainbuffer=!mainbuffer!%\e%[B%\e%[!win[%%~w]X!G!win[%%~w]p%%l!%\e%[!win[%%~w]X!G!win[%%~w]l%%l!!win[%%~w]o%%l!"
+		) else if "%%~0"=="EXIT" exit 0
+
+		if defined mainbuffer (
+			for %%w in (!win.order!) do (
+				set "mainbuffer=!mainbuffer!%\e%[!win[%%~w]Y!;!win[%%~w]X!H!win[%%~w]p1!"
+				for /l %%l in (2 1 !win[%%~w]H!) do (
+					set "mainbuffer=!mainbuffer!%\e%[B%\e%[!win[%%~w]X!G%\e%7!win[%%~w]p%%l!%\e%8!win[%%~w]l%%l!%\e%8!win[%%~w]o%%l!"
+				)
 			)
+			<nul set /p "=!mainbuffer!!overlay!!extbuffer!"
+		) else if defined extbuffer (
+			<nul set /p "=!overlay!!extbuffer!"
 		)
-		<nul set /p "=!mainbuffer!!overlay!!extbuffer!"
-	) else if defined extbuffer (
-		<nul set /p "=!overlay!!extbuffer!"
+		set mainbuffer=
+		set extbuffer=
 	)
-	set mainbuffer=
-	set extbuffer=
 )
 :reload
 
