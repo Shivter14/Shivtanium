@@ -19,6 +19,7 @@ for /l %%i in (0,1,!length!) do (
 	for %%c in (A B C D E F G H I J K L M N O P Q R S T U V W X Y Z) do if "!add!"=="%%~c" set "add=#%%~c"
 	set "return=!return!"!add!" "
 )
+set icon=
 for %%i in (!return!) do set "icon=!icon!![%%~i]! "
 
 echo=[!time!] Finished.[4;8H!icon!
