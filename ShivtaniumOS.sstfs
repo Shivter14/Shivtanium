@@ -1,5 +1,4 @@
 @FILESYSTEM
-shivtanium=1
 version=0
 @FILE init.sst
 math	$sys.modeW$/2+6
@@ -7,10 +6,10 @@ set	x=$result$
 math	$sys.modeH$/2+6
 createWindow	idk	x=$x$	y=$result$	w=48	h=8	title=Multi-theme support‼	theme=eyeburn
 modifyWindow	idk	l2=  This demonstrates the multi-theme	l3=  functionality.	l4=  Theme: eyeburn
-setButton	idk	shutdown	3	6	10	Shutdown	:shutdown
+setButton	idk	shutdown	2	6	10	Shutdown	:shutdown
 createWindow	anotherwindow	x=4	y=2	w=35	h=7	title=Yet another window	theme=aero
 modifyWindow	anotherwindow	l2=  Yet another window
-setButton	anotherwindow	testbutton	3	4	29	This button does nothing ;)	:spawnWindow
+setButton	anotherwindow	testbutton	2	4	29	This button does nothing =)	:spawnWindow
 call	.\idk.sst
 call	.\ext.sst
 test
@@ -40,10 +39,10 @@ math	($sys.modeW$-64)/2+1
 set	x=$result$
 math	($sys.modeH$-16)/2+1
 createWindow	test	x=$x$	y=$result$	w=64	h=13	title=Shivtanium $sys.tag$ $sys.ver$ $sys.subvinfo$
-modifyWindow	test	l2=  Welcome to Shivtanium‼ [Git version]	l4=  There is currently not much to see.
-call	\bin\WinAPI	setTextInput	test	login
+modifyWindow	test	l2=  Welcome to Shivtanium‼	l4=  There is currently not much to see.
+call	\bin\WinAPI	setTextInput	test	login	2	11	60
 set	ResumeOnReturn=True
 :main
-modifyWindow	test	l8=  X: $sys.mouseXpos$ Y: $sys.mouseYpos$ Click: $sys.click$	o9=  $login$
+modifyWindow	test	l8=  X: $sys.mouseXpos$ Y: $sys.mouseYpos$ Click: $sys.click$
 wait	10
 goto	main
