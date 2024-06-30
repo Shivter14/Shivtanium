@@ -5,20 +5,24 @@ setlocal enabledelayedexpansion
 if "%~1"==":waitForBootServices" goto waitForBootServices.service
 if not exist "%~dp0" exit /b 404
 chcp.com 65001>nul
+
 cd "%~dp0" || exit /b 404
 pushd ..
 set "sst.root=!cd!"
 popd
 set "sst.dir=!cd!"
-if not exist temp md temp
-rd /s /q temp > nul || del /F /Q temp > nul
-if not exist temp md temp
-set sst.localtemp=!random!
+if /I "!sst.noTempClear!" neq "True" (
+	if not exist temp md temp
+	rd /s /q temp > nul || del /F /Q temp > nul
+	if not exist temp md temp
+)
+if not defined sst.localtemp set sst.localtemp=!random!
+
 if "%~x1"==".bat" (
-	set "sst.env=%~f1"
-	set sst.boot="!sst.env! /init|Initializing %~n1"
-) else (
-	set "sst.env=Shivtanium.bat"
+	set "sst.subsystem=%~f1"
+	set sst.boot="!sst.subsystem! /init|Initializing %~n1"
+) else if "%~x1"==".sstfs" (
+	set "sst.subsystem=Shivtanium.bat"
 	set "sstfs.mainfile=%~f1"
 	if not exist "!sstfs.mainfile!" set "sstfs.mainfile=!sst.dir!\core\main.sstfs"
 	set sst.boot=^
@@ -26,6 +30,20 @@ if "%~x1"==".bat" (
 	":createProcess 0 \mnt\init\init.sst|Creating init process"
 	
 	if not exist "!sst.root!\users" set sst.boot=!sst.boot! ":sysDeploy|Getting ready"
+) else if "%~1"=="/safemode" (
+	set "sst.subsystem=Shivtanium.bat"
+	set "sstfs.mainfile=%~f2"
+	if not exist "!sstfs.mainfile!" set "sstfs.mainfile=!sst.dir!\core\main.sstfs"
+	set sst.boot=^
+	":SSTFS.mount '!sstfs.mainfile!' \mnt\init|Mounting SSTFS file"^
+	":SSTFS.mount '!sst.dir!\core\safemode.sstfs' \mnt\safemode|Mounting SSTFS file for \mnt\safemode"^
+	":createProcess 0 \mnt\safemode\init.sst|Creating init process"
+) else (
+	set "sst.subsystem=Shivtanium.bat"
+	set "sstfs.mainfile=!sst.dir!\core\main.sstfs"
+	set sst.boot=^
+	":SSTFS.mount '!sstfs.mainfile!' \mnt\init|Mounting SSTFS file"^
+	":createProcess 0 \mnt\init\init.sst|Creating init process"
 )
 set counter=0
 for /f "tokens=2 delims=:" %%a in ('mode con') do (
@@ -36,8 +54,11 @@ for /f "tokens=2 delims=:" %%a in ('mode con') do (
 )
 set /a "sst.boot.msgY=!sys.modeH!/2+7"
 <nul set /p "=%\e%[H%\e%[48;2;0;0;0m%\e%[38;2;255;255;255m"
-copy nul "temp\bootStatus-!sst.localtemp!" > nul
-start /b "" cmd /c boot\renderer.bat "temp\bootStatus-!sst.localtemp!" < "temp\bootStatus-!sst.localtemp!"
+if not exist "temp\bootStatus-!sst.localtemp!" copy nul "temp\bootStatus-!sst.localtemp!" > nul
+
+if /I "!sst.noguiboot!" neq "True" (
+	start /b "" cmd /c boot\renderer.bat "temp\bootStatus-!sst.localtemp!" < "temp\bootStatus-!sst.localtemp!"
+)
 for %%a in (
 	":clearEnv|Clearing environment"
 	":loadresourcepack init|Loading resources"
@@ -71,7 +92,7 @@ for /f "tokens=1 delims==" %%a in ('set sst.boot') do if /I "%%~a" neq "sst.boot
 copy nul "temp\DWM-!sst.localtemp!" > nul
 copy nul "temp\DWMResp-!sst.localtemp!" > nul
 start /b "" cmd /c dwm.bat < "temp\DWM-!sst.localtemp!" 3> "temp\DWMResp-!sst.localtemp!"
-call !sst.env! > "temp\DWM-!sst.localtemp!" < nul
+call !sst.subsystem! > "temp\DWM-!sst.localtemp!" < nul
 exit /b 0
 :startup.submsg
 
@@ -144,8 +165,13 @@ if not exist "!sst.dir!\resourcepacks\%~1" exit /b 1
 for /f "delims=" %%a in ('dir /b /a:-D "!sst.dir!\resourcepacks\%~1\sprites\*.spr" 2^>nul') do call :loadsprites "!sst.dir!\resourcepacks\%~1\sprites\%%~a" %%~a
 for /f "delims=" %%a in ('dir /b /a:-D "!sst.dir!\resourcepacks\%~1\sounds\*.*" 2^>nul') do set "asset[\sounds\%%~a]=!sst.dir!\resourcepacks\%~1\sounds\%%~a"
 set /a "sst.boot.logoX=(!sys.modeW!-!spr.[bootlogo.spr].W!)/2+1", "sst.boot.logoY=(!sys.modeH!-!spr.[bootlogo.spr].H!)/2+1"
-echo(%\e%[H%\e%[48;2;0;0;0m%\e%[38;2;255;255;255m%\e%[2J
+echo=%\e%[H%\e%[48;2;0;0;0m%\e%[38;2;255;255;255m%\e%[2J
 if exist "!sst.dir!\resourcepacks\%~1\keyboard_init.bat" call "!sst.dir!\resourcepacks\%~1\keyboard_init.bat"
+if /I "!sst.noguiboot!"=="True" (
+	set spr.[bootlogo.spr]=
+	set spr.[bootlogo.spr]W=
+	set spr.[bootlogo.spr]H=
+)
 exit /b 0
 :loadSprites
 if not exist "%~1" call :halt "%~nx0:loadSprites" "File not found: %~1"
@@ -169,11 +195,12 @@ set spr.temp=
 set spr.tempW=
 exit /b 0
 :halt
-echo(¤EXIT>> "temp\bootStatus-!sst.localtemp!"
+echo=¤EXIT>> "temp\bootStatus-!sst.localtemp!"
 set "halt.text=%~2"
 set halt.text=!halt.text:\n=","!
 set "halt.pausemsg= Press any key to exit. . . "
 set "halt.tracemsg= At %~1: "
+for /l %%. in (0 1 100000) do rem
 for /l %%a in (64 -1 0) do (
 	<nul set /p "=%\e%[2;3H%\e%[48;2;255;0;0m%\e%[38;2;255;255;255m%\e%[?25l Execution halted %\e%[4;3H!halt.tracemsg:~%%a!"
 	for /l %%. in (0 1 10000) do rem
@@ -181,7 +208,7 @@ for /l %%a in (64 -1 0) do (
 		set "halt.line=%%~b "
 		<nul set /p "=%\e%[E%\e%[3G     !halt.line:~%%a!%\e%7"
 	)
-	<nul set /p "=%\e%[999;3H%\e%[A!halt.pausemsg:~%%a!%\e%8%\e%[2E"
+	<nul set /p "=%\e%[999;3H%\e%[A!halt.pausemsg:~%%a!%\e%8"
 )
 call :memorydump
 pause>nul<con
@@ -248,9 +275,9 @@ set command=
 set parameters=
 exit /b 0
 :loadSettings
-set "sys.ver=1.0.0"
+set "sys.ver=1.1.0"
 set "sys.tag=Beta"
-set "sys.subvinfo=[Milestone 1]"
+set "sys.subvinfo=[24w27a]"
 set "sst.processes= "
 set "sst.processes.paused= "
 
@@ -266,20 +293,6 @@ set dwm.CBUI=%\e%[38;5;231m%\e%[48;2;0;192;192m - %\e%[48;2;0;255;255m □ %\e%[
 cd "%~dp0" > nul 2>&1 || exit /b
 set "sys.dir=!cd!"
 
-set dwm.winAnimSpeed=50
-set "dwm.barbuffer=                                                                                                                                                                                                                                                                "
-set "dwm.bottombuffer=▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄"
-set "dwm.outlinebuffer=░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░"
-set sst.bgdelay=0
-set dwm.order=
-set dwm.focused=
-set dwm.char.L=█
-set dwm.char.B=▄
-set dwm.char.R=█
-set dwm.char.S=█
-set dwm.char.O=░░
-set dwm.moving=
-set /a "dwm.tps=100", "dwm.tdt=100/dwm.tps", "sst.proccount=0", "sys.click=0"
 for %%a in (
 	"PROCESSOR_ARCHITECTURE=sys.CPU.architecture"
 	"PROCESSOR_IDENTIFIER=sys.CPU.identifier"
@@ -293,6 +306,20 @@ for %%a in (
 	set "%%~b="
 	if "!%%~c!"=="" call :halt "%~nx0:loadSettings" "Failed to define variable translation:\n%%~c = %%~b"
 )
+
+set "dwm.barbuffer=                                                                                                                                                                                                                                                                "
+set "dwm.bottombuffer=▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄"
+set "dwm.outlinebuffer=░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░"
+set dwm.order=
+set dwm.focused=
+set dwm.char.L=█
+set dwm.char.B=▄
+set dwm.char.R=█
+set dwm.char.S=█
+set dwm.char.O=░░
+
+set dwm.scene=%\e%[H%\e%[0m%\e%[48;2;0;0;255;38;2;255;255;255m%\e%[2JShivtanium OS !sys.tag! !sys.ver! !sys.subvinfo!
+set /a "dwm.tps=100", "dwm.tdt=100/dwm.tps", "sst.proccount=0", "sys.click=0"
 exit /b 0
 :startServices
 rem if exist "!asset[\sounds\boot.mp3]!" start "<Shivtanium startup sound handeler> (ignore this)" /min cscript.exe //b core\playsound.vbs "!asset[\sounds\boot.mp3]!"
