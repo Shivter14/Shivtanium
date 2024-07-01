@@ -23,7 +23,6 @@ set icon=
 for %%i in (!return!) do set "icon=!icon!![%%~i]! "
 
 echo=[!time!] Finished.[4;8H!icon!
-
 pause >nul
 exit /b 0
 :font/VGA/Shivtanium-Simple
