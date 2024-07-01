@@ -188,3 +188,4 @@ exit /b !ssvm.exitcode!
 	title Time: !$min!:!$sec! FPS:!fps! FrameTime: !deltaTime!cs Frames:!global.frameCount! totalTime:!$TT!
 if !ssvm.temp.fadein! gtr 0 goto bootanim.fadeout
 exit /b
+%= Goto loops are pretty laggy but this cannot run in an infinite loop, and it's fast anyway =%
