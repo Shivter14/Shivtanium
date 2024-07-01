@@ -23,7 +23,6 @@ if not exist "%~dp0ssvm.cww" (
 	echo=# SSVM Settings #> "%~dp0ssvm.cww:
 	for %%a in ("mode=128,32	# The default text mode") do echo=%%~a>> "%~dp0ssvm.cww"
 )
-for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
 
 for %%a in ("mode=128,32" "temp.fadein=0") do set "ssvm.%%~a"
 for /f "skip=1 eol=# tokens=1,2 delims==#	 " %%a in ('type "%~dp0ssvm.cww"') do set "ssvm.%%~a=%%~b"
