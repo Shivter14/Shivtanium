@@ -9,7 +9,7 @@ Input is handeled by the Shivtanium OS Kernel, which also handels:
 - Killing processes
 - Starting processes
 - Registering windows
-and more
+and more...
 
 ### How does SSTFS work?
 Shivtanium uses a custom-written file system: SSTFS
