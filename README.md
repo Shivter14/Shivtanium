@@ -69,6 +69,7 @@ Modifying the keyboard layout can be done in the following way:
 * Change one of the character sets (`charset_L` - Lower case, `charset_U` - Upper case, `charset_A` - Alternative)
 * To *re-bind* a key to a different character, find the character, and replace it with a different one.
 * To *bind a key by it's keycode*, change the character at the position based on the keycode (Example: Keycode of `F1` is 112; go to the 112th place)
+
 ## How can i write `.sst` applications for Shivtanium?
 Applications are written in the Shivtanium Subsystem which is interpreted.
 More info about it will be revealed soon. (Milestone 3)
