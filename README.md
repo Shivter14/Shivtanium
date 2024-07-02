@@ -1,6 +1,5 @@
 ![Shivtanium Logo](https://raw.githubusercontent.com/Shivter14/Shivtanium/main/Shivtanium.png)
 ## Shivtanium is a secure batch OS Engine/Kernel + Interpreter.
-Information about creating applications for Shivtanium can be found on the Wiki.
 ### How does it work?
 Shivtanium uses *sub systems*, like the Shivtanium engine which can be used to safely create GUI applications.
 These subsystems can run in pararell, and can communicate with each other.
@@ -89,7 +88,7 @@ goto  main
 
 ## How can i create interactive batch scripts compatible with Shivtanium?
 With the help of the Shivtanium Kernel;
-More info about it will also be revealed soon. [Milestone 2]
+Information about creating applications for Shivtanium can be found on the Wiki.
 ## How can i create external commands for the Shivtanium Interpreter?
 - Create a batch file in `C\Shivtanium\core`.
 - Name it with the following format: `ic-<command>.bat`
