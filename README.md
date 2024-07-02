@@ -5,7 +5,12 @@
 Shivtanium uses *sub systems*, like the Shivtanium engine which can be used to safely create GUI applications.
 These subsystems can run in pararell, and can communicate with each other.
 
-Input is handeled with an input handeling service, which automatically stops giving input when the program isn't focused.
+Input is handeled by the Shivtanium OS Kernel, which also handels:
+- System shutdown
+- Killing processes
+- Starting processes
+- Registering windows
+and more
 
 ### How does SSTFS work?
 Shivtanium uses a custom-written file system: SSTFS
