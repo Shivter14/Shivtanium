@@ -100,4 +100,4 @@ More information about interacting with the process' environment and Shivtanium:
 - `%~1` is the PID of the calling process.
 - To modify it's variables, use `"pid[%~1]v<variable>"`.
 - Printing anything will be redirected straight into DWM.
-- To communicate with the Kernel, redirect data into `!sst.dir!\temp\kernelPipe`
+- To communicate with the Kernel, redirect (add) data into `!sst.dir!\temp\kernelPipe`. Warning: Don't *lock* the pipe! Other processes might be using it >:(
