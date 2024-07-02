@@ -1,6 +1,6 @@
 ![Shivtanium Logo](https://raw.githubusercontent.com/Shivter14/Shivtanium/main/Shivtanium.png)
 ## Shivtanium is a secure batch OS Engine/Kernel + Interpreter.
-More information can be found on the Wiki.
+Information about creating applications for Shivtanium can be found on the Wiki.
 ### How does it work?
 Shivtanium uses *sub systems*, like the Shivtanium engine which can be used to safely create GUI applications.
 These subsystems can run in pararell, and can communicate with each other.
