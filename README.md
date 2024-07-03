@@ -89,7 +89,7 @@ goto  main
 ```
 
 ## How can i create interactive batch scripts compatible with Shivtanium?
-With the help from Shivtanium Kernel.
+With help from the Shivtanium Kernel.
 Information about creating applications for Shivtanium can be found on the Wiki.
 ## How can i create external commands for the Shivtanium Interpreter?
 - Create a batch file in `C\Shivtanium\core`.
