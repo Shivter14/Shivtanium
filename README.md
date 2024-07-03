@@ -81,6 +81,7 @@ Code examples:
 ```
 math  1
 nocap  The 'math' command works very similarly to 'set /a' in batch. It outputs the result into the `return` variable
+nocap  << this is a command for comments.
 :main
 if  1  ==  1
   nocap  This is a comment.
