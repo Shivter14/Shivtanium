@@ -39,6 +39,8 @@ The format is easy to understand just by looking at a theme located in: `C\Shivt
 
 * To modify the window button controlls, change the `CBUI` value which should add 9 characters. If more are needed, `\e[#E` can be used to push the cursor back # characters.
 
+Making *aero* themes will be described on the Wiki.
+
 It's even easier to create sprites, it's just raw ASCII art located in: `C\Shivtanium\resourcepacks\init\sprites\`
 The sprite loader automatically detects and assigns the width of sprites while loading.
 ## Customization
