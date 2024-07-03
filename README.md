@@ -28,7 +28,7 @@ This is a file called test2
 ```
 SSTFS also doesn't extract itself on startup. Instead, whenever a SSTFS file is loaded, Shivtanium reads through the whole filesystem and creates pointers to files (start + end) so that whenever the system needs to read an individual file, it goes to the line bellow that header, and reads the range of lines it needs.
 Limitations: A SSTFS file cannot contain the exclamation mark (`!`).
-### More about graphics
+### the Desktop Window Manager
 Shivtanium uses a custom-made Desktop Window Manager to render windows with themes.
 These themes can be customized with *resource packs*
 Yes, Shivtanium has a resource pack format.
