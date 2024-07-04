@@ -9,6 +9,7 @@ Input is handled by the Shivtanium OS Kernel, which also handles:
 - Killing processes
 - Starting processes
 - Registering windows
+- Moving windows
 
 and more...
 
