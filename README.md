@@ -74,7 +74,7 @@ Modifying the keyboard layout can be done in the following way:
 * To *re-bind* a key to a different character, find the character, and replace it with a different one.
 * To *bind a key by it's keycode*, change the character at the position based on the keycode (Example: Keycode of `F1` is 112; go to the 112th place)
 
-## How can i write `.sst` applications for Shivtanium?
+## How can I write `.sst` applications for Shivtanium?
 Applications are written in the Shivtanium Subsystem which is interpreted.
 More info about it will be revealed soon. (Milestone 3)
 
@@ -93,10 +93,10 @@ if  $return$  >  3
 goto  main
 ```
 
-## How can i create interactive batch scripts compatible with Shivtanium?
+## How can I create interactive batch scripts compatible with Shivtanium?
 With help from the Shivtanium Kernel;
 Information about creating applications for Shivtanium can be found on the ![wiki](https://github.com/Shivter14/Shivtanium/wiki). [in progress: waiting]
-## How can i create external commands for the Shivtanium Interpreter?
+## How can I create external commands for the Shivtanium Interpreter?
 - Create a batch file in `C\Shivtanium\core`.
 - Name it with the following format: `ic-<command>.bat`
 - Do not use `@echo off` nor `setlocal enableDelayedExpansion`.
