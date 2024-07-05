@@ -20,7 +20,7 @@ An SSTFS file can contain applications, assets, and all kinds of stuff
 - Shivtanium Applications have the `.sst` extension
 - Sprites with normal ASCII art have the `.spr` extension
 
-A SSTFS file contains *File headers* to seperate files.
+An SSTFS file contains *File headers* to seperate files.
 Here is an example of a filesystem with 2 files:
 ```
 @FILE test1
