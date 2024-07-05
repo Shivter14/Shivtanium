@@ -16,6 +16,7 @@ and more...
 
 ### How does SSTFS work?
 Shivtanium uses a custom-written file system: SSTFS
+
 That's the reason why you need a SSTFS file for it to boot.
 An SSTFS file can contain applications, assets, and all kinds of stuff
 - Shivtanium Applications have the `.sst` extension
