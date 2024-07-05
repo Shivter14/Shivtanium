@@ -29,6 +29,7 @@ This is a file called test1
 @FILE test2
 This is a file called test2
 ```
+
 SSTFS also doesn't extract itself on startup. Instead, whenever a SSTFS file is loaded, Shivtanium reads through the whole filesystem and creates pointers to files (start + end) so that whenever the system needs to read an individual file, it goes to the line below that header, and reads the range of lines it needs.
 Limitations: A SSTFS file cannot contain the exclamation mark (`!`).
 ## the Desktop Window Manager
