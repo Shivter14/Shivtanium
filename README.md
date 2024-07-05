@@ -97,9 +97,11 @@ goto  main
 ```
 
 ## How can I create interactive batch scripts compatible with Shivtanium?
+
 With help from the Shivtanium Kernel;
 Information about creating applications for Shivtanium can be found on the ![wiki](https://github.com/Shivter14/Shivtanium/wiki). [in progress: waiting]
 ## How can I create external commands for the Shivtanium Interpreter?
+
 - Create a batch file in `C\Shivtanium\core`.
 - Name it with the following format: `ic-<command>.bat`
 - Do not use `@echo off` nor `setlocal enableDelayedExpansion`.
