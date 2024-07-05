@@ -78,6 +78,7 @@ Modifying the keyboard layout can be done in the following way:
 
 ## How can I write `.sst` applications for Shivtanium?
 Applications are written in the Shivtanium Subsystem which is interpreted.
+
 More info about it will be revealed soon. (Milestone 3)
 
 This language has a `command<tab>parameters` syntax. Parameters aren't enclosed with quotes, instead, they are separated by `<tab>`
