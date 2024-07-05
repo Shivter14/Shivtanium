@@ -39,6 +39,7 @@ These themes can be customized with *resource packs*
 Yes, Shivtanium has a resource pack format.
 
 Creating themes requires VT100 knowledge.
+
 The format is easy to understand just by looking at a theme located in: `C\Shivtanium\resourcepacks\init\themes\`
 
 * To modify the window button controls, change the `CBUI` value which should add 9 characters. If more are needed, `\e[#E` can be used to push the cursor back # characters.
