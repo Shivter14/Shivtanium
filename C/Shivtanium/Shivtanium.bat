@@ -7,6 +7,11 @@ if "!arg:~0,1!"==":" (
 	exit /b
 )
 set arg=
+if not exist "!sst.dir!\temp\DWM-!sst.localtemp!" (
+	echo=This program requires to be run in the Shivtanium OS Kernel with DWM enabled.
+	echo=Press any key to exit. . .
+	pause < con > nul
+)
 for %%a in (
 	"sst.boot"
 	"ssvm"
@@ -14,6 +19,9 @@ for %%a in (
 	"spr"
 	"dwm"
 ) do for /f "tokens=1 delims==" %%b in ('set %%a') do set "%%b="
+call :SSTFS.mount "!sstfs.mainfile!" \mnt\init
+call :createProcess 0 \mnt\init\init.sst
+for /l %%# in (1 1 !ioTotal!) do set /p "="
 REM Yeah uhh i just like to save lines :))))))
 for /f "delims=" %%a in ('dir /b /a:-D "!sys.dir!\resourcepacks\init\themes\*"') do for /f "usebackq tokens=1* delims==" %%x in ("!sys.dir!\resourcepacks\init\themes\%%~a") do if /I "%%~x" == "CBUIOffset" set "themeCBUI[%%~a]=%%~y"
 for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000),t2=t1,sendtimer=0"
@@ -22,10 +30,12 @@ set txtIn.focused=
 set txtIn.focused.host=
 set win.focused=
 set win.moving=
-set sys.mouseHasCancer=True
 set /a "sst.mouseXpos=sys.modeW*5/2", "sst.mouseYpos=sys.modeH*5", "sys.mouseXpos=sst.mouseXpos/5", "sys.mouseYpos=sst.mouseYpos/10"
 set "tabbuffer=	"
-call :reload
+goto main
+call :main > "!sst.dir!\temp\DWM-!sst.localtemp!"
+exit /b
+:main
 echo=¤SPEED	0	0	0:00	!sys.mouseXpos!	!sys.mouseYpos!
 echo=¤OV	%\e%[!sys.modeH!;1H%\e%[48;2;191;0;191;38;2;255;255;255m Shivtanium %\e%[48;2;127;0;127m%\e%[0J
 for /l %%- in (.) do (
@@ -43,42 +53,21 @@ for /l %%- in (.) do (
 			set "sst.processes=!sst.processes!%%p "
 		)
 	)
-	set "sst.click=!click!"
-	set "sys.keys= !keysPressed!"
-	if "!sys.keys:-27-=!" neq "!sys.keys!" call :memoryDump
-	if "!sys.mouseHasCancer!"=="True" (
-		set sst.virtualMouseSpeed=2
-		if "!sys.keys:-16-=!" neq "!sys.keys!" set sst.virtualMouseSpeed=1
-		if "!sys.keys:-37-=!" neq "!sys.keys!" (
-			set /a sst.mouseXpos-=DeltaTime*sst.virtualMouseSpeed
-			if !sst.mouseXpos! lss 5 set sst.mouseXpos=4
-		) else if "!sys.keys:-39-=!" neq "!sys.keys!" (
-			set /a sst.mouseXpos+=DeltaTime*sst.virtualMouseSpeed
-		)
-		if "!sys.keys:-38-=!" neq "!sys.keys!" (
-			set /a sst.mouseYpos-=DeltaTime*sst.virtualMouseSpeed
-			if !sst.mouseYpos! lss 10 set sst.mouseYpos=8
-		) else if "!sys.keys:-40-=!" neq "!sys.keys!" (
-			set /a sst.mouseYpos+=DeltaTime*sst.virtualMouseSpeed
-		)
-		set /a "sys.mouseXpos=sst.mouseXpos/5", "sys.mouseYpos=sst.mouseYpos/10"
-		if !sys.mouseXpos! gtr !sys.modeW! (
-			set /a "sys.mouseXpos=sys.modeW", "sst.mouseXpos=sys.modeW*5"
-		)
-		if !sys.mouseYpos! gtr !sys.modeH! (
-			set /a "sys.mouseYpos=sys.modeH", "sst.mouseYpos=sys.modeH*10"
-		)
-		if "!sys.keys:-13-=!" neq "!sys.keys!" set sst.click=1
-	) else (
-		set sys.mouseXpos=!mouseXpos!
-		set sys.mouseYpos=!mouseYpos!
+	set kernelOut=
+	set "sys.keysRN= "
+	set /p kernelOut=
+	if defined kernelOut (
+		if "!kernelOut:~0,5!"=="mouse" (
+			set "sys.!kernelOut!" > nul 2>&1
+		) else if "!kernelOut:~0,12!"=="keysPressed=" (
+			set "sys.keys=!kernelOut:~12!"
+		) else if "!kernelOut:~0,14!"=="keysPressedRN=" (
+			set "sys.keysRN=!kernelOut:~14!"
+		) else if "!kernelOut:~0,6!"=="click=" (
+			set "sst.!kernelOut!"
+		) else if "!kernelOut!"=="exit" exit 0
 	)
 	if "!sys.keys!" neq " " (if defined txtIn.focused for /f "tokens=1,2* delims=." %%p in ("!txtIn.focused!") do (
-		set "sys.keysRN=!sys.keys:-= !"
-		for %%k in (!keysPressedOld!) do set "sys.keysRN=!sys.keysRN: %%k = !"
-		if "!sys.keys!" neq "!sys.keys:-112-=!" if "!tt!"=="0" if !deltaTime! geq 1 set "sys.keysRN=!sys.keys:-= !"
-		set "keysPressedOld=!sys.keys:-= !"
-		
 		for %%k in (!sys.keysRN!) do (
 			set "char=!charset_L:~%%k,1!"
 			if "!sys.keys!" neq "!sys.keys:-16-=!" set "char=!charset_U:~%%k,1!"
@@ -120,7 +109,7 @@ for /l %%- in (.) do (
 			for %%w in (!windows!) do if not defined win.focused (
 				if !sys.mouseXpos! geq !win[%%~w]X! if !sys.mouseXpos! leq !win[%%~w]BX! if !sys.mouseYpos! geq !win[%%~w]Y! if !sys.mouseYpos! leq !win[%%~w]BY! (
 					set /a iobuffers+=1
-					echo(¤FOCUS	%%~w
+					echo=¤FOCUS	%%~w
 					set "windows= "%%~w"!windows: "%%~w" = !"
 					set "win.focused=%%~w"
 					if "!sys.mouseYpos!"=="!win[%%~w]Y!" (
@@ -381,10 +370,10 @@ for /l %%- in (.) do (
 					set /a "win[%%~p.%%~0]btn[%%~1]WX=win[%%~p.%%~0]btn[%%~1]WX+1", "win[%%~p.%%~0]btn[%%~1]WY=win[%%~p.%%~0]btn[%%~1]WY", "win[%%~p.%%~0]btn[%%~1]W=win[%%~p.%%~0]btn[%%~1]W",^
 					       "win[%%~p.%%~0]btn[%%~1]X=win[%%~p.%%~0]X+win[%%~p.%%~0]btn[%%~1]WX", "win[%%~p.%%~0]btn[%%~1]Y=win[%%~p.%%~0]Y+win[%%~p.%%~0]btn[%%~1]WY",^
 						   "win[%%~p.%%~0]btn[%%~1]B=win[%%~p.%%~0]btn[%%~1]X+win[%%~p.%%~0]btn[%%~1]W-1", "iobuffers+=1"
-					set win[%%~p.%%~0]buttons=!pid[%%~p]buttons! "%%~1"
+					set win[%%~p.%%~0]buttons=!win[%%~p.%%~0]buttons! "%%~1"
 					for /l %%y in (1 1 !win[%%~p.%%~0]H!) do set "win[%%~p.%%~0]o%%y="
 					for %%b in (!win[%%~p.%%~0]buttons!) do for /f "delims=" %%y in ("!win[%%~p.%%~0]btn[%%~b]WY!") do (
-						set "win[%%~p.%%~0]o%%y=!win[%%~p.%%~0]o%%y!%\e%[!win[%%~p.%%~0]btn[%%~b]WX!C!win[%%~p.%%~0]btn[%%~b]#:~0,%%~4!"
+						set "win[%%~p.%%~0]o%%y=!win[%%~p.%%~0]o%%y!%\e%8%\e%[!win[%%~p.%%~0]btn[%%~b]WX!C!win[%%~p.%%~0]btn[%%~b]#:~0,%%~4!"
 						echo=¤MW	%%~p.%%~0	o%%y=!win[%%~p.%%~0]o%%y!
 					)
 				)
@@ -543,15 +532,6 @@ for %%a in (!pid[%~1]windows!) do (
 for /f "tokens=1 delims==" %%v in ('set "pid[%~1]"') do set "%%v="
 for /f "tokens=1 delims==" %%v in ('set "win[%~1." 2^>nul') do set "%%v="
 exit /b
-:reload
-
-:injectDLLs
-cd "!sst.dir!"
-set "noResize=1"
-if not exist core\getInput64.dll call :halt "%~nx0:injectDLLs" "Missing File: core\getInput64.dll"
-rundll32.exe core\getInput64.dll,inject|| call :halt "%~nx0:injectDLLs" "Failed to inject getInput64.dll\nErrorlevel: !errorlevel!"
-if not defined getInputInitialized call :halt "%~nx0:injectDLLs" "Failed to inject getInput64.dll: Unknown error.\nErrorlevel: %errorlevel%"
-exit /b
 :haltIC
 set "halt.color=;127;"
 set "halt.text=  %~3\n%~4"
@@ -570,7 +550,7 @@ set "halt.text=    %~2"
 set "halt.tracemsg= At %~1: "
 :halt.ready
 set "halt.text=!halt.text:\n=","    !"
-set "halt.pausemsg= Press any key to restart. . . "
+set "halt.pausemsg= Press any key to exit. . . "
 for /f "tokens=2 delims=:" %%a in ('mode con') do (
 	set /a counter+=1
 	set "token=%%~a"
@@ -588,6 +568,7 @@ for /l %%a in (!halt.modeW! -1 0) do (
 
 pause<con>nul
 echo=¤EXIT
+>"!sst.dir!\temp\kernelPipe" echo=exitProcess !PID!
 exit 0
 :memoryDump
 pushd "!sst.dir!\temp" || exit /b !errorlevel!
@@ -597,3 +578,47 @@ for %%A in (memoryDump) do (
 	exit /b %%~zA
 )
 exit /b %errorlevel%
+:SSTFS.mount
+set sstfs.tempcounter=0
+set sstfs.temp=
+set sstfs.fsend=
+if not exist "%~1" call :halt "%~nx0:SSTFS.mount" "Filesystem not found: '%~1'"
+if "%~2"=="" call :halt "%~nx0:SSTFS.mount" "Path not specified"
+cmd /c findstr /N "^!" "%~f1">nul
+if not errorlevel 1 call :halt "%~nx0:SSTFS.mount" "Found illegal character: <exclamation mark>"
+
+set "temp.whitelist= %~2"
+for %%z in (a b c d e f g h i j k l m n o p q r s t u v w x y z 1 2 3 4 5 6 7 8 9 \ / _ .) do (
+	set "temp.whitelist=!temp.whitelist:%%z=!"
+)
+if "!temp.whitelist!" neq " " call :halt "%~nx0:SSTFS.mount" "Illegal mount destination path: %~2\nIllegal characters:!temp.whitelist!"
+set "sstfs.dest=%~2"
+set "sstfs.dest=!sstfs.dest:/=\!"
+
+for /f "usebackq tokens=1*" %%a in ("%~f1") do (
+	set "command=%%~a"
+	set "parameters=%%~b"
+	if "!command!"=="@FILE" (
+		set error.invalidFileName=
+		set "temp.whitelist= !parameters!"
+		for %%z in (a b c d e f g h i j k l m n o p q r s t u v w x y z 1 2 3 4 5 6 7 8 9 \ _ .) do (
+			set "temp.whitelist=!temp.whitelist:%%z=!"
+		)
+		if "!temp.whitelist!" neq " " set "error.invalidFileName=!temp.whitelist!"
+
+		if defined error.invalidFileName call :halt "%~nx0:SSTFS.mount" "Error in filesystem: Invalid file name:\n'!parameters!'\nInvalid characters:!error.invalidFileName!"
+		set /a "sstfs.[!sstfs.dest!\!parameters!]"=!sstfs.tempcounter!+1
+		if defined sstfs.temp set /a "sstfs.[!sstfs.dest!\!sstfs.temp!].end=!sstfs.tempcounter!-1"
+		set "sstfs.temp=!parameters!"
+		rem call :startup.submsg "Mounting SSTFS File for !sstfs.dest!" "Registered file: !parameters!">> "temp\bootStatus-!sst.localtemp!"
+	)
+	set /a sstfs.tempcounter+=1
+)
+if defined sstfs.temp set /a "sstfs.[!sstfs.dest!\!sstfs.temp!].end=!sstfs.tempcounter!-1"
+set "sstfs.mnt[!sstfs.dest!]=%~f1"
+set sstfs.fsend=
+set sstfs.temp=
+set sstfs.tempcounter=
+set command=
+set parameters=
+exit /b 0
