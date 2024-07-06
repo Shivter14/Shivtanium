@@ -27,7 +27,7 @@ if "%~x1"==".bat" (
 	if not exist "!sstfs.mainfile!" set "sstfs.mainfile=!sst.dir!\core\main.sstfs"
 	set sst.boot=^
 	":SSTFS.mount '!sstfs.mainfile!' \mnt\init|Mounting SSTFS file"^
-	":createProcess 0 \mnt\init\init.sst|Creating init process"
+	":createSubSystemProcess 0 \mnt\init\init.sst|Creating init process"
 	
 	if not exist "!sst.root!\users" set sst.boot=!sst.boot! ":sysDeploy|Getting ready"
 ) else if "%~1"=="/safemode" (
@@ -37,14 +37,15 @@ if "%~x1"==".bat" (
 	set sst.boot=^
 	":SSTFS.mount '!sstfs.mainfile!' \mnt\init|Mounting SSTFS file"^
 	":SSTFS.mount '!sst.dir!\core\safemode.sstfs' \mnt\safemode|Mounting SSTFS file for \mnt\safemode"^
-	":createProcess 0 \mnt\safemode\init.sst|Creating init process"
+	":createSubSystemProcess 0 \mnt\safemode\init.sst|Creating init process"
 ) else (
 	set "sst.subsystem=Shivtanium.bat"
 	set "sstfs.mainfile=!sst.dir!\core\main.sstfs"
 	set sst.boot=^
 	":SSTFS.mount '!sstfs.mainfile!' \mnt\init|Mounting SSTFS file"^
-	":createProcess 0 \mnt\init\init.sst|Creating init process"
+	":createSubSystemProcess 0 \mnt\init\init.sst|Creating init process"
 )
+
 set counter=0
 for /f "tokens=2 delims=:" %%a in ('mode con') do (
 	set /a counter+=1
@@ -59,16 +60,18 @@ if not exist "temp\bootStatus-!sst.localtemp!" copy nul "temp\bootStatus-!sst.lo
 if /I "!sst.noguiboot!" neq "True" (
 	start /b "" cmd /c boot\renderer.bat "temp\bootStatus-!sst.localtemp!" < "temp\bootStatus-!sst.localtemp!"
 )
+
+set "processes= "
 for %%a in (
 	":clearEnv|Clearing environment"
 	":loadresourcepack init|Loading resources"
 	":loadSettings|Loading settings"
 	":checkCompat|Checking compatibility"
-	%sst.boot%
 	":startServices|Starting services"
 	"start /b cmd /c boot\cfmsf.bat|Checking for missing files"
 	"start /b cmd /c boot\updateCheckSvc.bat|Checking for updates"
 	"cmd /c boot\fadeout.bat|Startup finished"
+	":injectDLLs"
 	":waitForBootServices"
 ) do for /f "tokens=1-2* delims=|" %%b in (%%a) do (
 	set "sst.boot.command=%%~b"
@@ -88,12 +91,14 @@ for %%a in (
 	call !sst.boot.command! || call :halt "Boot" "Something went wrong.\nCommand: %%~b\nText: %%~c\nErrorlevel: !errorlevel!"
 )
 for /f "tokens=1 delims==" %%a in ('set sst.boot') do if /I "%%~a" neq "sst.boot.logoX" if /I "%%~a" neq "sst.boot.logoY" set "%%a="
+cd "%~dp0"
+copy nul temp\kernelPipe > nul
+copy nul temp\kernelOut > nul
 
-copy nul "temp\DWM-!sst.localtemp!" > nul
-copy nul "temp\DWMResp-!sst.localtemp!" > nul
-start /b "" cmd /c dwm.bat < "temp\DWM-!sst.localtemp!" 3> "temp\DWMResp-!sst.localtemp!"
-call !sst.subsystem! > "temp\DWM-!sst.localtemp!" < nul
-exit /b 0
+call sstoskrnl.bat < "temp\kernelPipe" > "temp\kernelOut" 2>"temp\kernelErr" 3> "temp\DWM-!sst.localtemp!"
+
+rem call !sst.subsystem! > "temp\DWM-!sst.localtemp!" < "temp\DWMResp-!sst.localtemp!"
+
 :startup.submsg
 
 	set "sst.boot.msg=%~1"
@@ -124,47 +129,13 @@ for %%A in (memoryDump) do (
 	exit /b %%~zA
 )
 exit /b %errorlevel%
-:createProcess
-set temp.pid=!random!
-if defined pid[!temp.pid!] goto createProcess
-REM Todo: This gets slower the more processes are running.
-set "pid[!temp.pid!]C=%~1"
-set "temp.scriptname=%~2"
-set "pid[!temp.pid!]cb=0"
-set temp.lines=0
-if "!sstfs.[%temp.scriptname%]!"=="" (
-	set "pid[%~1]vreturn=9009"
-	exit /b 1
-)
-set "pid[!temp.pid!]=!temp.scriptname!"
-for /f "eol=# delims=" %%a in ('SSTFS-read.bat "!temp.scriptname!"') do (
-	set /a temp.lines+=1
-	set "temp.line=%%a"
-	if not defined temp.line call :halt "%~nx0:createProcess" "Something went wrong when creating the following process:\nPID: !temp.pid!, EXE: !temp.scriptname!"
-	if "!temp.line:~0,1!"==":" (
-		set "temp.label=!temp.line!"
-		for %%a in (a b c d e f g h i j k l m n o p q r s t u v w x y z _ . 1 2 3 4 5 6 7 8 9 0) do set "temp.label=!temp.label:%%~a=!"
-		if "!temp.label!" neq ":" call :halt "%~nx0:createProcess" "At line !temp.lines!: Invalid label name:\n'!temp.line!'\nWhitelisted characters: A-Z, a-z, 0-9, '_', '.'"
-		set "pid[!temp.pid!]#!temp.line:~1!=!temp.lines!"
-	) else set "pid[!temp.pid!]l[!temp.lines!]=%%a"
-)
-
-set "pid[!temp.pid!]cl=1"
-set "pid[!temp.pid!]ss=!temp.lines!"
-set "sst.processes=!sst.processes!!temp.pid! "
-set /a sst.proccount+=1
-set temp.scriptname=
-set temp.lines=
-set temp.line=
-set temp.pid=
-exit /b 0
 
 REM == Modules ==
 :loadresourcepack
 if not exist "!sst.dir!\resourcepacks\%~1" exit /b 1
 for /f "delims=" %%a in ('dir /b /a:-D "!sst.dir!\resourcepacks\%~1\sprites\*.spr" 2^>nul') do call :loadsprites "!sst.dir!\resourcepacks\%~1\sprites\%%~a" %%~a
 for /f "delims=" %%a in ('dir /b /a:-D "!sst.dir!\resourcepacks\%~1\sounds\*.*" 2^>nul') do set "asset[\sounds\%%~a]=!sst.dir!\resourcepacks\%~1\sounds\%%~a"
-set /a "sst.boot.logoX=(!sys.modeW!-!spr.[bootlogo.spr].W!)/2+1", "sst.boot.logoY=(!sys.modeH!-!spr.[bootlogo.spr].H!)/2+1"
+set /a "sst.boot.logoX=(sys.modeW-spr.[bootlogo.spr].W)/2+1", "sst.boot.logoY=(sys.modeH-spr.[bootlogo.spr].H)/2+1"
 echo=%\e%[H%\e%[48;2;0;0;0m%\e%[38;2;255;255;255m%\e%[2J
 if exist "!sst.dir!\resourcepacks\%~1\keyboard_init.bat" call "!sst.dir!\resourcepacks\%~1\keyboard_init.bat"
 if /I "!sst.noguiboot!"=="True" (
@@ -230,58 +201,15 @@ set PATHEXT=.COM;.EXE;.BAT
 set "PATH=!windir!\system32;!windir!"
 set unload=
 exit /b 0
-:SSTFS.mount
-set sstfs.tempcounter=0
-set sstfs.temp=
-set sstfs.fsend=
-if not exist "%~1" call :halt "%~nx0:SSTFS.mount" "Filesystem not found: '%~1'"
-if "%~2"=="" call :halt "%~nx0:SSTFS.mount" "Path not specified"
-cmd /c findstr /N "^!" "%~f1">nul
-if not errorlevel 1 call :halt "%~nx0:SSTFS.mount" "Found illegal character: <exclamation mark>"
-
-set "temp.whitelist= %~2"
-for %%z in (a b c d e f g h i j k l m n o p q r s t u v w x y z 1 2 3 4 5 6 7 8 9 \ / _ .) do (
-	set "temp.whitelist=!temp.whitelist:%%z=!"
-)
-if "!temp.whitelist!" neq " " call :halt "%~nx0:SSTFS.mount" "Illegal mount destination path: %~2\nIllegal characters:!temp.whitelist!"
-set "sstfs.dest=%~2"
-set "sstfs.dest=!sstfs.dest:/=\!"
-
-for /f "usebackq tokens=1*" %%a in ("%~f1") do (
-	set "command=%%~a"
-	set "parameters=%%~b"
-	if "!command!"=="@FILE" (
-		set error.invalidFileName=
-		set "temp.whitelist= !parameters!"
-		for %%z in (a b c d e f g h i j k l m n o p q r s t u v w x y z 1 2 3 4 5 6 7 8 9 \ _ .) do (
-			set "temp.whitelist=!temp.whitelist:%%z=!"
-		)
-		if "!temp.whitelist!" neq " " set "error.invalidFileName=!temp.whitelist!"
-
-		if defined error.invalidFileName call :halt "%~nx0:SSTFS.mount" "Error in filesystem: Invalid file name:\n'!parameters!'\nInvalid characters:!error.invalidFileName!"
-		set /a "sstfs.[!sstfs.dest!\!parameters!]"=!sstfs.tempcounter!+1
-		if defined sstfs.temp set /a "sstfs.[!sstfs.dest!\!sstfs.temp!].end=!sstfs.tempcounter!-1"
-		set "sstfs.temp=!parameters!"
-		call :startup.submsg "Mounting SSTFS File for !sstfs.dest!" "Registered file: !parameters!">> "temp\bootStatus-!sst.localtemp!"
-	)
-	set /a sstfs.tempcounter+=1
-)
-if defined sstfs.temp set /a "sstfs.[!sstfs.dest!\!sstfs.temp!].end=!sstfs.tempcounter!-1"
-set "sstfs.mnt[!sstfs.dest!]=%~f1"
-set sstfs.fsend=
-set sstfs.temp=
-set sstfs.tempcounter=
-set command=
-set parameters=
-exit /b 0
 :loadSettings
-set "sys.ver=1.1.0"
+set "sys.ver=1.2.0"
 set "sys.tag=Beta"
-set "sys.subvinfo=[24w27a]"
+set "sys.subvinfo=[Milestone 2]"
 set "sst.processes= "
 set "sst.processes.paused= "
 
-set dwm.scene=%\e%[H%\e%[0m%\e%[48;2;0;63;127m%\e%[2JDefault ^(Metro^) theme
+set dwm.scene=%\e%[H%\e%[0m%\e%[48;2;;63;127;38;2;255;255;255m%\e%[2JShivtanium OS !sys.tag! !sys.ver! !sys.subvinfo!
+set dwm.sceneBGcolor=2;;63;127
 set dwm.BGcolor=5;231
 set dwm.FGcolor=5;16
 set dwm.TIcolor=5;12
@@ -318,11 +246,21 @@ set dwm.char.R=█
 set dwm.char.S=█
 set dwm.char.O=░░
 
-set dwm.scene=%\e%[H%\e%[0m%\e%[48;2;0;0;255;38;2;255;255;255m%\e%[2JShivtanium OS !sys.tag! !sys.ver! !sys.subvinfo!
 set /a "dwm.tps=100", "dwm.tdt=100/dwm.tps", "sst.proccount=0", "sys.click=0"
 exit /b 0
+:injectDLLs
+cd "!sst.dir!"
+set "noResize=1"
+if not exist core\getInput64.dll call :halt "%~nx0:injectDLLs" "Missing File: core\getInput64.dll"
+rundll32.exe core\getInput64.dll,inject|| call :halt "%~nx0:injectDLLs" "Failed to inject getInput64.dll\nErrorlevel: !errorlevel!"
+cmd /c rem
+if not defined getInputInitialized call :halt "%~nx0:injectDLLs" "Failed to inject getInput64.dll: Unknown error.\nErrorlevel: %errorlevel%"
+exit /b
 :startServices
 rem if exist "!asset[\sounds\boot.mp3]!" start "<Shivtanium startup sound handeler> (ignore this)" /min cscript.exe //b core\playsound.vbs "!asset[\sounds\boot.mp3]!"
+copy nul "temp\DWM-!sst.localtemp!" > nul
+copy nul "temp\DWMResp-!sst.localtemp!" > nul
+start /b cmd /c dwm.bat < "temp\DWM-!sst.localtemp!" 3> "temp\DWMResp-!sst.localtemp!"
 exit /b 0
 :waitForBootServices
 cmd /c "%~f0" :waitForBootServices
