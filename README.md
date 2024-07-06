@@ -12,7 +12,7 @@ Input is handled by the Shivtanium OS Kernel, which also handles:
 - Registering windows
 - Moving windows
 
-and more...
+And more...
 
 ### How does SSTFS work?
 Shivtanium uses a custom-written file system: SSTFS
