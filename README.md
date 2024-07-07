@@ -16,7 +16,7 @@ And more...
 
 Graphics & windows are handled by the Desktop Window Manager, which uses many kinds of VT sequences, optimizations, and all sorts of techniques to render windows quickly and smoothly.
 
-More information about it can be found in the following sections and the ![wiki](https://github.com/Shivter14/Shivtanium/wiki).
+More information about it can be found in the following sections and the ![DWM Wiki](https://github.com/Shivter14/Shivtanium/wiki/Desktop-Window-Manager).
 
 ### How does SSTFS work?
 Shivtanium uses a custom-written file system: SSTFS
