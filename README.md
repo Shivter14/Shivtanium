@@ -1,4 +1,10 @@
+<div align="center">
+
 ![Shivtanium Logo](https://raw.githubusercontent.com/Shivter14/Shivtanium/main/Shivtanium.png)
+[![Release version](https://img.shields.io/github/v/release/Shivter14/Shivtanium?color=brightgreen&label=Download&style=for-the-badge)](#installation "Installation")
+
+</div>
+
 ## Shivtanium is the most advanced Batch OS Kernel, along with `systemb` making it the most advanced Batch OS ever created.
 
 ### How does it work?
