@@ -3,7 +3,7 @@
 ![Shivtanium Logo](https://raw.githubusercontent.com/Shivter14/Shivtanium/main/Shivtanium.png)
 [![Release version](https://img.shields.io/github/v/release/Shivter14/Shivtanium?color=brightgreen&label=Latest%20version&style=for-the-badge)](#installation "Installation")
 [![Commits](https://img.shields.io/github/commit-activity/m/Shivter14/Shivtanium?label=commits&style=for-the-badge)](https://github.com/yt-dlp/yt-dlp/commits "Commit History")
-[![Last Commit](https://img.shields.io/github/last-commit/Shivter14/Shivtanium/main?label=Latest%20commit&style=for-the-badge&display_timestamp=committer)](https://github.com/yt-dlp/yt-dlp/pulse/monthly "Last activity")
+[![Last Commit](https://img.shields.io/github/last-commit/Shivter14/Shivtanium/main?label=Latest%20commit&style=for-the-badge&display_timestamp=committer)](https://github.com/Shivter14/Shivtanium/pulse/monthly "Last activity")
 ## Shivtanium is the most advanced Batch OS Kernel, along with `systemb` making it the most advanced Batch OS ever created.
 
 </div>
