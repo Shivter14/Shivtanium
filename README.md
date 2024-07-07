@@ -14,6 +14,8 @@ Input is handled by the Shivtanium OS Kernel, which also handles:
 
 And more...
 
+Graphics & windows are handled by the Desktop Window Manager, which uses many kinds of VT sequences, optimizations, and all sorts of techniques to render windows quickly and smoothly.
+
 ### How does SSTFS work?
 Shivtanium uses a custom-written file system: SSTFS
 
