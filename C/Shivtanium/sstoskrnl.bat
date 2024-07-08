@@ -1,5 +1,11 @@
+for /f "tokens=1 delims==" %%a in ('set dwm. 2^>nul') do set "%%a="
+cd "!sst.dir!" || call :kernelPanic "Unable to locate system directory" "The system failed to start:\nValue sst.dir: '!sst.dir!'\n ^^^^^^  Invalid directory."
+if not exist "temp\proc" md "temp\proc"
 if not defined processes set "processes= "
-call :createProcess systemb\systemb-login.bat
+if !sys.CPU.count! lss 4 (
+	call :createProcess 0	systemb-dialog.bat 5 3 60 8 "Performance notification	noCBUI" "l2=  Your CPU only has !sys.CPU.count! logical processor(s).	l3=  This might lead to a bad experience.	l4=  The recommended minimum of logical processors is: 4" 51 6 7 " Close "
+)
+call :createProcess 0	systemb-login.bat
 set sys.keys=
 set keysPressedOld=
 set "windows= "
@@ -12,35 +18,37 @@ for /l %%# in () do (
 		set sys.mouseXpos=!mouseXpos!
 		set sys.mouseYpos=!mouseYpos!
 		if !sys.mouseXpos! geq 1 if !sys.mouseXpos! leq !sys.modeW! if !sys.mouseYpos! geq 1 if !sys.mouseYpos! leq !sys.modeH! (
-			echo=mouseXpos=!sys.mouseXpos!
-			echo=mouseYpos=!sys.mouseYpos!
-			echo=click=!sys.click!
-			set _focusedWindow=!focusedWindow!
-			set focusedWindow=
 			if "!sys.click!"=="1" (
+				set "_focusedWindow=!focusedWindow!"
+				set focusedWindow=
 				for %%w in (!windows!) do if not defined focusedWindow (
 					if !sys.mouseYpos! geq !win[%%~w]Y! if !sys.mouseYpos! leq !win[%%~w]BY! if !sys.mouseXpos! geq !win[%%~w]X! if !sys.mouseXpos! leq !win[%%~w]BX! (
-						if "%%~w" neq "!focusedWindow!" (
+						if "%%~w" neq "!_focusedWindow!" (
 							set "focusedWindow=%%~w"
 							set "windows= %%w!windows: %%w = !"
-							echo=focusWindow	%%~w
+							echo=focusedWindow=%%~w
 							>&3 echo=¤FOCUS	%%~w
-							set /a ioTotal+=4
-							if "!sys.mouseYpos!"=="!win[%%~w]Y!" (
-								set /a "movingWindowOffset=sys.mouseXpos-!win[%%~w]X!"
-								set "movingWindow=!focusedWindow!"
-							)
+							set /a ioTotal+=1
+						) else set "focusedWindow=%%~w"
+						if "!sys.mouseYpos!"=="!win[%%~w]Y!" if "!win[%%~w]D:~0,1!" neq "1" (
+							set /a "movingWindowOffset=sys.mouseXpos-!win[%%~w]X!"
+							set "movingWindow=!focusedWindow!"
 						)
 					)
 				)
-				if defined _focusedWindow if not defined focusedWindow (
-					set /a ioTotal+=1
-					echo=focusWindow	
-				)
+				if defined _focusedWindow (
+					if not defined focusedWindow (
+						echo=focusedWindow=
+						set /a ioTotal+=4
+					) else set /a ioTotal+=3
+				) else set /a ioTotal+=3
 			) else (
 				set movingWindow=
 				set /a ioTotal+=3
 			)
+			echo=mouseXpos=!sys.mouseXpos!
+			echo=mouseYpos=!sys.mouseYpos!
+			echo=click=!sys.click!
 		)
 	)
 	set sys.mouseXold=!sys.mouseXpos!
@@ -48,31 +56,27 @@ for /l %%# in () do (
 	if "!random:~0,1!"=="1" (
 		set sys.mouseXpos=!mouseXpos!
 		set sys.mouseYpos=!mouseYpos!
-		if "!sys.mouseXpos!" neq "!sys.mouseXold!" if !sys.mouseXpos! geq 1 if !sys.mouseXpos! leq !sys.modeW! (
-			if defined movingWindow (
-				set /a "temp=win[!movingWindow!]X=sys.mouseXpos-movingWindowOffset, temps=win[!movingWindow!]BX=win[!movingWindow!]X+win[!movingWindow!]W-1", ioTotal+=1
-				if !temp! lss 1 (
-					set /a "temp=win[!movingWindow!]X=1, win[!movingWindow!]BX=win[!movingWindow!]W"
-				) else if !temps! gtr !sys.modeW! set /a "temp=win[!movingWindow!]X=sys.modeW-win[!movingWindow!]W+1, win[!movingWindow!]BX=sys.modeW"
-				echo=win[!movingWindow!]X=!temp!
-				>&3 echo=¤MW	!movingWindow!	X=!temp!
-				set temp=
-				set temps=
-			) else if "!sys.click!" neq "0" (
+		if "!sys.mouseXold!;!sys.mouseYold!" neq "!sys.mouseXpos!;!sys.mouseYpos!" if defined movingWindow (
+			set /a "tempX=win[!movingWindow!]X=sys.mouseXpos-movingWindowOffset, temps=win[!movingWindow!]BX=win[!movingWindow!]X+win[!movingWindow!]W-1", "tempY=win[!movingWindow!]Y=sys.mouseYpos, win[!movingWindow!]BY=win[!movingWindow!]Y+win[!movingWindow!]H-1", ioTotal+=2
+			if !tempX! lss 1 (
+				set /a "tempX=win[!movingWindow!]X=1, win[!movingWindow!]BX=win[!movingWindow!]W"
+			) else if !temps! gtr !sys.modeW! set /a "tempX=win[!movingWindow!]X=sys.modeW-win[!movingWindow!]W+1, win[!movingWindow!]BX=sys.modeW"
+			if !tempY! lss 1 (
+				set /a "tempY=win[!movingWindow!]Y=1, win[!movingWindow!]BY=win[!movingWindow!]H"
+			) else if !tempY! geq !sys.modeH! set /a "tempY=win[!movingWindow!]Y=sys.modeH-1, win[!movingWindow!]BY=win[!movingWindow!]Y+win[!movingWindow!]H-1"
+			
+			echo=win[!movingWindow!]X=!tempX!
+			echo=win[!movingWindow!]Y=!tempY!
+			>&3 echo=¤MW	!movingWindow!	X=!tempX!	Y=!tempY!
+			set tempX=
+			set tempY=
+			set temps=
+		) else if "!sys.click!" neq "0" (
+			if "!sys.mouseXpos!" neq "!sys.mouseXold!" if !sys.mouseXpos! geq 1 if !sys.mouseXpos! leq !sys.modeW! (
 				set /a ioTotal+=1
 				echo=mouseXpos=!sys.mouseXpos!
 			)
-		)
-		if "!sys.mouseYpos!" neq "!sys.mouseYold!" if !sys.mouseYpos! geq 1 if !sys.mouseYpos! leq !sys.modeH! (
-			if defined movingWindow (
-				set /a "temp=win[!movingWindow!]Y=sys.mouseYpos, win[!movingWindow!]BY=win[!movingWindow!]Y+win[!movingWindow!]H-1", ioTotal+=1
-				if !temp! lss 1 (
-					set /a "temp=win[!movingWindow!]Y=1, win[!movingWindow!]BY=win[!movingWindow!]H"
-				) else if !temp! geq !sys.modeH! set /a "temp=win[!movingWindow!]Y=sys.modeH-1, win[!movingWindow!]BY=win[!movingWindow!]Y+win[!movingWindow!]H-1"
-				echo=win[!movingWindow!]Y=!temp!
-				>&3 echo=¤MW	!movingWindow!	Y=!temp!
-				set temp=
-			) else if "!sys.click!" neq "0" (
+			if "!sys.mouseYpos!" neq "!sys.mouseYold!" if !sys.mouseYpos! geq 1 if !sys.mouseYpos! leq !sys.modeH! (
 				set /a ioTotal+=1
 				echo=mouseYpos=!sys.mouseYpos!
 			)
@@ -89,14 +93,14 @@ for /l %%# in () do (
 		echo=keysPressedRN=!sys.keysRN!
 		set /a ioTotal+=1
 	)
-	rem if "!sys.keys!"==" -17-18-82-" call :kernelPanic "User triggered crash" "Shivtanium OS !sys.tag! !sys.ver! !sys.subvinfo!\nTotal IO transfers: !ioTotal!"
+	if "!sys.keys!"==" -17-18-82-" call :kernelPanic "User triggered crash" "Shivtanium OS !sys.tag! !sys.ver! !sys.subvinfo!\nTotal IO transfers: !ioTotal!\nA memory dump has been created at: ~:\Shivtanium\temp\KernelMemoryDump"
 	set "keysPressedOld=!sys.keys:-= !"
 
 	set io=
 	set /p io=
 	if defined io for /f "tokens=1* delims=	" %%0 in ("!io!") do (
 		if "%%~0"=="registerWindow" (
-			for /f "tokens=1-6" %%a in ("%%~1") do (
+			for /f "tokens=1-7" %%a in ("%%~1") do (
 				set "temp.id=%%~b"
 				set "temp.id=!temp.id:,=!"
 				set "temp.id=!temp.id:+=!"
@@ -107,58 +111,132 @@ for /l %%# in () do (
 				set "temp.id=!temp.id:>=!"
 				set "temp.id=!temp.id:<=!"
 				set "temp.id=!temp.id:^^=!"
-				if "%%~b" neq "!temp.id!" call :kernelPanic	"function registerWindow" "invalid ID"
-				set "windows=!windows!"!temp.id!" "
+				if "%%~b" neq "!temp.id!" call :kernelPanic	"Invalid Window ID" "At function 'registerWindow':\n  Window ID contains illegal characters.\n  (For reference, these are listed on the Wiki.)\nA memory dump has been created at: ~:\Shivtanium\temp\KernelMemoryDump"
+				set "windows= "!temp.id!"!windows!"
 				set "pid[%%~a]windows=!pid[%%~a]windows!"!temp.id!" "
 				set "win[!temp.id!]=%%~a"
 				set "win[!temp.id!]X=%%~c"
 				set "win[!temp.id!]Y=%%~d"
 				set "win[!temp.id!]W=%%~e"
 				set "win[!temp.id!]H=%%~f"
-				set /a "win[!temp.id!]X=win[!temp.id!]X, win[!temp.id!]Y=win[!temp.id!]Y, win[!temp.id!]W=win[!temp.id!]W, win[!temp.id!]H=win[!temp.id!]H, win[!temp.id!]BX=win[!temp.id!]X+win[!temp.id!]W-1, win[!temp.id!]BY=win[!temp.id!]Y+win[!temp.id!]H-1"
+				set "win[!temp.id!]D=%%~g"
+				set /a "win[!temp.id!]X=win[!temp.id!]X, win[!temp.id!]Y=win[!temp.id!]Y, win[!temp.id!]W=win[!temp.id!]W, win[!temp.id!]H=win[!temp.id!]H, win[!temp.id!]BX=win[!temp.id!]X+win[!temp.id!]W-1, win[!temp.id!]BY=win[!temp.id!]Y+win[!temp.id!]H-1", ioTotal+=1
+				set "focusedWindow=!temp.id!"
+				echo=focusedWindow=!temp.id!
+				set temp.id=
 			)
 		) else if "%%~0"=="unRegisterWindow" (
-			set "win[%%~1]="
-			set "win[%%~1]X="
-			set "win[%%~1]Y="
-			set "win[%%~1]W="
-			set "win[%%~1]H="
-			if "%%~1"=="!focusedWindow!" set focusedWindow=
+			for /f "tokens=1 delims==" %%a in ('set "win[%%~1]" 2^>nul') do set "%%a="
+			if "%%~1"=="!focusedWindow!" (
+				set /a ioTotal+=1
+				echo=focusedWindow=
+				set focusedWindow=
+			)
 			if "%%~1"=="!movingWindow!" set movingWindow=
 		) else if "%%~0"=="exitProcess" (
 			set "PID=%%~1"
 			set /a PID=PID
-			for /l %%. in (1 1 100) do if exist "!sst.dir!\temp\PID-!PID!" (
-				del "!sst.dir!\temp\PID-!PID:\=!" > nul 2>&1 < nul
-			) else (
-				set "processes=!processes: %%1 = !"
-				if "!processes: =!"=="" (
-					echo=exit
-					echo=¤EXIT>&3
-					for /l %%# in (1 1 10000) do rem
-					echo=%\e%[48;2;0;0;0m%\e%[H%\e%[2J>con
-					call "!sst.dir!\boot\fadeout.bat">con
-					exit 0
-				) else for %%w in (!pid[%%~1]windows!) do (
-					>&3	echo=¤DW	%%~w
-					set "windows=!windows: %%w = !"
+			if "!PID!" neq "%%~1" call :kernelPanic "Invalid Process ID" "At function 'exitProcess':\n  Invalid Process ID: `%%~1` (NaN)\nThis is either a fatal error, or some program missbehaving.\nA memory dump has been created at: ~:\Shivtanium\temp\KernelMemoryDump"
+
+			set "processes=!processes: %%1 = !"
+			if "!processes: =!"=="" (
+				echo=exit
+				echo=¤EXIT>&3
+				for /l %%# in (1 1 100000) do rem
+				echo=%\e%[48;2;0;0;0m%\e%[H%\e%[2J>con
+				copy nul "temp\bootStatus-!sst.localtemp!-exit" > nul 2>&1
+				call "!sst.dir!\boot\fadeout.bat">con
+				exit 0
+			) else for %%w in (!pid[%%~1]windows!) do (
+				>&3	echo=¤DW	%%~w
+				set "windows=!windows: "%%~w" = !"
+				if "%%~w"=="!focusedWindow!" (
+					set focusedWindow=
+					for %%w in (!windows!) do if not defined focusedWindow set "focusedWindow=%%~w"
+					set /a ioTotal+=1
+					echo=focusedWindow=!focusedWindow!
 				)
-				for /f "tokens=1 delims==" %%a in ('set pid[%%1] 2^>nul') do set "%%a="
+				if "%%~w"=="!movingWindow!" set movingWindow=
+				for /f "tokens=1 delims==" %%a in ('set "win[%%~w]" 2^>nul') do set "%%a="
 			)
-		) else if "%%~0"=="createProcess" call :createProcess %%1
+			for /f %%a in ("!pid[%%~1]parent!") do set "pid[%%~a]subs=!pid[%%~a]subs: "%%~1"=!"
+			for /f "tokens=1 delims==" %%a in ('set pid[%%1] 2^>nul') do set "%%a="
+		) else if "%%~0"=="createProcess" (
+			call :createProcess %%1
+		) else if "%%~0"=="exitProcessTree" (
+			call :killProcessTree	%%1
+		) else if "%%~0"=="powerState" (
+			if /I "%%~1"=="shutdown" (
+				echo=exit
+				echo=¤EXIT>&3
+				for /l %%# in (1 1 100000) do rem
+				echo=%\e%[48;2;0;0;0m%\e%[H%\e%[2J>con
+				copy nul "temp\bootStatus-!sst.localtemp!-exit" > nul 2>&1
+				call "!sst.dir!\boot\fadeout.bat">con
+				exit 0
+			) else if /I "%%~1"=="reboot" (
+				echo=exit
+				echo=¤EXIT>&3
+				cmd /c ping -n 1 127.0.0.1 >nul 2>&1
+				echo=%\e%[48;2;0;0;0m%\e%[H%\e%[2J>con
+			)
+		)
 	)
-	title !ioTotal!
 )
 :createProcess
 set PID=!random!
 if "!processes!" neq "!processes: %PID% =!" goto createProcess
-if exist "temp\PID-!PID!" goto createProcess
-copy nul "temp\PID-!PID!" > nul
+if exist "temp\proc\PID-!PID!" goto createProcess
+copy nul "temp\proc\PID-!PID!" > nul
 set "pid[!pid!]windows= "
+set "pid[!pid!]subs= "
+set "pid[!pid!]=%~2"
 set "processes=!processes!!PID! "
 if not defined processes call :kernelPanic "Process list overflow" "The system has started too many processes,\nand it seems like the list has overflown.\nThe system cannot continue."
-start /b cmd /c preparePipe.bat %* <"temp\kernelOut" >&3
+set args=%*
+for /f %%a in ("!args!") do (
+	set "pid[!PID!]parent=%%~a"
+	set "pid[%%~a]subs=!pid[%%~a]subs! "!PID!""
+)
+set "args=!args:*	=!"
+start /b cmd /c preparePipe.bat !args! <"temp\kernelOut" >&3
+if errorlevel 1 (
+	call :kernelPanic "Application failed to start" "It seems like an application has failed to start.\nExit code: !errorlevel!\nApplication: '%~1'"
+)
 exit /b 0
+:killProcessTree
+set "PID=%~1"
+set /a PID=PID, ioTotal+=1
+echo=exitProcess=!PID!
+for /l %%. in (1 1 100) do if exist "!sst.dir!\temp\PID-!PID!" (
+	del "!sst.dir!\temp\PID-!PID:\=!" > nul 2>&1 < nul
+)
+
+set "processes=!processes: %PID% = !"
+if "!processes: =!"=="" (
+	echo=exit
+	echo=¤EXIT>&3
+	for /l %%# in (1 1 10000) do rem
+	echo=%\e%[48;2;0;0;0m%\e%[H%\e%[2J>con
+	copy nul "temp\bootStatus-!sst.localtemp!-exit" > nul 2>&1
+	call "!sst.dir!\boot\fadeout.bat">con
+	exit 0
+) else for %%w in (!pid[%PID%]windows!) do (
+	>&3	echo=¤DW	%%~w
+	set "windows=!windows: "%%~w" = !"
+	if "%%~w"=="!focusedWindow!" (
+		set focusedWindow=
+		for %%w in (!windows!) do if not defined focusedWindow set "focusedWindow=%%~w"
+		set /a ioTotal+=1
+		echo=focusedWindow=!focusedWindow!
+	)
+	if "%%~w"=="!movingWindow!" set movingWindow=
+	for /f "tokens=1 delims==" %%a in ('set "win[%%~w]" 2^>nul') do set "%%a="
+)
+if defined pid[!pid[%PID%]parent!]subs for /f %%a in ("!pid[%PID%]parent!") do set "pid[%%~a]subs=!pid[%%~a]subs: "%PID%"=!"
+for %%p in (!pid[%PID%]subs!) do call :killProcessTree %%~p
+for /f "tokens=1 delims==" %%a in ('set "pid[%~1]" 2^>nul') do set "%%a="
+exit /b
 :kernelPanic
 >&3 echo=¤CTRL	BSOD	%1	%2
 echo=¤EXIT>&3
@@ -187,6 +265,7 @@ if not exist "temp\DWM-!sst.localtemp!" (
 		set /p "=%\e%[999;3H%\e%[A!halt.pausemsg:~%%a!%\e%[4;1H"
 	) <nul>con
 )
+set > "!sst.dir!\temp\kernelMemoryDump"
 ping -n 2 127.0.0.1 > nul
-pause<con>nul
+for /l %%# in () do if defined keysPressed exit 0
 exit 0
