@@ -13,9 +13,10 @@ popd
 set "sst.dir=!cd!"
 if /I "!sst.noTempClear!" neq "True" (
 	if not exist temp md temp
-	rd /s /q temp > nul || del /F /Q temp > nul
-	if not exist temp md temp
+	rd /s /q temp > nul 2>&1 || del /F /Q temp > nul 2>&1
+	if exist temp call :halt "{Temp directory deletion}" "There is another instance of Shivtanium currently running.\nThe system will not start to prevent glitches."
 )
+md temp >nul 2>&1
 if not defined sst.localtemp set sst.localtemp=!random!
 
 if "%~x1"==".bat" (
@@ -97,8 +98,6 @@ copy nul temp\kernelOut > nul
 
 call sstoskrnl.bat < "temp\kernelPipe" > "temp\kernelOut" 2>"temp\kernelErr" 3> "temp\DWM-!sst.localtemp!"
 
-rem call !sst.subsystem! > "temp\DWM-!sst.localtemp!" < "temp\DWMResp-!sst.localtemp!"
-
 :startup.submsg
 
 	set "sst.boot.msg=%~1"
@@ -166,7 +165,9 @@ set spr.temp=
 set spr.tempW=
 exit /b 0
 :halt
-echo=¤EXIT>> "temp\bootStatus-!sst.localtemp!"
+if exist temp (
+	echo=¤EXIT>> "temp\bootStatus-!sst.localtemp!"
+)
 set "halt.text=%~2"
 set halt.text=!halt.text:\n=","!
 set "halt.pausemsg= Press any key to exit. . . "
@@ -198,17 +199,17 @@ for /f "tokens=1 delims==" %%a in ('set') do for /f "tokens=1 delims=._" %%c in 
 	if "!unload!"=="True" set "%%a="
 )
 set PATHEXT=.COM;.EXE;.BAT
-set "PATH=!windir!\system32;!windir!"
+set "PATH=!windir!\system32;!windir!;!sst.dir!\systemb"
 set unload=
 exit /b 0
 :loadSettings
-set "sys.ver=1.2.0"
+set "sys.ver=1.2.1"
 set "sys.tag=Beta"
-set "sys.subvinfo=[Milestone 2]"
+set "sys.subvinfo=[24w28a]"
 set "sst.processes= "
 set "sst.processes.paused= "
 
-set dwm.scene=%\e%[H%\e%[0m%\e%[48;2;;63;127;38;2;255;255;255m%\e%[2JShivtanium OS !sys.tag! !sys.ver! !sys.subvinfo!
+set dwm.scene=%\e%[H%\e%[0m%\e%[48;2;;;;38;2;255;255;255m%\e%[2JShivtanium OS !sys.tag! !sys.ver! !sys.subvinfo!
 set dwm.sceneBGcolor=2;;63;127
 set dwm.BGcolor=5;231
 set dwm.FGcolor=5;16
@@ -237,7 +238,6 @@ for %%a in (
 
 set "dwm.barbuffer=                                                                                                                                                                                                                                                                "
 set "dwm.bottombuffer=▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄"
-set "dwm.outlinebuffer=░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░"
 set dwm.order=
 set dwm.focused=
 set dwm.char.L=█
