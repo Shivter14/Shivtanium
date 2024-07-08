@@ -11,6 +11,8 @@ for %%a in (%*) do (
 )
 if not defined sys.username call :fail Argument error: 'username' is not defined.
 if not exist "!sst.root!" call :fail FATAL: sst.root doesn't exist.
+echo=¤CTRL	APPLYTHEME	aero
+set sys.UPID=!PID!
 if not exist "!sst.root!\Users" md "!sst.root!\Users"
 call "!sst.dir!\systemb\systemb-desktop.bat" || call :fail systemb-desktop exitted with exit code !errorlevel!.
 >>"!sst.dir!\temp\kernelPipe" echo=exitProcess	!PID!
