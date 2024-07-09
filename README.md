@@ -11,6 +11,7 @@
 ### How does it work?
 
 Shivtanium runs *sub systems*. Like the Shivtanium Interpreter which can be used to safely create GUI applications.
+
 These subsystems can run in parallel, and can communicate with each other.
 
 Input is handled by the Shivtanium OS Kernel, which also handles:
