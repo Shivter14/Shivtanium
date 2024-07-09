@@ -92,8 +92,6 @@ Modifying the keyboard layout can be done in the following way:
 ## How can I write `.sst` applications for Shivtanium?
 Applications are written in the Shivtanium Subsystem which is interpreted.
 
-More info about it will be revealed soon. (Milestone 3)
-
 This language has a `command<tab>parameters` syntax. Parameters aren't enclosed with quotes, instead, they are separated by `<tab>`
 
 Code examples:
@@ -112,7 +110,7 @@ goto  main
 ## How can I create interactive batch scripts compatible with Shivtanium?
 
 With help from the Shivtanium Kernel;
-Information about creating applications for Shivtanium can be found on the ![wiki](https://github.com/Shivter14/Shivtanium/wiki). [in progress: waiting]
+Information about creating applications for Shivtanium can be found on the ![Kernel Wiki](https://github.com/Shivter14/Shivtanium/wiki/kernel)
 ## How can I create external commands for the Shivtanium Interpreter?
 
 - Create a batch file in `C\Shivtanium\core`.
