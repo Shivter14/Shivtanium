@@ -26,24 +26,11 @@ Graphics & windows are handled by the Desktop Window Manager, which uses many ki
 More information about it can be found in the following sections and the ![DWM Wiki](https://github.com/Shivter14/Shivtanium/wiki/Desktop-Window-Manager).
 
 ### How does SSTFS work?
-Shivtanium uses a custom-written file system: SSTFS
+The Shivtanium interpreter uses a custom-written file system: SSTFS
 
-That's the reason why you need a SSTFS file for it to boot.
-An SSTFS file can contain applications, assets, and all kinds of stuff
-- Shivtanium Applications have the `.sst` extension
-- Sprites with normal ASCII art have the `.spr` extension
+That's the reason why you need a SSTFS file for it to work.
 
-An SSTFS file contains *File headers* to separate files.
-Here is an example of a filesystem with 2 files:
-```
-@FILE test1
-This is a file called test1
-@FILE test2
-This is a file called test2
-```
-
-SSTFS also doesn't extract itself on startup. Instead, whenever a SSTFS file is loaded, Shivtanium reads through the whole filesystem and creates pointers to files (start + end) so that whenever the system needs to read an individual file, it goes to the line below that header, and reads the range of lines it needs.
-Limitations: A SSTFS file cannot contain the exclamation mark (`!`).
+More information about it can be found on the ![Interpreter Wiki](https://github.com/Shivter14/Shivtanium/wiki/interpreter)
 ## the Desktop Window Manager
 Shivtanium uses a custom-made Desktop Window Manager to render windows with themes.
 These themes can be customized with *resource packs*
