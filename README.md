@@ -98,7 +98,7 @@ goto  main
 
 With help from the Shivtanium Kernel;
 
-Information about creating applications for Shivtanium can be found on the ![Kernel Wiki](https://github.com/Shivter14/Shivtanium/wiki/kernel).
+Information about creating applications for Shivtanium can be found on the ![Kernel Wiki](https://github.com/Shivter14/Shivtanium/wiki/kernel). (In progress)
 ## How can I create external commands for the Shivtanium Interpreter?
 
 - Create a batch file in `C\Shivtanium\core`.
