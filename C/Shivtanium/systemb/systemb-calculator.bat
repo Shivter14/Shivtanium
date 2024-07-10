@@ -27,15 +27,13 @@ for %%b in (
 	"shiftr	3	8	4	:input shiftr	 » "
 	"bitAnd	3	2	5	:input bitAnd	 & "
 	"bitOr	3	5	5	:input bitOr	 | "
-	"bitXor	3	8	5	:input bitXor	 ^ "
+	"bitXor	3	8	5	:input bitXor	 ^^ "
+	"close	3	win[!PID!.calc]W-3	0	:exit"
 ) do for /f "tokens=1-5* delims=	" %%0 in (%%b) do (
 	set "buttons=!buttons!"%%~0" "
 	set "button[%%~0]=%%4"
 	set "button[%%~0]title=%%~5"
-	set "button[%%~0]DY=%%~3"
-	set "button[%%~0]DX=%%~2"
-	set "button[%%~0]W=%%~1"
-	set math=!math!, "button[%%~0]X=win[!PID!.calc]X+%%~2, button[%%~0]Y=win[!PID!.calc]Y+%%~3, button[%%~0]BX=button[%%~0]X+button[%%~0]W-1"
+	set math=!math!, "button[%%~0]Y=%%~3, button[%%~0]X=%%~2, button[%%~0]W=%%~1, button[%%~0]BX=button[%%~0]X+button[%%~0]W-1"
 )
 set "input= "
 set /a !math!
@@ -44,8 +42,8 @@ echo=¤CW	!PID!.calc	!win[%PID%.calc]X!	!win[%PID%.calc]Y!	!win[%PID%.calc]W!	!w
 >>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.calc	!win[%PID%.calc]X!	!win[%PID%.calc]Y!	!win[%PID%.calc]W!	!win[%PID%.calc]H!
 
 
-for %%b in (!buttons!) do for /f "" %%y in ("!button[%%~b]DY!") do (
-	set "win[!PID!.calc]o%%y=!win[%PID%.calc]o%%y!%\e%8%\e%[!button[%%~b]DX!C!button[%%~b]title!"
+for %%b in (!buttons!) do for /f "delims=" %%y in ("!button[%%~b]Y!") do (
+	set "win[!PID!.calc]o%%y=!win[%PID%.calc]o%%y!%\e%8%\e%[!button[%%~b]X!C!button[%%~b]title!"
 )
 echo=¤MW	!PID!.calc	o2=%\e%[2C%\e%[!inputW!X	o4=!win[%PID%.calc]o4!	o5=!win[%PID%.calc]o5!	o6=!win[%PID%.calc]o6!	o7=!win[%PID%.calc]o7!	o8=!win[%PID%.calc]o8!
 
@@ -77,9 +75,10 @@ for /l %%# in () do (
 	set /p "kernelOut="
 	if defined kernelOut if "!kernelOut!"=="click=1" (
 		if "!focusedWindow!"=="!PID!.calc" (
-			for %%b in (!buttons!) do for /f %%y in ("!button[%%~b]DY!") do (
-				if "!mouseYpos!"=="!button[%%~b]Y!" if !mouseXpos! geq !button[%%~b]X! if !mouseXpos! leq !button[%%~b]BX! (
-					echo=¤MW	!PID!.calc	o%%y=!win[%PID%.calc]o%%y!%\e%8%\e%[!button[%%~b]DX!C%\e%[7m!button[%%~b]title!%\e%[27m
+			set /a "relativeMouseX=mouseXpos-win[!PID!.calc]X, relativeMouseY=mouseYpos-win[!PID!.calc]Y"
+			for %%b in (!buttons!) do for /f %%y in ("!button[%%~b]Y!") do (
+				if "!relativeMouseY!"=="!button[%%~b]Y!" if !relativeMouseX! geq !button[%%~b]X! if !relativeMouseX! leq !button[%%~b]BX! (
+					echo=¤MW	!PID!.calc	o%%y=!win[%PID%.calc]o%%y!%\e%8%\e%[!button[%%~b]X!C%\e%[7m!button[%%~b]title!%\e%[27m
 					call !button[%%~b]!
 				)
 			)
@@ -92,14 +91,6 @@ for /l %%# in () do (
 		exit 0
 	) else if "!kernelOut!"=="exitProcess=!PID!" (
 		exit 0
-	) else if "!kernelOut!" neq "!kernelOut:win[%PID%.calc]=!" (
-		set "!kernelOut!" > nul 2>&1
-		set math=
-		for %%b in (!buttons!) do (
-			set math=!math!, "button[%%~b]X=win[!PID!.calc]X+button[%%~b]DX, button[%%~b]Y=win[!PID!.calc]Y+button[%%~b]DY, button[%%~b]BX=button[%%~b]X+button[%%~b]W-1"
-		)
-		set /a !math:~2!
-		set math=
 	) else if "!kernelOut:~0,14!"=="keysPressedRN=" (
 		set "!kernelOut!" > nul 2>&1
 		for %%k in (!keysPressedRN!) do (
@@ -124,7 +115,7 @@ for /l %%# in () do (
 )
 :input
 set "input=!input!!char[%~1]!"
-echo=¤MW	!PID!.calc	o2=%\e%[2C%\e%[!inputW!X!input!
+echo=¤MW	!PID!.calc	o2=%\e%[2C%\e%[!inputW!X!input:~-%inputW%!
 exit /b 0
 :clear
 set "input= "
@@ -147,3 +138,6 @@ for /f "delims=." %%a in ('set /a "%math%" 2^>^&1') do (
 	echo=¤MW	!PID!.calc	o2=%\e%[2C%\e%[!inputW!X %%~a
 )
 exit /b 0
+:exit
+>>"!sst.dir!\temp\kernelPipe" echo=exitProcess	!PID!
+exit 0
