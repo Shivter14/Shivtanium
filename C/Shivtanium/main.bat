@@ -19,34 +19,6 @@ if /I "!sst.noTempClear!" neq "True" (
 md temp >nul 2>&1
 if not defined sst.localtemp set sst.localtemp=!random!
 
-if "%~x1"==".bat" (
-	set "sst.subsystem=%~f1"
-	set sst.boot="!sst.subsystem! /init|Initializing %~n1"
-) else if "%~x1"==".sstfs" (
-	set "sst.subsystem=Shivtanium.bat"
-	set "sstfs.mainfile=%~f1"
-	if not exist "!sstfs.mainfile!" set "sstfs.mainfile=!sst.dir!\core\main.sstfs"
-	set sst.boot=^
-	":SSTFS.mount '!sstfs.mainfile!' \mnt\init|Mounting SSTFS file"^
-	":createSubSystemProcess 0 \mnt\init\init.sst|Creating init process"
-	
-	if not exist "!sst.root!\users" set sst.boot=!sst.boot! ":sysDeploy|Getting ready"
-) else if "%~1"=="/safemode" (
-	set "sst.subsystem=Shivtanium.bat"
-	set "sstfs.mainfile=%~f2"
-	if not exist "!sstfs.mainfile!" set "sstfs.mainfile=!sst.dir!\core\main.sstfs"
-	set sst.boot=^
-	":SSTFS.mount '!sstfs.mainfile!' \mnt\init|Mounting SSTFS file"^
-	":SSTFS.mount '!sst.dir!\core\safemode.sstfs' \mnt\safemode|Mounting SSTFS file for \mnt\safemode"^
-	":createSubSystemProcess 0 \mnt\safemode\init.sst|Creating init process"
-) else (
-	set "sst.subsystem=Shivtanium.bat"
-	set "sstfs.mainfile=!sst.dir!\core\main.sstfs"
-	set sst.boot=^
-	":SSTFS.mount '!sstfs.mainfile!' \mnt\init|Mounting SSTFS file"^
-	":createSubSystemProcess 0 \mnt\init\init.sst|Creating init process"
-)
-
 set counter=0
 for /f "tokens=2 delims=:" %%a in ('mode con') do (
 	set /a counter+=1
@@ -203,11 +175,12 @@ set "PATH=!windir!\system32;!windir!;!sst.dir!\systemb"
 set unload=
 exit /b 0
 :loadSettings
-set "sys.ver=1.2.1"
-set "sys.tag=Beta"
-set "sys.subvinfo=[24w28a]"
+if not exist "!sst.dir!\settings.dat" call :halt "%~nx0:loadSettings" "Failed to load 'settings.dat':\n  File not found."
+for /f "usebackq tokens=1* delims==" %%a in ("!sst.dir!\settings.dat") do set "sys.%%~a=%%~b"
+
 set "sst.processes= "
 set "sst.processes.paused= "
+set "sst.boot.fadeout=255"
 
 set dwm.scene=%\e%[H%\e%[0m%\e%[48;2;;;;38;2;255;255;255m%\e%[2JShivtanium OS !sys.tag! !sys.ver! !sys.subvinfo!
 set dwm.sceneBGcolor=2;;63;127
