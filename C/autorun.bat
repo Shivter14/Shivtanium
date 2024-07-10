@@ -1,8 +1,7 @@
 @echo off & setlocal enabledelayedexpansion
 
-	%= Standard BEFI boot menu rev1 =%
+	%= Standard BEFI boot menu rev2 =%
 	     %= Created by Shivter =%
-	 %= *Customized for Shivtanium =%
 
 if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
 <nul set /p "=%\e%[?25l"
@@ -30,8 +29,8 @@ if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
 		if "!sst.boot.errorlevel!"=="1" if not exist "!sst.boot.path!" call :halt "@CrashHandeler !sst.boot.path!" "The system files were lost.\nIf you're running this off a removable storage device,\nIt might have been disconnected causing this crash.\nIf this problem occurs after a reboot,\nYou should reinstall the system."
 		if "!sst.boot.errorlevel!" neq "5783" if "!sst.boot.errorlevel!" neq "27" call :halt "@Errorlevel !sst.boot.path!" "System exited with code !sst.boot.errorlevel!"
 	)
+	exit /b !sst.boot.errorlevel!
 )
-exit 0
 :halt
 set "halt.text=%~2"
 <nul set /p "=%\e%[2;3H%\e%[48;2;255;0;0m%\e%[38;2;255;255;255m%\e%[?25l Execution halted %\e%[4;3H At %~1: %\e%[5;3H     !halt.text:\n= %\e%[E%\e%[3G     ! "
@@ -50,6 +49,7 @@ for /f "tokens=2 delims=:" %%a in ('mode con') do (
 )
 set selection=1
 set parameters=
+set temp.choices=/T 5 /D x
 :bootmenu.main
 set current=0
 (
@@ -65,8 +65,9 @@ set current=0
 		set /p "=!temp.prefix! !temp.text:~0,%textW%! %\e%[E%\e%[48;2;0;0;0;38;2;255;255;255m  "
 	)
 ) < nul
-choice /c "swxep" /N > nul
+choice /C "swxep" /N !temp.choices! > nul
 set input=!errorlevel!
+set temp.choices=
 if "!input!"=="1" (
 	set /a selection+=1
 	if !selection! gtr !sst.boot.entrycount! set selection=!sst.boot.entrycount!
@@ -94,4 +95,4 @@ if defined sst.boot.errorlevel (
 	if "!sst.boot.errorlevel!" neq "5783" if "!sst.boot.errorlevel!" neq "27" call :halt "@Errorlevel !sst.boot.path!" "System exited with code !sst.boot.errorlevel!"
 )
 
-exit /b
+exit /b !sst.boot.errorlevel!
