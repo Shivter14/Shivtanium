@@ -32,6 +32,7 @@ set icon.directory[2]=%\e%[38;2;;;m█%\e%[38;2;255;255;255;48;2;255;255;m░░
 set icon.directory[3]=%\e%[38;2;;;m█%\e%[38;2;255;255;255;48;2;255;255;m░░░░░░░░░░░░░░%\e%[38;2;;;m█
 set icon.directory[4]=%\e%[38;2;;;m█%\e%[38;2;255;255;255;48;2;255;255;m░░░░░░░░░░░░░░%\e%[38;2;;;m█
 set icon.directory[5]=%\e%[38;2;;;m█%\e%[38;2;255;255;255;48;2;255;255;m░░░░░░░░░░░░░░%\e%[38;2;;;m█
+set icon.directory[6]=%\e%[38;2;;;m▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
 
 for /l %%a in (1 1 5) do (
 	set "icon.directory.hidden[%%a]=!icon.directory[%%a]:255;255;0=127;127;127!"
@@ -91,7 +92,7 @@ for /l %%# in () do (
 		)
 	) else if "!kernelOut:~0,14!"=="keysPressedRN=" (
 		set "!kernelOut!" > nul 2>&1
-		if defined addressbar (for %%k in (!keysPressedRN!) do (
+		if "!focusedWindow!"=="!PID!.explorer" if defined addressbar (for %%k in (!keysPressedRN!) do (
 			set "char=!charset_L:~%%k,1!"
 			if "!keysPressed!" neq "!keysPressed:-16-=!" set "char=!charset_U:~%%k,1!"
 			if "!keysPressed!" neq "!keysPressed:-17-=!" set "char=!charset_A:~%%k,1!"
@@ -145,37 +146,52 @@ for /l %%# in () do (
 )
 
 :reload
+if !scrollpos! lss 0 set scrollpos=0
 set addressbar=
 for /f "tokens=1 delims==" %%a in ('set item 2^>nul') do set "%%a="
-set /a "pos=0, spacingW=2, spacingH=1, iconW=16, iconH=6, gridW=(ftW=rsW=win[%PID%.explorer]W - sidebarW - 4) / (iconW + spacingW), gfY=(rsH=win[!PID!.explorer]H - 3) / (iconH + spacingH), win[!PID!.explorer]RH=win[!PID!.explorer]H-1, ftW+=2, closeButtonX=win[!PID!.explorer]W-3"
-
-for /f "delims=" %%F in ('dir /b 2^>nul ^& dir /b /a:S 2^>nul') do (
-	set /a "posX=pos %% gridW, posY=(lines=pos / gridW) - scrollpos, pos+=1"
-	set "temp.attrib=%%~aF"
-	set "item[!posX!x!posY!]attrib=!temp.attrib!"
-	set "item[!posX!x!posY!]=%%~fF"
-	set "item[!posX!x!posY!]name=%%~nxF"
-	set "item[!posX!x!posY!]icon=[%%~xF]"
-	if "!temp.attrib:~2,1!" neq "a" set "item[!posX!x!posY!]icon="
-	
-	for %%a in (
-		"0 d directory"
-		"3 h hidden"
-		"4 s system"
-		"2 a file"
-	) do for /f "tokens=1-4*" %%v in ("!posX! !posY! %%~a") do (
-		if "!temp.attrib:~%%~x,1!"=="%%~y" set "item[%%vx%%w]icon=!item[%%vx%%w]icon!.%%~z"
-	)
-	
-	set /a "item[!posX!x!posY!]X=rsW / gridW * posX + spacingW + sidebarW, item[!posX!x!posY!]Y=posY * (iconH + spacingH) + spacingH + 1", "item[!posX!x!posY!]BX=item[!posX!x!posY!]X+iconW-1", "item[!posX!x!posY!]BY=item[!posX!x!posY!]Y+iconH-1"
-)
-set "scY=!gfY!"
-if !posY! lss !gfY! set gfY=!posY!
-
+set /a "pos=0, spacingW=2, spacingH=1, iconC=(iconW=16)-1, iconH=7, gridW=(ftW=rsW=win[!PID!.explorer]W - sidebarW - 4) / (iconW + spacingW), gfY=(rsH=win[!PID!.explorer]H - 3) / (iconH + spacingH), win[!PID!.explorer]RH=win[!PID!.explorer]H-1, ftW+=2, closeButtonX=win[!PID!.explorer]W-3"
 for /l %%y in (1 1 !win[%PID%.explorer]H!) do (
 	set "o%%y=%\e%[!sidebarW!X"
 	set "l%%y="
 )
+for /f %%a in ('set tile[ 2^>nul') do set "%%a="
+for /f "delims=^!*" %%F in ('dir /b 2^>nul ^& dir /b /a:S 2^>nul') do (
+	set /a "posX=pos %% gridW, posY=(lines=pos / gridW) - scrollpos, pos+=1"
+	if !posY! geq 0 if !posY! leq !gfY! (
+		set "temp.attrib=%%~aF"
+		set "item[!posX!x!posY!]attrib=!temp.attrib!"
+		set "item[!posX!x!posY!]=%%~fF"
+		set "item[!posX!x!posY!]name=%%~nxF"
+		set "item[!posX!x!posY!]icon=[%%~xF]"
+		if "!temp.attrib:~2,1!" neq "a" set "item[!posX!x!posY!]icon="
+		
+		for %%a in (
+			"0 d directory"
+			"3 h hidden"
+			"4 s system"
+			"2 a file"
+		) do for /f "tokens=1-4*" %%v in ("!posX! !posY! %%~a") do (
+			if "!temp.attrib:~%%~x,1!"=="%%~y" set "item[%%vx%%w]icon=!item[%%vx%%w]icon!.%%~z"
+		)
+		
+		set /a "item[!posX!x!posY!]X=rsW / gridW * posX + spacingW + sidebarW, item[!posX!x!posY!]Y=posY * (iconH + spacingH) + spacingH + 1, item[!posX!x!posY!]BX=item[!posX!x!posY!]X+iconW-1, item[!posX!x!posY!]BY=item[!posX!x!posY!]Y+iconH-1"
+	)
+)
+set "scY=!gfY!"
+if !posY! lss !gfY! set gfY=!posY!
+if !posY! lss 0 (
+	set /a scrollpos+=posY
+	goto reload
+)
+
+if "!scrollpos!"=="0" (
+	set "pipe=¤MW	!PID!.explorer	p!win[%PID%.explorer]RH!="
+	for /l %%y in (1 1 !win[%PID%.explorer]RH!) do set "pipe=!pipe!	o%%y=%\e%[!sidebarW!X	l%%y="
+	echo=!pipe!
+)
+
+
+
 for /l %%Y in (0 1 !gfY!) do for /l %%X in (0 1 !gridW!) do for /f "tokens=1-3 delims=;" %%a in ("!item[%%Xx%%Y]Y!;!item[%%Xx%%Y]BY!;!item[%%Xx%%Y]icon!") do (
 	set temp=0
 	for /l %%y in (%%a 1 %%b) do (
@@ -184,7 +200,7 @@ for /l %%Y in (0 1 !gfY!) do for /l %%X in (0 1 !gridW!) do for /f "tokens=1-3 d
 			if defined icon%%c[%%z] set "l%%y=!l%%y!%\e%8%\e%[!item[%%Xx%%Y]X!C!icon%%c[%%z]!"
 		)
 	)
-	set "o%%b=!o%%b!%\e%8%\e%[!item[%%Xx%%Y]X!C%\e%[!iconW!X!item[%%Xx%%Y]name:~0,%iconW%!"
+	set "o%%b=!o%%b!%\e%8%\e%[!item[%%Xx%%Y]X!C%\e%[!iconW!X !item[%%Xx%%Y]name:~0,%iconC%!"
 )
 if !lines! geq !gfY! (
 	set /a "scrollbar.S=scrollpos * rsH / lines + 1, scrollbar.E=(scrollpos + scY - 1) * rsH / lines + 1"
@@ -198,7 +214,7 @@ set "dcd= !cd!"
 set "l1=%\e%[!sidebarW!C%\e%[D!dcd:~-%ftW%!"
 set "o1=!o1!%\e%8 %\e%[7m ▲ %\e%[27m"
 set "o!win[%PID%.explorer]RH!=%\e%[!win[%PID%.explorer]W!X"
-set "pipe=¤MW	!PID!.explorer	p!win[%PID%.explorer]RH!="
+set "pipe=¤MW	!PID!.explorer"
 for /l %%y in (1 1 !win[%PID%.explorer]RH!) do (
 	if "!pipe:~500,1!" neq "" (
 		echo=!pipe!
@@ -209,5 +225,5 @@ for /l %%y in (1 1 !win[%PID%.explorer]RH!) do (
 )
 echo=!pipe!
 set pipe=
-set > "temp\proc\PID-!PID!-memoryDump"
+set > "!sst.dir!\temp\proc\PID-!PID!-memoryDump"
 exit /b 0
