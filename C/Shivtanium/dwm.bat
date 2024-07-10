@@ -101,21 +101,21 @@ for /l %%. in () do (
 				set /a "temp.tl|=1<<%%d"
 				for %%e in (!temp.tl!) do if "!win[%%~1]title:~%%e,1!" equ "" set /a "temp.tl&=~1<<%%d"
 			)
-			set /a "temp.tl+=1", "temp.bl=!win[%%~1]W!-9", "temp.H=!win[%%~1]H!-2"
-			for /f "tokens=1-3 delims=;" %%a in ("!temp.tl!;!temp.bl!") do (
+			set /a "temp.tl+=1", "temp.bl=!win[%%~1]W!-9", "temp.H=!win[%%~1]H!-2", "temp.X=!win[%%~1]W!-2"
+			for /f "tokens=1-3 delims=;" %%a in ("!temp.tl!;!temp.bl!;!temp.X!") do (
 				set "temp.tlb=!dwm.barbuffer:~0,%%~b!"
 				set "win[%%~1]pt=%\e%[48;!win[%%~1]TIcolor!m%\e%[38;!win[%%~1]TTcolor!m!win[%%~1]title:~0,%%~b!!temp.tlb:~-%%~b,-%%~a!!win[%%~1]CBUI!"
 				
 				if "!win[%%~1]aero!" neq "" (
 					if "!win[%%~1]aero!"=="default" (
 						for /l %%y in (2 1 !temp.H!) do (
-							set "win[%%~1]p%%y=%\e%[48;2;!dwm.aero[%%y]!;38;!win[%%~1]TIcolor!m%dwm.char.L%%\e%[%%~bX%\e%[%%~bC       %dwm.char.R%"
+							set "win[%%~1]p%%y=%\e%[48;2;!dwm.aero[%%y]!;38;!win[%%~1]TIcolor!m%dwm.char.L%%\e%[%%~cX%\e%[%%~cC%dwm.char.R%"
 							set "win[%%~1]p!win[%%~1]H!=%\e%[48;2;!dwm.aero[%%y]!;38;!win[%%~1]TIcolor!m%dwm.char.S%!dwm.bottombuffer:~0,%%~b!%dwm.bottombuffer:~0,7%%dwm.char.S%"
 						)					
 					) else (
 						for /l %%y in (1 1 !temp.H!) do (
 							set /a "x=(%%y+!win[%%~1]Y!-1)", "!win[%%~1]aero:×=*!"
-							set "win[%%~1]p%%y=%\e%[48;2;!r!;!g!;!b!;38;!win[%%~1]TIcolor!m%dwm.char.L%%\e%[%%~bX%\e%[%%~bC       %dwm.char.R%"
+							set "win[%%~1]p%%y=%\e%[48;2;!r!;!g!;!b!;38;!win[%%~1]TIcolor!m%dwm.char.L%%\e%[%%~cX%\e%[%%~cC%dwm.char.R%"
 						)
 						set "win[%%~1]p!win[%%~1]RH!=%\e%[48;2;!r!;!g!;!b!;38;!win[%%~1]TIcolor!m%dwm.char.S%!dwm.bottombuffer:~0,%%~b!%dwm.bottombuffer:~0,7%%dwm.char.S%"
 						set r=
@@ -125,7 +125,7 @@ for /l %%. in () do (
 					)
 				) else (
 					for /l %%y in (1 1 !temp.H!) do (
-						set "win[%%~1]p%%y=%\e%[48;!win[%%~1]BGcolor!;38;!win[%%~1]TIcolor!m%dwm.char.L%!dwm.barbuffer:~0,%%~b!       %dwm.char.R%"
+						set "win[%%~1]p%%y=%\e%[48;!win[%%~1]BGcolor!;38;!win[%%~1]TIcolor!m%dwm.char.L%%\e%[%%~cX%\e%[%%~cC%dwm.char.R%"
 					)
 					set "win[%%~1]p!win[%%~1]RH!=%\e%[48;!win[%%~1]BGcolor!;38;!win[%%~1]TIcolor!m%dwm.char.S%!dwm.bottombuffer:~0,%%~b!%dwm.bottombuffer:~0,7%%dwm.char.S%"
 				)
