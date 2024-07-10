@@ -172,13 +172,15 @@ for /l %%# in () do (
 				for /l %%# in (1 1 100000) do rem
 				echo=%\e%[48;2;0;0;0m%\e%[H%\e%[2J>con
 				copy nul "temp\bootStatus-!sst.localtemp!-exit" > nul 2>&1
-				call "!sst.dir!\boot\fadeout.bat">con
+				set "sst.boot.fadeout=255"
+				call "!sst.dir!\boot\fadeout.bat" Shivtanium is shutting down.%\n%[2;HRemaining processes: !processes! >con
 				exit 0
 			) else if /I "%%~1"=="reboot" (
 				echo=exit
 				echo=¤EXIT>&3
 				cmd /c ping -n 1 127.0.0.1 >nul 2>&1
 				echo=%\e%[48;2;0;0;0m%\e%[H%\e%[2J>con
+				exit 27
 			)
 		)
 	)
