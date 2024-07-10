@@ -1,11 +1,11 @@
 @echo off & setlocal enableDelayedExpansion
-if "%~1"=="/init" exit /b 0
 if not defined PID (
 	echo=This program requires to be run in the Shivtanium OS Kernel / userSpace
 	set /p "=Press any key to exit. . ."
 	exit /b 0
 )
-set /a "win[%PID%.systemb_login]W=64, systemb.login.tW=win[%PID%.systemb_login]W-4, win[%PID%.systemb_login]H=8, win[%PID%.systemb_login]X=(sys.modeW-win[%PID%.systemb_login]W)/2, win[%PID%.systemb_login]Y=(sys.modeH-win[%PID%.systemb_login]H)/2"
+set /a PID=PID
+set /a "win[%PID%.systemb_login]W=64, closeButtonX=win[%PID%.systemb_login]W-3, systemb.login.tW=win[%PID%.systemb_login]W-4, win[%PID%.systemb_login]H=8, win[%PID%.systemb_login]X=(sys.modeW-win[%PID%.systemb_login]W)/2, win[%PID%.systemb_login]Y=(sys.modeH-win[%PID%.systemb_login]H)/2"
 echo=¤CTRL	APPLYTHEME	metroTyper
 echo=¤CW	!PID!.systemb_login	!win[%PID%.systemb_login]X!	!win[%PID%.systemb_login]Y!	!win[%PID%.systemb_login]W!	!win[%PID%.systemb_login]H!	Shivtanium Login
 echo=¤MW	!PID!.systemb_login	l2=  Welcome to Shivtanium.	l4=  Enter your username:	o6=%\e%[2C%\e%[!systemb.login.tW!X
@@ -23,9 +23,7 @@ for /l %%# in () do (
 	set "sys.keysRN= "
 	set /p kernelOut=
 	if defined kernelOut (
-		if "!kernelOut:~0,5!"=="mouse" (
-			set "sys.!kernelOut!" > nul 2>&1
-		) else if "!kernelOut:~0,12!"=="keysPressed=" (
+		if "!kernelOut:~0,12!"=="keysPressed=" (
 			set "sys.keys=!kernelOut:~12!"
 		) else if "!kernelOut:~0,14!"=="keysPressedRN=" (if "!focusedWindow!"=="!PID!.systemb_login" (
 			set "sys.keysRN=!kernelOut:~14!"
@@ -46,12 +44,19 @@ for /l %%# in () do (
 					echo=¤MW	!PID!.systemb_login	o6=%\e%[2C%\e%[!systemb.login.tW!X!systemb.login.username:~-60!
 				)
 			)
-			if "!sys.keysRN!" neq "!sys.keysRN: 13 =!" (
+			if "!sys.keysRN!" neq "!sys.keysRN: 13 =!" ((
 				echo=createProcess	!PID!	systemb-userinit.bat --username "!systemb.login.username:~1!"
 				echo=exitProcess	!PID!
 				exit 0
-			) >> "!sst.dir!\temp\kernelPipe"
-		)) else if "!kernelOut!"=="exit" (
+			)) >> "!sst.dir!\temp\kernelPipe"
+		)) else if "!kernelOut!"=="click=1" (
+			set /a "relativeMouseX=mouseXpos - win[!PID!.systemb_login]X, relativeMouseY=mouseYpos - win[!PID!.systemb_login]Y"
+			if "!relativeMouseY!"=="0" if !relativeMouseX! geq !closeButtonX! ((
+				echo=exitProcessTree	!PID!
+				echo=exitProcess	!PID!
+				echo=powerState	shutdown
+			)) >> "!sst.dir!\temp\kernelPipe"
+		) else if "!kernelOut!"=="exit" (
 			exit 0
 		) else if "!kernelOut!"=="exitProcess=!PID!" (
 			exit 0
