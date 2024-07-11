@@ -21,7 +21,7 @@ Input is handled by the Shivtanium OS Kernel, which also handles:
 - Registering windows
 - Moving windows
 
-And more...
+And much more...
 
 Graphics & windows are handled by the Desktop Window Manager, which uses many kinds of VT sequences, optimizations, and all sorts of techniques to render windows quickly and smoothly.
 
