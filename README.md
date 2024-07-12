@@ -56,6 +56,7 @@ And of course, the `ShivtaniumOS.sstfs` filesystem can be modified with knowledg
 ### Keyboard & typing
 Shivtanium uses a keyboard layout system, where the keyboard layout is a batch file located in the resource pack:
 `keyboard_init.bat`
+
 This batch file may contain 3 variable definitions:
 - `charset_L` - Lower case (keycode -> Character)
 - `charset_U` - Upper case (Shift + keycode -> Upper case character)
