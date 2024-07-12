@@ -89,7 +89,7 @@ nocap  The 'math' command works very similarly to 'set /a' in batch. It outputs 
 nocap  << this is a command for comments. It does exactly nothing.
 :main
 if  1  ==  1
-  nocap  This is a comment.
+  nocap  This is another comment.
 if  $return$  >  3
   exit
 goto  main
