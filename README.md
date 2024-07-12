@@ -8,7 +8,7 @@
 
 </div>
 
-### How does it work?
+## How does it work?
 
 Shivtanium runs *sub systems*. Like the Shivtanium Interpreter which can be used to safely create GUI applications, or the `systemb` application set.
 
