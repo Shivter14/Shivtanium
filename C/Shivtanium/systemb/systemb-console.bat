@@ -20,7 +20,7 @@ for %%a in (%*) do (
 		)
 	)
 )
-set /a "closeButtonX=(win[!PID!.conhost]W=sys.modeW/2)-3, conP=(conH=(win[!PID!.conhost]H=sys.modeH/2)-4)+2, win[!PID!.conhost]X=sys.modeW/4, win[!PID!.conhost]Y=sys.modeH/4"
+set /a "closeButtonX=(win[!PID!.conhost]W=64)-3, conP=(conH=(win[!PID!.conhost]H=16)-4)+2, win[!PID!.conhost]X=(sys.modeW-win[!PID!.conhost]W)/2, win[!PID!.conhost]Y=(sys.modeH-win[!PID!.conhost]H)/2"
 
 echo=¤CW	!PID!.conhost	!win[%PID%.conhost]X!	!win[%PID%.conhost]Y!	!win[%PID%.conhost]W!	!win[%PID%.conhost]H!	Terminal	discord
 echo=¤MW	!PID!.conhost	l!conP!=]
