@@ -1,13 +1,14 @@
 @echo off & setlocal enableDelayedExpansion
 echo=¤OV	%\e%[999;1H%\e%[48;2;63;127;192;38;2;255;255;255m Shivtanium %\e%[48;2;0;31;63m%\e%[0K
-set /a "win[systemb_launcher]X=1, tempY=sys.modeH-1, win[systemb_launcher]W=32, win[systemb_launcher]H=16, win[systemb_launcher]Y=sys.modeH-win[systemb_launcher]H, tempH=win[systemb_launcher]H+1"
+set /a "win[systemb_launcher]X=1, tempY=sys.modeH-1, win[systemb_launcher]W=38, win[systemb_launcher]H=12, win[systemb_launcher]Y=sys.modeH-win[systemb_launcher]H, tempH=win[systemb_launcher]H+1"
 if "!sys.lowPerformanceMode!"=="True" (
 	set "tempY=!win[systemb_launcher]Y!"
 	set theme=classic
+	set sys.reduceMotion=True
 ) else set theme=discord
 echo=¤CW	systemb_launcher	!win[systemb_launcher]X!	!tempY!	!win[systemb_launcher]W!	!win[systemb_launcher]H!	Application Launcher	!theme! noCBUI
 >>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	systemb_launcher	!win[systemb_launcher]X!	!win[systemb_launcher]Y!	!win[systemb_launcher]W!	!tempH!	1
-if "!sys.lowPerformanceMode!" neq "True" for /l %%y in (!tempY! -2 !win[systemb_launcher]Y!) do (
+if "!sys.reduceMotion!" neq "True" for /l %%y in (!tempY! -1 !win[systemb_launcher]Y!) do (
 	echo=¤MW	systemb_launcher	Y=%%y
 )
 echo=¤MW	systemb_launcher	Y=!win[systemb_launcher]Y!
@@ -16,12 +17,16 @@ set "math=win[systemb_launcher]BY=win[systemb_launcher]Y+win[systemb_launcher]H-
 set "buttons= "
 
 for %%b in (
-	"terminal	sidebarW	sidebarX	win[systemb_launcher]BY-7	:terminal	Terminal"
-	"explorer	sidebarW	sidebarX	win[systemb_launcher]BY-6	:explorer	Explorer"
-	"calculator	sidebarW	sidebarX	win[systemb_launcher]BY-5	:calculator	Calculator"
+	"settings	sidebarW	sidebarX	win[systemb_launcher]BY-7	:settings	Settings"
+	"terminal	sidebarW	sidebarX	win[systemb_launcher]BY-6	:terminal	Terminal"
+	"explorer	sidebarW	sidebarX	win[systemb_launcher]BY-5	:explorer	Explorer"
 	"logout		sidebarW	sidebarX	win[systemb_launcher]BY-3	:logout		Log Out"
 	"restart	sidebarW	sidebarX	win[systemb_launcher]BY-2	:restart	Restart"
 	"shutdown	sidebarW	sidebarX	win[systemb_launcher]BY-1	:shutdown	Shut Down"
+	
+	"calculator	win[systemb_launcher]W-sidebarW-6	2	win[systemb_launcher]Y+2	:calculator	Calculator"
+	"taskmgr	win[systemb_launcher]W-sidebarW-6	2	win[systemb_launcher]Y+3	:taskmgr	Task Manager"
+	"NEL		win[systemb_launcher]W-sidebarW-6	2	win[systemb_launcher]Y+4	:launchProgram NewEngine-Launcher\Shivtanium-NewEngine-Launcher	NewEngine Launcher"
 ) do for /f "tokens=1-5* delims=	" %%0 in ("%%~b") do (
 	set "buttons="%%~0" !buttons!"
 	set "button[%%~0]=%%~4"
@@ -35,7 +40,7 @@ for %%b in (!buttons!) do for /f "tokens=1* delims=;" %%y in ("!button[%%~b]DY!;
 	set "o%%y=!o%%y!%\e%8%\e%[!button[%%~b]X!C%\e%[!button[%%~b]W!X!button[%%~b]title:~0,%%~z!"
 )
 set pipe=
-if "!sys.lowPerformanceMode!"=="True" (
+if "!sys.reduceMotion!"=="True" (
 	set pipe=¤MW	systemb_launcher
 	set "add=set pipe=^!pipe^!"
 ) else (
@@ -118,12 +123,18 @@ goto exit
 :terminal
 >>"!sst.dir!\temp\kernelPipe" echo=createProcess	!sys.UPID!	systemb-console.bat --username "!sys.username!" --UPID !sys.UPID!
 goto exit
+:settings
+>>"!sst.dir!\temp\kernelPipe" echo=createProcess	!sys.UPID!	systemb-control-panel.bat --username "!sys.username!" --UPID !sys.UPID!
+goto exit
+:taskmgr
+>>"!sst.dir!\temp\kernelPipe" echo=createProcess	!sys.UPID!	systemb-taskmgr.bat --username "!sys.username!" --UPID !sys.UPID!
+goto exit
 :launchProgram
 set "arg=%~1"
 >>"!sst.dir!\temp\kernelPipe" echo=createProcess	!sys.UPID!	programs\!arg! --username "!sys.username!" --UPID !sys.UPID!
 :exit
-if "!sys.lowPerformanceMode!" neq "True" (
-	for /l %%y in (!win[systemb_launcher]Y! 2 !sys.modeH!) do echo=¤MW	systemb_launcher	Y=%%y
+if "!sys.reduceMotion!" neq "True" (
+	for /l %%y in (!win[systemb_launcher]Y! 1 !sys.modeH!) do echo=¤MW	systemb_launcher	Y=%%y
 	echo=¤MW	systemb_launcher	Y=!sys.modeH!
 )
 echo=¤OV	%\e%[999;1H%\e%[48;2;0;63;127;38;2;255;255;255m Shivtanium %\e%[48;2;0;31;63m%\e%[0K
