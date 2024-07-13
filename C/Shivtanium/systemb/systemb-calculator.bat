@@ -93,7 +93,7 @@ for /l %%# in () do (
 		exit 0
 	) else if "!kernelOut:~0,14!"=="keysPressedRN=" (
 		set "!kernelOut!" > nul 2>&1
-		for %%k in (!keysPressedRN!) do (
+		if "!focusedWindow!"=="!PID!.calc" for %%k in (!keysPressedRN!) do (
 			set "char=!charset_L:~%%k,1!"
 			if "!keysPressed!" neq "!keysPressed:-16-=!" set "char=!charset_U:~%%k,1!"
 			if "!keysPressed!" neq "!keysPressed:-17-=!" set "char=!charset_A:~%%k,1!"
