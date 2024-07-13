@@ -1,4 +1,8 @@
 tag=Beta
-ver=1.2.2
-subvinfo=[24w28b]
+ver=1.2.3
+subvinfo=[24w28c]
+boot.fadeout=0
+loginBGTheme=Shivtanium
+loginTheme=metroTyper
 lowPerformanceMode=False
+reduceMotion=False
