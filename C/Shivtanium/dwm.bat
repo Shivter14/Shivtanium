@@ -4,6 +4,14 @@ if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
 if not defined sys.dir set "sys.dir=!cd!"
 set modeW=
 set modeH=
+set dwm.char.L=█
+set dwm.char.B=▄
+set dwm.char.R=█
+set dwm.char.S=█
+set dwm.char.O=░░
+set "dwm.barbuffer=                                                                                                                                                                                                                                                                "
+set "dwm.bottombuffer=▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄"
+
 
 for /f "tokens=2 delims=:" %%a in ('mode con') do (
 	set "token=%%~a"
@@ -43,6 +51,7 @@ for /l %%. in () do (
 		title Shivtanium !sys.tag! !sys.ver! !sys.subvinfo! ^| DWM: {FPS: !fps! Frametime: !deltaTime!}
 	)
 	if "!input:~0,1!"=="¤" for /f "tokens=1-8* delims=	" %%0 in ("!input:~1!") do (
+		set windows.redraw=!win.order!
 		if "%%~0"=="MW" (
 			set "oldX=!win[%%~1]X!"
 			set "oldY=!win[%%~1]Y!"
@@ -53,7 +62,7 @@ for /l %%. in () do (
 			set "args=!args:	=" "!"
 			(for %%a in ("!args!") do set "win[%%~1]%%~a")>nul 2>&1
 			set "mainbuffer=!mainbuffer!%\e%[H"
-			if "!oldX!;!oldY!;!oldW!;!oldH!" neq "!win[%%~1]X!;!win[%%~1]Y!;!win[%%~1]W!;!win[%%~1]H!" if "!random:~-1!"=="1x" (
+			if "!oldX!;!oldY!;!oldW!;!oldH!" neq "!win[%%~1]X!;!win[%%~1]Y!;!win[%%~1]W!;!win[%%~1]H!" (if "!random:~-1!"=="1" (
 				set "mainbuffer=!dwm.scene!"
 			) else (
 				set /a "oldBX=oldX+oldW-1, oldBY=oldY+oldH-1, win[%%~1]BX=win[%%~1]X+win[%%~1]W, win[%%~1]BY=win[%%~1]Y+win[%%~1]H-1, win[%%~1]DX=win[%%~1]X-oldX, unfY=win[%%~1]Y-1, unfB=win[%%~1]BY+1"
@@ -63,10 +72,11 @@ for /l %%. in () do (
 				if !win[%%~1]X! gtr !oldX! (
 					for /l %%y in (!oldY! 1 !oldBY!) do set "mainbuffer=!mainbuffer!%\e%[%%y;!oldX!H%\e%[48;2;!dwm.aero[%%y]!m%\e%[!win[%%~1]DX!X"
 				) else if !win[%%~1]X! lss !oldX! for /l %%y in (!oldY! 1 !oldBY!) do set "mainbuffer=!mainbuffer!%\e%[%%y;!win[%%~1]BX!H%\e%[48;2;!dwm.aero[%%y]!m%\e%[!win[%%~1]DX:~1!X"
-			)
+			)) else if "%%~1"=="!win.focused!" set windows.redraw="%%~1"
 		) else if "%%~0"=="OV" (
 			set "overlay=%%~1"
-			set "extbuffer=!extbuffer!%\e%[H"
+			set "mainbuffer=%\e%[H"
+			set windows.redraw=
 		) else if "%%~0"=="CW" (
 			set "win[%%~1]X=%%~2"
 			set "win[%%~1]Y=%%~3"
@@ -134,15 +144,18 @@ for /l %%. in () do (
 			set temp.tl=
 			set temp.tlb=
 			set "mainbuffer=!mainbuffer!%\e%[H"
+			set windows.redraw="%%~1"
+			set "win.focused=%%~1"
 		) else if "%%~0"=="FOCUS" (
 			set win.order=!win.order: "%%~1"=! "%%~1"
 			set "mainbuffer=!mainbuffer!%\e%[H"
+			set "win.focused=%%~1"
+			set windows.redraw="%%~1"
 		) else if "%%~0"=="DW" (
-			set "mainbuffer=%\e%[!win[%%~1]Y!;!win[%%~1]X!H"
-			set /a "win[%%~1]BY=win[%%~1]Y+win[%%~1]H-1"
-			for /l %%y in (!win[%%~1]Y! 1 !win[%%~1]BY!) do set "mainbuffer=!mainbuffer!%\e%[48;2;!dwm.aero[%%y]!m%\e%[!win[%%~1]W!X%\e%[B"
+			set "mainbuffer=!dwm.scene!"
 			for /f "tokens=1 delims==" %%a in ('set win[%%~1] 2^>nul') do set "%%a="
-			set "win.order=!win.order: "%%~1" = !"
+			set "win.order=!win.order: "%%~1"=!"
+			set "windows.redraw=!win.order!"
 		) else if "%%~0"=="CTRL" (
 			set "mainbuffer=!mainbuffer!%\e%[H"
 			if "%%~1"=="MINIMIZE" (
@@ -187,23 +200,25 @@ for /l %%. in () do (
 		) else if "%%~0"=="EXIT" exit 0
 
 		if defined mainbuffer (
-			for %%w in (!win.order!) do (
-				set "mainbuffer=!mainbuffer!%\e%[!win[%%~w]Y!;!win[%%~w]X!H%\e%7!win[%%~w]pt!"
-				for /l %%l in (1 1 !win[%%~w]RH!) do (
-					set "mainbuffer=!mainbuffer!%\e%8%\e%[B%\e%7!win[%%~w]p%%l!%\e%8%dwm.char.S%%\e%[38;!win[%%~w]FGcolor!m!win[%%~w]l%%l!%\e%8%\e%[48;!win[%%~w]TIcolor!;38;!win[%%~w]TTcolor!m!win[%%~w]o%%l!"
+			for %%w in (!windows.redraw!) do (
+				if "!mainbuffer:~5000,1!" neq "" (
+					echo=!mainbuffer!%\e%[H
+					set mainbuffer=
 				)
+				set "mainbuffer=!mainbuffer!%\e%[!win[%%~w]Y!;!win[%%~w]X!H%\e%7!win[%%~w]pt!%\e%8%\e%[B%\e%7!win[%%~w]p1!%\e%8%dwm.char.S%%\e%[38;!win[%%~w]FGcolor!m!win[%%~w]l1!%\e%8%\e%[48;!win[%%~w]TIcolor!;38;!win[%%~w]TTcolor!m!win[%%~w]o1!%\e%8%\e%[B%\e%7!win[%%~w]p2!%\e%8%dwm.char.S%%\e%[38;!win[%%~w]FGcolor!m!win[%%~w]l2!%\e%8%\e%[48;!win[%%~w]TIcolor!;38;!win[%%~w]TTcolor!m!win[%%~w]o2!"
+				for /l %%l in (3 1 !win[%%~w]RH!) do set "mainbuffer=!mainbuffer!%\e%8%\e%[B%\e%7!win[%%~w]p%%l!%\e%8%dwm.char.S%%\e%[38;!win[%%~w]FGcolor!m!win[%%~w]l%%l!%\e%8%\e%[48;!win[%%~w]TIcolor!;38;!win[%%~w]TTcolor!m!win[%%~w]o%%l!"
+			)
+			if "!mainbuffer:~6400,1!" neq "" (
+				echo=!mainbuffer!%\e%[H
+				set mainbuffer=
 			)
 			echo=!mainbuffer!!overlay!!extbuffer!%\e%[H
-		) else if defined extbuffer (
-			echo=!overlay!!extbuffer!%\e%[H
 		)
 		set mainbuffer=
 		set extbuffer=
 	)
 	set input=
-	if defined io.input (
-		set "input=!io.input!"
-	) else set /p input=
+	set /p input=
 )
 :bsod
 setlocal enabledelayedexpansion
@@ -256,7 +271,8 @@ set /a "halt.posX=!sst.boot.logoX!", "halt.posY=(!modeH!-!halt.lines!)/2"
 for %%a in (!halt.finalmsg!) do (
 	<nul set /p "=%\e%[B%\e%[!halt.posX!G%\e%[!spr.[bootlogo.spr].W!X%%~a"
 )
-set /p "=%\e%[2B%\e%[!halt.promptX!G%\e%[7m Press any key to exit. %\e%[27m"
+<nul set /p "=%\e%[2B%\e%[!halt.promptX!G%\e%[7m Press any key to exit. %\e%[27m"
+set > "!sst.dir!\temp\DWM-!sst.localtemp!-memoryDump" 2>nul
 exit %3
 :sleep
 set exit=
