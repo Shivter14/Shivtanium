@@ -1,9 +1,11 @@
-for /f "tokens=1 delims==" %%a in ('set dwm. 2^>nul') do set "%%a="
+for /f "tokens=1 delims==" %%a in ('set dwm. 2^>nul ^& set spr. 2^>nul ^& set ssvm. 2^>nul') do set "%%a="
 cd "!sst.dir!" || call :kernelPanic "Unable to locate system directory" "The system failed to start:\nValue sst.dir: '!sst.dir!'\n ^^^^^^  Invalid directory."
 if not exist "temp\proc" md "temp\proc"
 if not defined processes set "processes= "
 if !sys.CPU.count! lss 4 (
-	call :createProcess 0	systemb-dialog.bat 5 3 60 8 "Performance notification	noCBUI" "l2=  Your CPU only has !sys.CPU.count! logical processor(s).	l3=  This might lead to a bad experience.	l4=  The recommended minimum of logical processors is: 4" 51 6 7 " Close "
+	if "!sys.lowPerformanceMode!" neq "True" set "temp.nr=o6=%\e%[2C Tip: Set the following value in settings.dat: 	l7= %\e%[7m lowPerformanceMode=True%\e%[23X%\e%[27m"
+	call :createProcess 0	systemb-dialog.bat 5 3 59 9 "Performance notification	noCBUI" "l2=  Your CPU only has !sys.CPU.count! logical processor(s).	l3=  This might lead to a bad experience.	l4=  The recommended minimum of logical processors is: 4	!temp.nr!" 50 7 7 " Close "
+	set temp.nr=
 )
 call :createProcess 0	systemb-login.bat
 set sys.keys=
@@ -11,6 +13,14 @@ set keysPressedOld=
 set "windows= "
 set ioTotal=0
 title Shivtanium OS !sys.tag! !sys.ver! !sys.subvinfo!
+(set \n=^^^
+
+)
+
+if /I "!sys.lowPerformanceMode!" neq "True" set @sendWindowPositionData=set /a ioTotal+=2%\n%
+	echo=win[^^!movingWindow^^!]X=^^!tempX^^!%\n%
+	echo=win[^^!movingWindow^^!]Y=^^!tempY^^!
+
 for /l %%# in () do (
 	set "sys.clickOld=!sys.click!"
 	set "sys.click=!click!"
@@ -43,8 +53,17 @@ for /l %%# in () do (
 					) else set /a ioTotal+=3
 				) else set /a ioTotal+=3
 			) else (
-				set movingWindow=
-				set /a ioTotal+=3
+				if defined movingWindow (
+					set /a ioTotal+=5
+					echo=win[!movingWindow!]X=!tempX!
+					echo=win[!movingWindow!]Y=!tempY!
+					set tempX=
+					set tempY=
+					set movingWindow=
+				) else (
+					set movingWindow=
+					set /a ioTotal+=3
+				)
 			)
 			echo=mouseXpos=!sys.mouseXpos!
 			echo=mouseYpos=!sys.mouseYpos!
@@ -57,19 +76,15 @@ for /l %%# in () do (
 		set sys.mouseXpos=!mouseXpos!
 		set sys.mouseYpos=!mouseYpos!
 		if "!sys.mouseXold!;!sys.mouseYold!" neq "!sys.mouseXpos!;!sys.mouseYpos!" if defined movingWindow (
-			set /a "tempX=win[!movingWindow!]X=sys.mouseXpos-movingWindowOffset, temps=win[!movingWindow!]BX=win[!movingWindow!]X+win[!movingWindow!]W-1", "tempY=win[!movingWindow!]Y=sys.mouseYpos, win[!movingWindow!]BY=win[!movingWindow!]Y+win[!movingWindow!]H-1", ioTotal+=2
+			set /a "tempX=win[!movingWindow!]X=sys.mouseXpos-movingWindowOffset, temps=win[!movingWindow!]BX=win[!movingWindow!]X+win[!movingWindow!]W-1", "tempY=win[!movingWindow!]Y=sys.mouseYpos, win[!movingWindow!]BY=win[!movingWindow!]Y+win[!movingWindow!]H-1"
 			if !tempX! lss 1 (
 				set /a "tempX=win[!movingWindow!]X=1, win[!movingWindow!]BX=win[!movingWindow!]W"
 			) else if !temps! gtr !sys.modeW! set /a "tempX=win[!movingWindow!]X=sys.modeW-win[!movingWindow!]W+1, win[!movingWindow!]BX=sys.modeW"
 			if !tempY! lss 1 (
 				set /a "tempY=win[!movingWindow!]Y=1, win[!movingWindow!]BY=win[!movingWindow!]H"
 			) else if !tempY! geq !sys.modeH! set /a "tempY=win[!movingWindow!]Y=sys.modeH-1, win[!movingWindow!]BY=win[!movingWindow!]Y+win[!movingWindow!]H-1"
-			
-			echo=win[!movingWindow!]X=!tempX!
-			echo=win[!movingWindow!]Y=!tempY!
+			%@sendWindowPositionData%
 			>&3 echo=¤MW	!movingWindow!	X=!tempX!	Y=!tempY!
-			set tempX=
-			set tempY=
 			set temps=
 		) else if "!sys.click!" neq "0" (
 			if "!sys.mouseXpos!" neq "!sys.mouseXold!" if !sys.mouseXpos! geq 1 if !sys.mouseXpos! leq !sys.modeW! (
@@ -84,17 +99,38 @@ for /l %%# in () do (
 	)
 	set "sys.keys= !keysPressed!"
 	set "sys.keysRN=!sys.keys:-= !"
-	if "!sys.keysRN!" neq "!keysPressedOld!" (
-		echo=keysPressed=!sys.keys!
-		set /a ioTotal+=1
+	if defined focusedWindow (
+		if "!sys.keysRN!" neq "!keysPressedOld!" (
+			echo=keysPressed=!sys.keys!
+			set /a ioTotal+=1
+		)
+		for %%k in (!keysPressedOld!) do set "sys.keysRN=!sys.keysRN: %%k = !"
+		if "!sys.keysRN: =!" neq "" (
+			echo=keysPressedRN=!sys.keysRN!
+			set /a ioTotal+=1
+		)
 	)
-	for %%k in (!keysPressedOld!) do set "sys.keysRN=!sys.keysRN: %%k = !"
-	if "!sys.keysRN: =!" neq "" (
-		echo=keysPressedRN=!sys.keysRN!
-		set /a ioTotal+=1
-	)
-	if "!sys.keys!"==" -17-18-82-" call :kernelPanic "User triggered crash" "Shivtanium OS !sys.tag! !sys.ver! !sys.subvinfo!\nTotal IO transfers: !ioTotal!\nA memory dump has been created at: ~:\Shivtanium\temp\KernelMemoryDump"
 	set "keysPressedOld=!sys.keys:-= !"
+	
+	if "!sys.keys:~0,8!"==" -17-18-" (
+		if "!sys.keysRN!"=="  82 " (
+			call :kernelPanic "User triggered crash" "Shivtanium OS !sys.tag! !sys.ver! !sys.subvinfo!\nTotal IO transfers: !ioTotal!\nA memory dump has been created at: ~:\Shivtanium\temp\KernelMemoryDump"
+		) else if "!sys.keysRN!"=="  84 " (
+			echo=exit
+			set /a ioTotal+=1
+			(for %%w in (!windows!) do (
+				echo=¤DW	%%~w
+			))>&3
+			for /f %%a in ('set pid 2^>nul ^& set win 2^>nul') do set "%%a="
+			set "processes= "
+			set "windows= "
+			set focusedWindow=
+			set movingWindow=
+			set movingWindowOffset=
+			
+			call :createProcess 0	systemb-login.bat
+		)
+	)
 
 	set io=
 	set /p io=
@@ -137,7 +173,7 @@ for /l %%# in () do (
 			set "PID=%%~1"
 			set /a PID=PID
 			if "!PID!" neq "%%~1" call :kernelPanic "Invalid Process ID" "At function 'exitProcess':\n  Invalid Process ID: `%%~1` (NaN)\nThis is either a fatal error, or some program missbehaving.\nA memory dump has been created at: ~:\Shivtanium\temp\KernelMemoryDump"
-
+			if exist "temp\proc\PID-!PID!" del "temp\proc\PID-!PID!" >nul 2>&1 <nul
 			set "processes=!processes: %%1 = !"
 			if "!processes: =!"=="" (
 				echo=exit
@@ -165,15 +201,26 @@ for /l %%# in () do (
 			call :createProcess %%1
 		) else if "%%~0"=="exitProcessTree" (
 			call :killProcessTree	%%1
+		) else if "%%~0"=="config" (
+			for /f "tokens=1* delims==" %%x in ("%%~1") do for %%s in (
+				lowPerformanceMode
+				reduceMotion
+			) do if "%%x"=="%%s" (
+				set "sys.%%x=%%y"
+				set /a ioTotal+=1
+				echo=%%x=%%y
+			)
 		) else if "%%~0"=="powerState" (
 			if /I "%%~1"=="shutdown" (
+				cd "!sst.dir!"
+				call main.bat :loadResourcePack init
 				echo=exit
 				echo=¤EXIT>&3
 				for /l %%# in (1 1 100000) do rem
 				echo=%\e%[48;2;0;0;0m%\e%[H%\e%[2J>con
 				copy nul "temp\bootStatus-!sst.localtemp!-exit" > nul 2>&1
 				set "sst.boot.fadeout=255"
-				call "!sst.dir!\boot\fadeout.bat" Shivtanium is shutting down.%\n%[2;HRemaining processes: !processes! >con
+				call "!sst.dir!\boot\fadeout.bat" Shivtanium is shutting down.%\e%[2;HRemaining processes: !processes! >con
 				exit 0
 			) else if /I "%%~1"=="reboot" (
 				echo=exit
@@ -189,22 +236,22 @@ for /l %%# in () do (
 set PID=!random!
 if "!processes!" neq "!processes: %PID% =!" goto createProcess
 if exist "temp\proc\PID-!PID!" goto createProcess
-copy nul "temp\proc\PID-!PID!" > nul
+set args=%*
+for /f "tokens=1* delims=	" %%a in ("!args!") do (
+	set "pid[!PID!]parent=%%~a"
+	set "pid[%%~a]subs=!pid[%%~a]subs! "!PID!""
+	set "args=%%~b"
+)
+(
+	echo=!args!
+)>"temp\proc\PID-!PID!"
+
 set "pid[!pid!]windows= "
 set "pid[!pid!]subs= "
 set "pid[!pid!]=%~2"
 set "processes=!processes!!PID! "
 if not defined processes call :kernelPanic "Process list overflow" "The system has started too many processes,\nand it seems like the list has overflown.\nThe system cannot continue."
-set args=%*
-for /f %%a in ("!args!") do (
-	set "pid[!PID!]parent=%%~a"
-	set "pid[%%~a]subs=!pid[%%~a]subs! "!PID!""
-)
-set "args=!args:*	=!"
 start /b cmd /c preparePipe.bat !args! <"temp\kernelOut" >&3
-if errorlevel 1 (
-	call :kernelPanic "Application failed to start" "It seems like an application has failed to start.\nExit code: !errorlevel!\nApplication: '%~1'"
-)
 exit /b 0
 :killProcessTree
 set "PID=%~1"
@@ -235,6 +282,7 @@ if "!processes: =!"=="" (
 	if "%%~w"=="!movingWindow!" set movingWindow=
 	for /f "tokens=1 delims==" %%a in ('set "win[%%~w]" 2^>nul') do set "%%a="
 )
+if exist "temp\proc\PID-!PID!" del "temp\proc\PID-!PID!" >nul 2>&1 <nul
 if defined pid[!pid[%PID%]parent!]subs for /f %%a in ("!pid[%PID%]parent!") do set "pid[%%~a]subs=!pid[%%~a]subs: "%PID%"=!"
 for %%p in (!pid[%PID%]subs!) do call :killProcessTree %%~p
 for /f "tokens=1 delims==" %%a in ('set "pid[%~1]" 2^>nul') do set "%%a="
