@@ -3,6 +3,12 @@ if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
 
 setlocal enabledelayedexpansion
 if "%~1"==":waitForBootServices" goto waitForBootServices.service
+set "arg1=%~1"
+if "!arg1:~0,1!"==":" (
+	call %*
+	exit /b
+)
+
 if not exist "%~dp0" exit /b 404
 chcp.com 65001>nul
 
@@ -33,7 +39,6 @@ if not exist "temp\bootStatus-!sst.localtemp!" copy nul "temp\bootStatus-!sst.lo
 if /I "!sst.noguiboot!" neq "True" (
 	start /b "" cmd /c boot\renderer.bat "temp\bootStatus-!sst.localtemp!" < "temp\bootStatus-!sst.localtemp!"
 )
-
 set "processes= "
 for %%a in (
 	":clearEnv|Clearing environment"
@@ -67,7 +72,6 @@ for /f "tokens=1 delims==" %%a in ('set sst.boot') do if /I "%%~a" neq "sst.boot
 cd "%~dp0"
 copy nul temp\kernelPipe > nul
 copy nul temp\kernelOut > nul
-
 call sstoskrnl.bat < "temp\kernelPipe" > "temp\kernelOut" 2>"temp\kernelErr" 3> "temp\DWM-!sst.localtemp!"
 
 :startup.submsg
@@ -176,14 +180,20 @@ set unload=
 exit /b 0
 :loadSettings
 if not exist "!sst.dir!\settings.dat" call :halt "%~nx0:loadSettings" "Failed to load 'settings.dat':\n  File not found."
+
+set "sys.loginTheme=metroTyper"
+set "sst.boot.fadeout=255"
 for /f "usebackq tokens=1* delims==" %%a in ("!sst.dir!\settings.dat") do set "sys.%%~a=%%~b"
+if defined sys.boot.fadeout (
+	set sst.boot.fadeout=!sys.boot.fadeout!
+	set sys.boot.fadeout=
+)
 
 set "sst.processes= "
 set "sst.processes.paused= "
-set "sst.boot.fadeout=255"
 
-set dwm.scene=%\e%[H%\e%[0m%\e%[48;2;;;;38;2;255;255;255m%\e%[2JShivtanium OS !sys.tag! !sys.ver! !sys.subvinfo!
-set dwm.sceneBGcolor=2;;63;127
+set dwm.scene=%\e%[H%\e%[0m%\e%[48;2;;;;38;5;231m%\e%[2JShivtanium OS !sys.tag! !sys.ver! !sys.subvinfo!
+set dwm.sceneBGcolor=2;;;
 set dwm.BGcolor=5;231
 set dwm.FGcolor=5;16
 set dwm.TIcolor=5;12
@@ -208,16 +218,6 @@ for %%a in (
 	set "%%~b="
 	if "!%%~c!"=="" call :halt "%~nx0:loadSettings" "Failed to define variable translation:\n%%~c = %%~b"
 )
-
-set "dwm.barbuffer=                                                                                                                                                                                                                                                                "
-set "dwm.bottombuffer=▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄"
-set dwm.order=
-set dwm.focused=
-set dwm.char.L=█
-set dwm.char.B=▄
-set dwm.char.R=█
-set dwm.char.S=█
-set dwm.char.O=░░
 
 set /a "dwm.tps=100", "dwm.tdt=100/dwm.tps", "sst.proccount=0", "sys.click=0"
 exit /b 0
@@ -245,7 +245,6 @@ for /l %%. in () do (
 		set svcIn=
 		set /p svcIn=<"!sst.dir!\temp\pf-%%~F"
 		if defined svcIn (
-			start /b /wait "" cmd /c timeout 1 /nobreak > nul
 			call :halt "service %%~F" "!svcIn!"
 		)
 		del "!sst.dir!\temp\pf-%%~F" > nul
@@ -259,18 +258,4 @@ for /l %%. in () do (
 )
 :checkCompat
 if "!sys.CPU.architecture!" neq "AMD64" call :halt "%~nx0:checkCompat" "Incompatible processor architecture: !sys.CPU.architecture!\nShivtanium requires processor architecture AMD64/x86_64"
-exit /b
-:sysDeploy
-exit /b 0
-(
-	echo=
-	echo=¤EXIT
-	echo=
-) >> "temp\bootStatus-!sst.localtemp!"
-cd "!sst.dir!" >nul 2>&1 || exit /b 4
-<nul set /p "=%\e%[H"
-call BPM.bat --install batch-lib
-if errorlevel 1 (
-	pause<con>nul
-)
 exit /b
