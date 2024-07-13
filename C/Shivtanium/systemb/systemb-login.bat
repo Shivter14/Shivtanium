@@ -6,8 +6,8 @@ if not defined PID (
 )
 set /a PID=PID
 set /a "win[%PID%.systemb_login]W=64, closeButtonX=win[%PID%.systemb_login]W-3, systemb.login.tW=win[%PID%.systemb_login]W-4, win[%PID%.systemb_login]H=8, win[%PID%.systemb_login]X=(sys.modeW-win[%PID%.systemb_login]W)/2, win[%PID%.systemb_login]Y=(sys.modeH-win[%PID%.systemb_login]H)/2"
-echo=¤CTRL	APPLYTHEME	metroTyper
-echo=¤CW	!PID!.systemb_login	!win[%PID%.systemb_login]X!	!win[%PID%.systemb_login]Y!	!win[%PID%.systemb_login]W!	!win[%PID%.systemb_login]H!	Shivtanium Login
+if defined sys.loginBGTheme echo=¤CTRL	APPLYTHEME	!sys.loginBGTheme!
+echo=¤CW	!PID!.systemb_login	!win[%PID%.systemb_login]X!	!win[%PID%.systemb_login]Y!	!win[%PID%.systemb_login]W!	!win[%PID%.systemb_login]H!	Shivtanium Login	!sys.loginTheme!
 echo=¤MW	!PID!.systemb_login	l2=  Welcome to Shivtanium.	l4=  Enter your username:	o6=%\e%[2C%\e%[!systemb.login.tW!X
 >>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.systemb_login	!win[%PID%.systemb_login]X!	!win[%PID%.systemb_login]Y!	!win[%PID%.systemb_login]W!	!win[%PID%.systemb_login]H!
 set "systemb.login.username= "
@@ -44,11 +44,28 @@ for /l %%# in () do (
 					echo=¤MW	!PID!.systemb_login	o6=%\e%[2C%\e%[!systemb.login.tW!X!systemb.login.username:~-60!
 				)
 			)
-			if "!sys.keysRN!" neq "!sys.keysRN: 13 =!" ((
-				echo=createProcess	!PID!	systemb-userinit.bat --username "!systemb.login.username:~1!"
-				echo=exitProcess	!PID!
-				exit 0
-			)) >> "!sst.dir!\temp\kernelPipe"
+			if "!sys.keysRN!" neq "!sys.keysRN: 13 =!" (	
+				set "userprofile=!systemb.login.username:~1!"
+				set "usernameCheck=!userprofile! "
+				set err=
+				if not defined userprofile (
+					set "err=You must enter a username"
+				) else (
+					for %%a in (
+						- _ a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9
+					) do set "usernameCheck=!usernameCheck:%%a=!"
+					if "!usernameCheck!" neq " " set "err=Invalid characters: %\e%[7m !usernameCheck:~0,32!%\e%[27m"
+				)
+				(
+					if defined err (
+						echo=createProcess	0	systemb-dialog.bat !win[%PID%.systemb_login]X!+3 !win[%PID%.systemb_login]Y!+1 !win[%PID%.systemb_login]W!-6 6 "Invalid username	noCBUI" "l2=  The username you entered is invalid;	l3=  !err!" w-9 h-2 7 " Close "
+					) else (
+						echo=createProcess	0	systemb-userinit.bat --username "!systemb.login.username:~1!"
+						echo=exitProcess	!PID!
+						exit 0
+					)
+				) >> "!sst.dir!\temp\kernelPipe"
+			)
 		)) else if "!kernelOut!"=="click=1" (
 			set /a "relativeMouseX=mouseXpos - win[!PID!.systemb_login]X, relativeMouseY=mouseYpos - win[!PID!.systemb_login]Y"
 			if "!relativeMouseY!"=="0" if !relativeMouseX! geq !closeButtonX! ((
