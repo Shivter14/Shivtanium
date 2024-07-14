@@ -66,7 +66,7 @@ This batch file may contain 3 variable definitions:
 
 > You can get a character from a character set using the following expansion method: `!charset_#:~<keycode>,1!`
 
-> Keycode is a keyboard key value from WinAPI (used in: getInput64.dll, cmdwiz.exe, getInput.exe)
+> Keycode is a keyboard key value from WinAPI (used in: getInput64.dll, cmdwiz.exe, getInput.exe...)
 
 Example: `A` is pressed without `Shift` nor `Alt`;
 - Keycode of `A` is 65.
