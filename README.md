@@ -31,6 +31,7 @@ The Shivtanium interpreter uses a custom-written file system: SSTFS
 That's the reason why you need a SSTFS file for it to work.
 
 More information about it can be found on the ![SSTFS Wiki](https://github.com/Shivter14/Shivtanium/wiki/SSTFS).
+
 ## The Desktop Window Manager
 Shivtanium uses a custom-made Desktop Window Manager to render windows with themes.
 These themes can be customized with *resource packs*
