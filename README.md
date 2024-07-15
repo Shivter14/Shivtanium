@@ -44,6 +44,7 @@ The format is easy to understand just by looking at a theme located in: `C\Shivt
 
 * To modify the window button controls, change the `CBUI` value which should add 9 characters. If more are needed, `\e[#E` can be used to expand the limit by # characters.
 * For more help, head to the ![DWM Wiki](https://github.com/Shivter14/Shivtanium/wiki/Desktop-Window-Manager).
+
 * Making *aero* themes will be described on the ![wiki](https://github.com/Shivter14/Shivtanium/wiki) soon.
 
 It's even easier to create sprites, it's just raw ASCII art located in: `C\Shivtanium\resourcepacks\init\sprites\`
