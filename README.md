@@ -34,6 +34,7 @@ More information about it can be found on the ![SSTFS Wiki](https://github.com/S
 ## The Desktop Window Manager
 Shivtanium uses a custom-made Desktop Window Manager to render windows with themes.
 These themes can be customized with *resource packs*
+
 Yes, Shivtanium has a resource pack format.
 
 Creating themes requires VT100 knowledge.
