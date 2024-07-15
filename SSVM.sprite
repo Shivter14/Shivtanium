@@ -8,7 +8,7 @@ Sprite_Meta;36;7;SSVM
       Extended Virtual Machine      
 
 # This is a sprite created using the Shivter's standard sprite format.
-# Everything under the first line and except the last line can be ignored and used as ASCII / comment space
+# Everything under the first line and except the last line can be ignored and used as ASCII / comment space. 
 # But putting a lot of stuff is not recommended as it may cause loading slowdowns!
 # The following line contains the actual VT100 sprite.
 7  ▄▄▄            ▄▄▄ ▄    ▄      ▄  8[B █[14X[14C█    █          ▄█▄ 8[2B  ▀▀▄ █  █ ▄██▀  ▀▀▄ █▀▀▄ █ █ █  █  8[3B ▄▄▄▀ ▀▄▄█ ▄██▀ ▄▄▄▀ █  █ █ ▀█▀  ▀▄ 8[4B      ▄  █[26X8[5B       ▀▀[27X8[6B      Extended Virtual Machine      
