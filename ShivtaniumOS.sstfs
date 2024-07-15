@@ -33,7 +33,7 @@ expand	theme[$sys.random:~-1$]
 set	theme=$result$
 math	$sys.random:~-1$+2
 createWindow	$sys.random$	x=$sys.random:~-2$	y=$sys.random:~-1$	w=$sys.random:~0,2$	h=$result$	title=$sys.random$	theme=$theme$
-wait	100
+wait	99
 exit
 @FILE ext.sst
 math	($sys.modeW$-64)/2+1
