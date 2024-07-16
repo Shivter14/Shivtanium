@@ -8,7 +8,7 @@
 
 </div>
 
-Shivtanium runs *sub systems*. Like the `systemb` application set.
+Shivtanium runs *sub systems*; Like the `systemb` application set.
 
 These subsystems can run in parallel, and can communicate with each other.
 
