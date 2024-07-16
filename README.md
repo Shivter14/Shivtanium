@@ -50,6 +50,7 @@ The format is easy to understand just by looking at a theme located in: `C\Shivt
 It's even easier to create sprites, it's just raw ASCII art located in: `C\Shivtanium\resourcepacks\init\sprites\`
 
 The sprite loader automatically detects and assigns the width of sprites while loading.
+
 ## Customization
 - The display dimensions can be changed in `ssvm.cww` value `mode`.
 - The OS name seen in SSVM can be changed in `C\SSVM.cww`.
