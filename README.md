@@ -59,6 +59,7 @@ The sprite loader automatically detects and assigns the width of sprites while l
 
 And of course, the `ShivtaniumOS.sstfs` filesystem can be modified with knowledge of the Shivtanium Programming Language.
 ### Keyboard & typing
+
 Shivtanium uses a keyboard layout system, where the keyboard layout is a batch file located in the resource pack:
 `keyboard_init.bat`
 
