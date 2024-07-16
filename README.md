@@ -104,6 +104,5 @@ More information about interacting with the process' environment and Shivtanium:
   ![image](https://github.com/Shivter14/Shivtanium/assets/98386496/983b1fc7-c198-4bfc-8a7d-94462d6b9dfb)
   ![image](https://github.com/user-attachments/assets/737af2a2-d617-4ead-95cf-7d7acc818c9c)
 
-  
 
 </div>
