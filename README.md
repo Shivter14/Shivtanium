@@ -70,6 +70,7 @@ Shivtanium uses a keyboard layout system, where the keyboard layout is a batch f
 This batch file may contain 3 variable definitions:
 
 - `charset_L` - Lower case (keycode -> Character)
+
 - `charset_U` - Upper case (Shift + keycode -> Upper case character)
 - `charset_A` - Alternative (Alt + keycode -> Alternative character)
 
