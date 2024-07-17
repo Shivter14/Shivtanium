@@ -72,6 +72,7 @@ This batch file may contain 3 variable definitions:
 - `charset_L` - Lower case (keycode -> Character)
 
 - `charset_U` - Upper case (Shift + keycode -> Upper case character)
+
 - `charset_A` - Alternative (Alt + keycode -> Alternative character)
 
 > The variable definitions are long strings containing all the possible characters that can be input.
