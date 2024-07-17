@@ -104,6 +104,7 @@ Information about creating applications for Shivtanium can be found on the ![Ker
 - Name it with the following format: `ic-<command>.bat`
 - Do not use `@echo off` nor `setlocal enableDelayedExpansion`.
 To call your newly created command, use `call \bin\<command>`.
+
 More information about interacting with the process' environment and Shivtanium:
 - `%~1` is the PID of the calling process.
 - To modify it's variables, use `"pid[%~1]v<variable>"`.
