@@ -21,6 +21,7 @@ Input is handled by the Shivtanium OS Kernel, which also handles:
 - Starting processes
 
 - Registering windows
+
 - Moving windows
 
 And much more...
