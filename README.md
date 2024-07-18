@@ -15,6 +15,7 @@ These subsystems can run in parallel, and can communicate with each other.
 Input is handled by the Shivtanium OS Kernel, which also handles:
 
 - System shutdown
+
 - Killing processes
 - Starting processes
 - Registering windows
