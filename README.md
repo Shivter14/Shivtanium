@@ -107,6 +107,7 @@ Information about creating applications for Shivtanium can be found on the ![Ker
 To call your newly created command, use `call \bin\<command>`.
 
 More information about interacting with the process' environment and Shivtanium:
+
 - `%~1` is the PID of the calling process.
 - To modify it's variables, use `"pid[%~1]v<variable>"`.
 - Printing anything will be redirected straight into the Desktop Window Manager.
