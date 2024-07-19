@@ -47,8 +47,6 @@ The format is easy to understand just by looking at a theme located in: `C\Shivt
 
 * For more help, head to the ![DWM Wiki](https://github.com/Shivter14/Shivtanium/wiki/Desktop-Window-Manager).
 
-* Making *aero* themes will be described on the ![wiki](https://github.com/Shivter14/Shivtanium/wiki) soon.
-
 It's even easier to create sprites, it's just raw ASCII art located in: `C\Shivtanium\resourcepacks\init\sprites\`
 
 The sprite loader automatically detects and assigns the width of sprites while loading.
