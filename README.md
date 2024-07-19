@@ -30,14 +30,6 @@ Graphics & windows are handled by the Desktop Window Manager, which uses many ki
 
 More information about it can be found in the following sections and the ![DWM Wiki](https://github.com/Shivter14/Shivtanium/wiki/Desktop-Window-Manager).
 
-### How does SSTFS work?
-
-The Shivtanium interpreter uses a custom-written file system: SSTFS
-
-That's the reason why you need a SSTFS file for it to work.
-
-More information about it can be found on the ![SSTFS Wiki](https://github.com/Shivter14/Shivtanium/wiki/SSTFS).
-
 ## The Desktop Window Manager
 
 Shivtanium uses a custom-made Desktop Window Manager to render windows with themes.
