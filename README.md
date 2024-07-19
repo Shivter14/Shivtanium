@@ -23,6 +23,7 @@ Input is handled by the Shivtanium OS Kernel, which also handles:
 - Registering windows
 
 - Moving windows
+
 - Shutdown & Rebooting
 
 And much more...
