@@ -80,7 +80,7 @@ This batch file may contain 3 variable definitions:
 
 Example: `A` is pressed without `Shift` nor `Alt`;
 - Keycode of `A` is 65.
-- `!charset_L:~65,1!`
+- Result: `!charset_L:~65,1!`
 
 Modifying the keyboard layout can be done in the following way:
 
