@@ -104,6 +104,7 @@ To call your newly created command, use `call \bin\<command>`.
 More information about interacting with the process' environment and Shivtanium:
 
 - `%~1` is the PID of the calling process.
+
 - To modify it's variables, use `"pid[%~1]v<variable>"`.
 - Printing anything will be redirected straight into the Desktop Window Manager.
 - To communicate with the Kernel, redirect (add) data into `!sst.dir!\temp\kernelPipe`. Warning: Don't *lock* the pipe! Other processes might want to be using it >:(
