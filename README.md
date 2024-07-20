@@ -113,6 +113,7 @@ More information about interacting with the process' environment and Shivtanium:
 - To communicate with the Kernel, redirect (add) data into `!sst.dir!\temp\kernelPipe`. Warning: Don't *lock* the pipe! Other processes might want to be using it >:(
 
 ## Screenshots
+
 <div align="center">
 
   ![image](https://github.com/Shivter14/Shivtanium/assets/98386496/dd131add-ed0a-4b8a-b11d-51ef5c7239ab)
