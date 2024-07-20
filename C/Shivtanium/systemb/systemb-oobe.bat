@@ -6,11 +6,13 @@ if not defined PID (
 	exit /b 1
 )
 set /a PID=PID
-set /a "nextButtonBX=(nextButtonX=(win[!PID!.oobe]W=64)-8)+5, contentH=(win[!PID!.oobe]H=16)-2, win[!PID!.oobe]X=(sys.modeW - win[!PID!.oobe]W) / 2, win[!PID!.oobe]Y=(sys.modeH - win[!PID!.oobe]H) / 2"
+set /a "nextButtonBX=(nextButtonX=(win[!PID!.oobe]W=64)-8)+5, contentH=(win[!PID!.oobe]H=16)-2, win[!PID!.oobe]X=(sys.modeW - win[!PID!.oobe]W) / 2, win[!PID!.oobe]Y=(sys.modeH - win[!PID!.oobe]H) / 2, inputC=(inputW=win[!PID!.oobe]W-6)-1"
 echo=¤CTRL	APPLYTHEME	lo-fi
 echo=¤CW	!PID!.oobe	!win[%PID%.oobe]X!	!win[%PID%.oobe]Y!	!win[%PID%.oobe]W!	!win[%PID%.oobe]H!	 	lo-fi noCBUI
 >>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.oobe	!win[%PID%.oobe]X!	!win[%PID%.oobe]Y!	!win[%PID%.oobe]W!	!win[%PID%.oobe]H!
-:start
+if exist "!asset[\sounds\windows-xp-welcome-music-remix.mp3]!" start /b "Shivtanium sound handeler (ignore this)" /min cscript.exe //b core\playsound.vbs "!asset[\sounds\windows-xp-welcome-music-remix.mp3]!"
+:start // Initial screen
+
 set "s2=▓▓▓▒▒░░                                             ░░▒▒▓▓"
 set "s3=▓▓▒▒░░   ▄▄▄ ▄    ▄      ▄            ▄            ░░▒▒▓▓▓"
 set "s4=▓▓▓▒▒░░ █    █          ▄█▄                         ░░▒▒▓▓"
@@ -40,6 +42,8 @@ echo=¤MW	!PID!.oobe	l12=%\e%[8CBefore we put you on the desktop, we have some	l
 set last=
 set off=
 call :pagewait
+
+REM  Transition
 echo=¤MW	!PID!.oobe	l12=	l13=
 set fall=10
 for /l %%a in (51 -4 3) do (
@@ -61,15 +65,53 @@ for /l %%a in (51 -4 3) do (
 set last=
 set fall=
 set add=
-echo=¤MW	!PID!.oobe	l2=	l3=	l4=	l5=	l6=	l7=	l8=
 
-set "l2=Create a user profile"
-set "l4= Username:           "
-set "l7= Password:           "
-for /l %%a in (1 2 21) do echo=¤MW	!PID!.oobe	l2=  !l2:~-%%a!	l4=  !l4:~-%%a!	l7=  !l7:~-%%a!	o5=%\e%[3C %\e%[%%aX	o8=%\e%[3C %\e%[%%aX
-for /l %%a in (22 2 !nextButtonX!) do echo=¤MW	!PID!.oobe	o5=%\e%[3C %\e%[%%aX	o8=%\e%[3C %\e%[%%aX
+:accountsetup // User Profile Setup
+echo=¤MW	!PID!.oobe	l2=	l3=	l4=	l5=	l6=	l7=	l8=	o!contentH!=%\e%[2C Back %\e%8%\e%[!nextButtonX!C Next 
+
+set "l2= Create a user profile"
+set "l4=  Username:           "
+set "l7=  Password:           "
+for /l %%a in (2 3 23) do echo=¤MW	!PID!.oobe^
+	l2= !l2:~-%%a!	l4= !l4:~-%%a!	l7= !l7:~-%%a!^
+	o5=%\e%[3C%\e%[7m%\e%[%%aX%\e%[27m	o8=%\e%[3C%\e%[%%aX
+
+for /l %%a in (28 3 !inputW!) do echo=¤MW	!PID!.oobe	o5=%\e%[3C%\e%[7m%\e%[%%aX%\e%[27m	o8=%\e%[3C%\e%[%%aX
+set "buttons=username password"
+set btn[username]Y=5
+set btn[password]Y=8
+set /a "btn[username]X=btn[password]X=3, btn[username]BX=btn[password]BX=nextButtonX"
+set btn[username]=:textinput username
+set btn[password]=:textinput password
+set btn[username]N=:textinput password
+
+set "txt.username= "
+set "txt.password= "
+call :textinput username
 call :pagewait
-echo=¤MW	!PID!.oobe	o5=	o8=
+
+for /l %%a in (!inputW! -3 4) do (
+	set /a "x=inputW-%%a+3"
+	echo=¤MW	!PID!.oobe^
+	l2=%\e%[!x!C!l2:~0,%%a!	l4=%\e%[!x!C!l4:~0,%%a!	l7=%\e%[!x!C!l7:~0,%%a!^
+	o5=%\e%[!x!C%\e%[%%aX!txt.username!	o8=%\e%[!x!C%\e%[%%aX!txt.password!
+)
+set x=
+echo=¤MW	!PID!.oobe	o5=	o8=	l2=	l4=	l7=
+set buttons=
+if errorlevel 1 goto start
+:fontsetup
+set "l2=Font installation                                        "
+set "l4=The recommended font for Shivtanium is:                  "
+set "l5= MxPlus IBM VGA 8x16                                     "
+set "l6=This will download & extract a font pack from int10h.org."
+set "l8=Do you want to download & install this font؟             "
+for /l %%a in (1 3 56) do echo=¤MW	!PID!.oobe^
+	l2=  !l2:~-%%a!	l4=  !l4:~-%%a!	l5=  %\e%[7m!l5:~-%%a,21!%\e%[27m	l6=  !l6:~-%%a!	l8=  !l8:~-%%a!
+echo=¤MW	!PID!.oobe	l2=  !l2:  =!	l4=  !l4:  =!	l5=  %\e%[7m!l5:~0,21!%\e%[27m	l6=  !l6:  =!	l8=  !l8:  =!
+
+
+call :pagewait
 goto start
 :pagewait
 for /l %%# in (1 1 1000) do if not defined continue for /l %%# in (1 1 1000) do if not defined continue (
@@ -78,16 +120,30 @@ for /l %%# in (1 1 1000) do if not defined continue for /l %%# in (1 1 1000) do 
 	if defined kernelOut if "!kernelOut!"=="click=1" (
 		if "!focusedWindow!"=="!PID!.oobe" (
 			set /a "relativeMouseX=mouseXpos - win[!PID!.oobe]X, relativeMouseY=mouseYpos - win[!PID!.oobe]Y"
-			if "!relativeMouseY!"=="!contentH!" if !relativeMouseX! geq !nextButtonX! if !relativeMouseX! leq !nextButtonBX! (
-				echo=¤MW	!PID!.oobe	o!contentH!=%\e%[!nextButtonX!C%\e%[7m Next %\e%[27m
+			if "!relativeMouseY!"=="!contentH!" (
+				if !relativeMouseX! geq !nextButtonX! if !relativeMouseX! leq !nextButtonBX! (
+					echo=¤MW	!PID!.oobe	o!contentH!=%\e%[2C Back %\e%8%\e%[!nextButtonX!C%\e%[7m Next %\e%[27m
+				)
+				if !relativeMouseX! geq 2 if !relativeMouseX! leq 7 (
+					echo=¤MW	!PID!.oobe	o!contentH!=%\e%[2C%\e%[7m Back %\e%[27m%\e%8%\e%[!nextButtonX!C Next 
+				)
+			)
+			for %%a in (!buttons!) do if "!relativeMouseY!"=="!btn[%%~a]Y!" if !relativeMouseX! geq !btn[%%~a]X! if !relativeMouseX! leq !btn[%%~a]BX! (
+				set continue=0
+				call !btn[%%~a]!
 			)
 		)
 	) else if "!kernelOut!"=="click=0" (
 		if "!focusedWindow!"=="!PID!.oobe" (
-			echo=¤MW	!PID!.oobe	o!contentH!=%\e%[!nextButtonX!C Next 
+			echo=¤MW	!PID!.oobe	o!contentH!=%\e%[2C Back %\e%8%\e%[!nextButtonX!C Next 
 			set /a "relativeMouseX=mouseXpos - win[!PID!.oobe]X, relativeMouseY=mouseYpos - win[!PID!.oobe]Y"
-			if "!relativeMouseY!"=="!contentH!" if !relativeMouseX! geq !nextButtonX! if !relativeMouseX! leq !nextButtonBX! (
-				set continue=True
+			if "!relativeMouseY!"=="!contentH!" (
+				if !relativeMouseX! geq !nextButtonX! if !relativeMouseX! leq !nextButtonBX! (
+					set continue=0
+				)
+				if !relativeMouseX! geq 2 if !relativeMouseX! leq 7 (
+					set continue=1
+				)
 			)
 		)
 	) else if "!kernelOut!"=="exitProcess=!PID!" (
@@ -98,4 +154,75 @@ for /l %%# in (1 1 1000) do if not defined continue for /l %%# in (1 1 1000) do 
 )
 if not defined continue goto pagewait
 set continue=
+exit /b !continue!
+:textinput
+echo=¤MW	!PID!.oobe	o!btn[%1]Y!=%\e%[3C%\e%[7m%\e%[!inputW!X!txt.%1:~-%inputC%!_%\e%[27m
+set continue=
+set continue.exit=
+:textinput.loop
+for /l %%# in (1 1 1000) do if not defined continue for /l %%# in (1 1 1000) do if not defined continue (
+	set kernelOut=
+	set /p "kernelOut="
+	if defined kernelOut if "!kernelOut:~0,12!"=="keysPressed=" (
+		set "sys.keys=!kernelOut:~12!"
+	) else if "!kernelOut:~0,14!"=="keysPressedRN=" (
+		if "!focusedWindow!"=="!PID!.oobe" (
+			set "!kernelOut!">nul 2>&1
+			for %%k in (!keysPressedRN!) do (
+				set "char=!charset_L:~%%k,1!"
+				if "!sys.keys!" neq "!sys.keys:-16-=!" set "char=!charset_U:~%%k,1!"
+				if "!sys.keys!" neq "!sys.keys:-17-=!" set "char=!charset_A:~%%k,1!"
+				if "!char!"==" " (
+					if "%%~k" neq "32" set char=
+					if "%%~k"=="8" (
+						if "!txt.%1!" neq " " set "txt.%~1=!txt.%~1:~0,-1!"
+						echo=¤MW	!PID!.oobe	o!btn[%1]Y!=%\e%[3C%\e%[7m%\e%[!inputW!X!txt.%1:~-%inputC%!_%\e%[27m
+					)
+				)
+				if defined char (
+					set "txt.%~1=!txt.%~1!!char!"
+					echo=¤MW	!PID!.oobe	o!btn[%1]Y!=%\e%[3C%\e%[7m%\e%[!inputW!X!txt.%1:~-%inputC%!_%\e%[27m
+				) else if "%%~k"=="13" (
+					set continue=13
+					echo=¤MW	!PID!.oobe	o!btn[%1]Y!=%\e%[3C%\e%[!inputW!X!txt.%1:~-%inputC%!
+				)
+			)
+		)
+	) else if "!kernelOut!"=="click=1" (
+		if "!focusedWindow!"=="!PID!.oobe" (
+			set /a "relativeMouseX=mouseXpos - win[!PID!.oobe]X, relativeMouseY=mouseYpos - win[!PID!.oobe]Y"
+			if "!relativeMouseY!"=="!contentH!" (
+				if !relativeMouseX! geq !nextButtonX! if !relativeMouseX! leq !nextButtonBX! (
+					echo=¤MW	!PID!.oobe	o!contentH!=%\e%[2C Back %\e%8%\e%[!nextButtonX!C%\e%[7m Next %\e%[27m
+				)
+				if !relativeMouseX! geq 2 if !relativeMouseX! leq 7 (
+					echo=¤MW	!PID!.oobe	o!contentH!=%\e%[2C%\e%[7m Back %\e%[27m%\e%8%\e%[!nextButtonX!C Next 
+				)
+			)
+		)
+	) else if "!kernelOut!"=="click=0" (
+		if "!focusedWindow!"=="!PID!.oobe" (
+			echo=¤MW	!PID!.oobe	o!contentH!=%\e%[!nextButtonX!C Next 
+			set /a "relativeMouseX=mouseXpos - win[!PID!.oobe]X, relativeMouseY=mouseYpos - win[!PID!.oobe]Y"
+			if "!relativeMouseY!" neq "!btn[%~1]Y!" (
+				set continue=True
+				echo=¤MW	!PID!.oobe	o!btn[%1]Y!=%\e%[3C%\e%[!inputW!X!txt.%1:~-%inputC%!
+				if "!relativeMouseY!"=="!contentH!" (
+					if !relativeMouseX! geq !nextButtonX! if !relativeMouseX! leq !nextButtonBX! set continue.exit=True
+					if !relativeMouseX! geq 2 if !relativeMouseX! leq 7 set continue.exit=1
+				)
+			)
+		)
+	) else if "!kernelOut!"=="exitProcess=!PID!" (
+		exit 0
+	) else if "!kernelOut!"=="exit" (
+		exit 0
+	) else set "!kernelOut!">nul 2>&1
+)
+if not defined continue goto textinput.loop
+if "!continue!"=="13" (
+	if defined btn[%1]N (
+		call !btn[%1]N!
+	)
+) else set continue=!continue.exit!
 exit /b 0
