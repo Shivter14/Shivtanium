@@ -6,15 +6,12 @@ if not exist "!sst.dir!\temp" (
 )
 set msfl=
 for %%F in (
-
 	befi.dat
 	dwm.bat
 	main.bat
-	Shivtanium.bat
-	SSTFS-read.bat
+	sstoskrnl.bat
+	core\config.bat
 	core\getinput64.dll
-	core\ic-shutdown.bat
-	core\main.sstfs
 	core\playsound.vbs
 	resourcepacks\init\sounds\boot.mp3
 	resourcepacks\init\sounds\shutdown.mp3
@@ -22,10 +19,9 @@ for %%F in (
 	resourcepacks\init\themes\aero
 	resourcepacks\init\themes\classic
 	resourcepacks\init\themes\lo-fi
-
+	resourcepacks\init\themes\noCBUI
 ) do if not exist "!sst.dir!\%%~F" set msfl=!msfl! "%%~F"
-copy nul "!sst.dir!\temp\pf-%~n0" > nul
 if defined msfl (
 	>"!sst.dir!\temp\pf-%~n0" echo=Missing files:!msfl!
-)
+) else copy nul "!sst.dir!\temp\pf-%~n0" > nul
 exit
