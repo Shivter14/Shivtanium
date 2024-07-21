@@ -286,6 +286,12 @@ tar -xf "oldschool_pc_font_pack_v2.2_win.zip" || (
 	call :getfonts.fail "Failed to extract assets" "The following archive failed to extract:" "%\e%[7m oldschool_pc_font_pack_v2.2_win.zip %\e%[27m" "Reason: %\e%[7m tar error !errorlevel! %\e%[27m"
 	goto getfonts.exit
 )
+echo=¤MW	!PID!.getfonts	l2=  Waiting for license agreement . . . (Close the notepad window to continue)
+start /wait notepad.exe README.txt
+start /wait notepad.exe LICENSE.txt
+start /wait "" "ttf - Mx (mixed outline+bitmap)\MxPlus_IBM_VGA_8x16.ttf"
+
+
 
 popd
 rd /s /q "!sst.dir!\temp\proc\PID-!PID!-dir" >&2
