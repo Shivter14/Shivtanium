@@ -120,8 +120,18 @@ for /l %%a in (2 4 56) do echo=¤MW	!PID!.oobe^
 echo=¤MW	!PID!.oobe	l2=  !l2:  =!	l4=  !l4:  =!	l5=  %\e%[7m!l5:~0,21!%\e%[27m	l6=  !l6:  =!	l8=  !l8:  =!	o10=%\e%[3C!o10:~0,20!
 
 call :pagewait
+set "o10=!o10:~0,20!"
+set "l5=!l5:~0,21!"
+for /l %%a in (!inputW! -4 4) do (
+	set /a "y=(x=inputW-%%a+3)+1"
+	echo=¤MW	!PID!.oobe	l2=%\e%[!x!C!l2:~0,%%a!	l4=%\e%[!x!C!l4:~0,%%a!	l5=%\e%[!x!C%\e%[7m!l5:~0,%%a!%\e%[27m	l6=%\e%[!x!C!l6:~0,%%a!	l8=%\e%[!x!C!l8:~0,%%a!	o10=%\e%[!y!C!o10:~0,%%a!
+)
+set x=
+set y=
 echo=¤MW	!PID!.oobe	l2=	l4=	l5=	l6=	l8=	o10=
 if errorlevel 1 goto accountsetup
+
+
 goto start
 :pagewait
 for /l %%# in (1 1 1000) do if not defined continue for /l %%# in (1 1 1000) do if not defined continue (
@@ -265,8 +275,9 @@ if "!relativeMouseY!" neq "!btn[install]Y!" exit /b 0
 if !relativeMouseX! lss !btn[install]X! exit /b 0
 if !relativeMouseX! gtr !btn[Install]BX! exit /b 0
 
-md "!sst.dir!\temp\proc\PID-!PID!-dir" || exit /b 1
+md "!sst.dir!\temp\proc\PID-!PID!-dir" >nul 2>&1
 pushd "!sst.dir!\temp\proc\PID-!PID!-dir" || exit /b 1
+if exist "oldschool_pc_font_pack_v2.2_win.zip" goto getfonts.skipdownload
 
 echo=¤CW	!PID!.getfonts	5	3	84	8	Downloading assets	classic noCBUI
 >>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.getfonts	5	3	84	8
@@ -282,6 +293,8 @@ if errorlevel 1 (
 	goto getfonts.exit
 )
 echo=¤MW	!PID!.getfonts	l2=  Extracting %\e%[7m oldschool_pc_font_pack_v2.2_win.zip %\e%[27m . . .	l4=	l5=	l6=
+:getfonts.skipdownload
+if exist "ttf - Mx (mixed outline+bitmap)\MxPlus_IBM_VGA_8x16.ttf" goto getfonts.skipextraction
 tar -xf "oldschool_pc_font_pack_v2.2_win.zip" || (
 	call :getfonts.fail "Failed to extract assets" "The following archive failed to extract:" "%\e%[7m oldschool_pc_font_pack_v2.2_win.zip %\e%[27m" "Reason: %\e%[7m tar error !errorlevel! %\e%[27m"
 	goto getfonts.exit
@@ -289,12 +302,10 @@ tar -xf "oldschool_pc_font_pack_v2.2_win.zip" || (
 echo=¤MW	!PID!.getfonts	l2=  Waiting for license agreement . . . (Close the notepad window to continue)
 start /wait notepad.exe README.txt
 start /wait notepad.exe LICENSE.txt
+:getfonts.skipextraction
 start /wait "" "ttf - Mx (mixed outline+bitmap)\MxPlus_IBM_VGA_8x16.ttf"
-
-
-
+>>"!sst.dir!\temp\kernelPipe" echo=createProcess	!PID!	systemb-dialog 5 3 58 13 "Finish font installation	classic noCBUI" "l2=  To finish installing this font;	l3=  - Restart your host system	l4=  - Start Shivtanium	l5=  - Right-click on the console's title bar	l6=  - Go to properties	l7=  - Click on the %\e%[7m Fonts %\e%[27m tab	l8=  - Find the new font & set the font size to %\e%[7m 16 %\e%[27m	l9=  - Finally, click on %\e%[7m Done %\e%[27m and the font should apply." w-buttonW-2 h-2 7 " Close "
 popd
-rd /s /q "!sst.dir!\temp\proc\PID-!PID!-dir" >&2
 :getfonts.exit
 echo=¤DW	!PID!.getfonts
 >>"!sst.dir!\temp\kernelPipe" echo=unRegisterWindow	!PID!.getfonts
