@@ -1,6 +1,6 @@
 @echo off & setlocal enabledelayedexpansion
 
-	%= Standard BEFI boot menu rev2 =%
+	%= Standard BEFI boot menu rev3 =%
 	     %= Created by Shivter =%
 
 if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
@@ -26,6 +26,7 @@ if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
 	) else goto bootmenu
 	cd "%~dp0"
 	if defined sst.boot.errorlevel (
+		if "!sst.boot.errorlevel!"=="13" goto main
 		if "!sst.boot.errorlevel!"=="1" if not exist "!sst.boot.path!" call :halt "@CrashHandeler !sst.boot.path!" "The system files were lost.\nIf you're running this off a removable storage device,\nIt might have been disconnected causing this crash.\nIf this problem occurs after a reboot,\nYou should reinstall the system."
 		if "!sst.boot.errorlevel!" neq "5783" if "!sst.boot.errorlevel!" neq "27" call :halt "@Errorlevel !sst.boot.path!" "System exited with code !sst.boot.errorlevel!"
 	)
@@ -91,6 +92,7 @@ for %%a in (
 cmd /c !sst.boot.path! !parameters! %* || set sst.boot.errorlevel=!errorlevel!
 cd "%~dp0"
 if defined sst.boot.errorlevel (
+	if "!sst.boot.errorlevel!"=="13" goto main
 	if "!sst.boot.errorlevel!"=="1" if not exist "!sst.boot.path!" call :halt "@CrashHandeler !sst.boot.path!" "The system files were lost.\nIf you're running this off a removable storage device,\nIt might have been disconnected causing this crash.\nIf this problem occurs after a reboot,\nYou should reinstall the system."
 	if "!sst.boot.errorlevel!" neq "5783" if "!sst.boot.errorlevel!" neq "27" call :halt "@Errorlevel !sst.boot.path!" "System exited with code !sst.boot.errorlevel!"
 )
