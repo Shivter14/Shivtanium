@@ -40,6 +40,9 @@ if /I "!sst.noguiboot!" neq "True" (
 	start /b "" cmd /c boot\renderer.bat "temp\bootStatus-!sst.localtemp!" < "temp\bootStatus-!sst.localtemp!"
 )
 set "processes= "
+copy nul temp\kernelPipe > nul 2>&1 || call :halt "preparePipe" "Failed to prepare pipe:\n'temp\kernelPipe'"
+copy nul temp\kernelOut  > nul 2>&1 || call :halt "preparePipe" "Failed to prepare pipe:\n'temp\kernelOut'"
+
 for %%a in (
 	":clearEnv|Clearing environment"
 	":loadresourcepack init|Loading resources"
@@ -70,8 +73,6 @@ for %%a in (
 )
 for /f "tokens=1 delims==" %%a in ('set sst.boot') do if /I "%%~a" neq "sst.boot.logoX" if /I "%%~a" neq "sst.boot.logoY" set "%%a="
 cd "%~dp0"
-copy nul temp\kernelPipe > nul
-copy nul temp\kernelOut > nul
 call sstoskrnl.bat < "temp\kernelPipe" > "temp\kernelOut" 2>"temp\kernelErr" 3> "temp\DWM-!sst.localtemp!"
 
 :startup.submsg
