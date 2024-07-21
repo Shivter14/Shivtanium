@@ -164,7 +164,11 @@ for /l %%# in () do (
 				set temp.id=
 			)
 		) else if "%%~0"=="unRegisterWindow" (
-			for /f "tokens=1 delims==" %%a in ('set "win[%%~1]" 2^>nul') do set "%%a="
+			set "windows=!windows: "%%~1"=!"
+			for /f "tokens=1* delims==" %%a in ('set "win[%%~1]" 2^>nul') do (
+				if "%%a"=="win[%%~1]" set "pid[%%b]windows=!pid[%%b]windows:"%%~1" =!"
+				set "%%a="
+			)
 			if "%%~1"=="!focusedWindow!" (
 				set /a ioTotal+=1
 				echo=focusedWindow=
