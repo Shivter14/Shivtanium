@@ -231,9 +231,16 @@ for /l %%# in () do (
 			) else if /I "%%~1"=="reboot" (
 				echo=exit
 				echo=¤EXIT>&3
-				cmd /c ping -n 1 127.0.0.1 >nul 2>&1
+				cmd /c ping -n 2 127.0.0.1 >nul 2>&1
 				echo=%\e%[48;2;0;0;0m%\e%[H%\e%[2J>con
 				exit 27
+			) else if /I "%%~1"=="fastReboot" (
+				echo=exit
+				echo=¤EXIT>&3
+				cmd /c ping -n 2 127.0.0.1 >nul 2>&1
+				set "sst.boot.fadeout=255"
+				call "!sst.dir!\boot\fadeout.bat" Shivtanium is shutting down.%\e%[2;HRemaining processes: !processes! >con
+				exit 13
 			)
 		)
 	)
