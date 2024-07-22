@@ -6,10 +6,10 @@ if not defined PID (
 	exit /b 1
 )
 set /a PID=PID
-set /a "nextButtonBX=(nextButtonX=(win[!PID!.oobe]W=64)-8)+5, contentH=(win[!PID!.oobe]H=16)-2, win[!PID!.oobe]X=(sys.modeW - win[!PID!.oobe]W) / 2, win[!PID!.oobe]Y=(sys.modeH - win[!PID!.oobe]H) / 2, inputC=(inputW=win[!PID!.oobe]W-6)-1"
+set /a "nextButtonBX=(nextButtonX=(win[!PID!.oobe]W=64)-8)+5, contentH=(win[!PID!.oobe]H=16)-2, originalX=win[!PID!.oobe]X=(sys.modeW - win[!PID!.oobe]W) / 2 + 1, win[!PID!.oobe]Y=(sys.modeH - win[!PID!.oobe]H) / 2, inputC=(inputW=win[!PID!.oobe]W-6)-1"
 echo=¤CTRL	APPLYTHEME	lo-fi
 echo=¤CW	!PID!.oobe	!win[%PID%.oobe]X!	!win[%PID%.oobe]Y!	!win[%PID%.oobe]W!	!win[%PID%.oobe]H!	 	lo-fi noCBUI
->>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.oobe	!win[%PID%.oobe]X!	!win[%PID%.oobe]Y!	!win[%PID%.oobe]W!	!win[%PID%.oobe]H!
+>>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.oobe	!win[%PID%.oobe]X!	!win[%PID%.oobe]Y!	!win[%PID%.oobe]W!	!win[%PID%.oobe]H!	1
 if exist "!asset[\sounds\windows-xp-welcome-music-remix.mp3]!" start /b "Shivtanium sound handeler (ignore this)" /min cscript.exe //b core\playsound.vbs "!asset[\sounds\windows-xp-welcome-music-remix.mp3]!"
 :start // Initial screen
 
@@ -130,37 +130,69 @@ set x=
 set y=
 echo=¤MW	!PID!.oobe	l2=	l4=	l5=	l6=	l8=	o10=
 if errorlevel 1 goto accountsetup
-:loginThemeBG
-set buttons=themePrev themeNext
+:loginTheme
+set buttons=BGthemePrev BGthemeNext FGthemePrev FGthemeNext
 
 
 set "l2=Login Screen Customization                     "
 set "l4=Pick a theme for the Login Screen's background."
-for /l %%a in (3 4 44) do echo=¤MW	!PID!.oobe^
-	l2=  !l2:~-%%a,26!	l4=  !l4:~-%%a!
+set /a "olspX=lspX=originalX+win[!PID!.oobe]W-(lspW=32), lspY=win[!PID!.oobe]Y+(win[!PID!.oobe]H-(lspH=8))/2"
+echo=¤CW	!PID!.lsp	!lspX!	!lspY!	!lspW!	!lspH!	Window Preview
+echo=¤FOCUS	!PID!.oobe
+for /l %%a in (4 4 40) do (
+	set /a "win[%PID%.oobe]X=originalX-%%a/2, lspX=olspX+%%a/2"
+	echo=¤MW	!PID!.oobe^
+	l2=  !l2:~-%%a,26!	l4=  !l4:~-%%a!	l6=%\e%[7m%\e%[%%aX%\e%[27m	l9=%\e%[7m%\e%[%%aX%\e%[27m^
+	x=!win[%PID%.oobe]X!
+	echo=¤MW	!PID!.lsp	x=!lspX!
+)
+(
+	echo=unRegisterWindow	!PID!.oobe
+	echo=registerWindow	!PID!	!PID!.oobe	!win[%PID%.oobe]X!	!win[%PID%.oobe]Y!	!win[%PID%.oobe]W!	!win[%PID%.oobe]H!	1
+) >> "!sst.dir!\temp\kernelPipe"
+echo=¤MW	!PID!.oobe	l2=  !l2:~0,26!	l4=  !l4!
+for /l %%a in (1 1 9) do echo=¤MW	!PID!.oobe^
+	l6=%\e%[%%aC%\e%[7m%\e%[4%%aX%\e%[27m	l9=%\e%[%%aC%\e%[7m%\e%[4%%aX%\e%[27m
 
 if not defined selectedBGTheme set "selectedBGTheme=1"
+if not defined selectedFGTheme set "selectedFGTheme=1"
 
-set btn[themePrev]=:setTheme BG -
-set btn[themeNext]=:setTheme BG +
-
-set /a "themeBGCount=0, themeSNW=win[!PID!.oobe]W-15, btn[themeNext]BX=(btn[themeNext]X=(btn[themePrev]BX=(btn[themePrev]X=3)+2)+2)+2, btn[themeNext]Y=btn[themePrev]Y=6"
-for /f "delims=" %%R in ('dir /b /a:D "!sst.dir!\resourcepacks"') do for /f "delims=" %%T in ('dir /b /a:-D "!sst.dir!\resourcepacks\%%~nxR\themes"') do (
-	set /a themeBGCount+=1
-	set "theme[!themeBGCount!]=%%~nxT"
+set /a "themeCount=1, themeSNW=win[!PID!.oobe]W-15, btn[FGthemeNext]=(btn[BGthemeNext]Y=btn[themePrev]Y=6)+3"
+for %%a in (FG BG) do (
+	set "btn[%%athemePrev]=:setTheme %%a -"
+	set "btn[%%athemeNext]=:setTheme %%a +"
+	set /a "btn[%%athemeNext]BX=(btn[%%athemeNext]X=(btn[%%athemePrev]BX=(btn[%%athemePrev]X=3)+2)+2)+2"
 )
-if defined theme[!selectedTheme!] echo=¤CTRL	APPLYTHEME	!theme[%selectedBGTheme%]!
+set theme[1]=lo-fi
+for /f "delims=" %%R in ('dir /b /a:D "!sst.dir!\resourcepacks"') do for /f "delims=" %%T in ('dir /b /a:-D "!sst.dir!\resourcepacks\%%~nxR\themes" ^| find /v "CBUI"') do if "%%~nxT" neq "lo-fi" (
+	set /a themeCount+=1
+	set "theme[!themeCount!]=%%~nxT"
+)
+if defined theme[!selectedBGTheme!] echo=¤CTRL	APPLYTHEME	!theme[%selectedBGTheme%]!
 
-echo=¤MW	!PID!.oobe	l2=  !l2:~0,26!	l4=  !l4!	o6=%\e%[3C ◄ %\e%[C ► 	l6=%\e%[10C%\e%[7m %\e%[!themeSNW!X!theme[%selectedBGTheme%]!%\e%[27m
+echo=¤MW	!PID!.oobe	l2=  !l2:~0,26!	l4=  !l4!^
+	o6=%\e%[3C ◄ %\e%[C ► 	l6=%\e%[10C%\e%[7m %\e%[!themeSNW!X!theme[%selectedBGTheme%]!%\e%[27m^
+	o9=%\e%[3C ◄ %\e%[C ► 	l9=%\e%[10C%\e%[7m %\e%[!themeSNW!X!theme[%selectedFGTheme%]!%\e%[27m
 
 call :pagewait
 for /l %%a in (!themeSNW! -4 4) do (
 	set /a "y=(z=(x=themeSNW-%%a+3)+1)+7"
-	echo=¤MW	!PID!.oobe	l2=%\e%[!x!C!l2:~0,%%a!!l2:~%%a,8!	l4=%\e%[!x!C!l4:~0,%%a!!l4:~%%a,8!	o6=%\e%[!z!C ◄ %\e%[C ► 	l6=%\e%[!y!C%\e%[7m %\e%[%%aX!theme[%selectedBGTheme%]:~0,%%a!%\e%[27m
+	echo=¤MW	!PID!.oobe	l2=%\e%[!x!C!l2:~0,%%a!!l2:~%%a,8!	l4=%\e%[!x!C!l4:~0,%%a!!l4:~%%a,8!^
+	o6=%\e%[!z!C ◄ %\e%[C ► 	l6=%\e%[!y!C%\e%[7m %\e%[%%aX!theme[%selectedBGTheme%]:~0,%%a!%\e%[27m^
+	o9=%\e%[!z!C ◄ %\e%[C ► 	l9=%\e%[!y!C%\e%[7m %\e%[%%aX!theme[%selectedFGTheme%]:~0,%%a!%\e%[27m
 )
-echo=¤MW	!PID!.oobe	l2=	l4=	o6=
+echo=¤MW	!PID!.oobe	l2=	l4=	o6=	o9=	l6=	l9=
+for /l %%a in (36 -4 0) do (
+	set /a "win[%PID%.oobe]X=originalX-%%a/2, lspX=olspX+%%a/2"
+	echo=¤MW	!PID!.oobe	x=!win[%PID%.oobe]X!
+	echo=¤MW	!PID!.lsp	x=!lspX!
+)
 echo=¤CTRL	APPLYTHEME	lo-fi
-
+(
+	echo=unRegisterWindow	!PID!.oobe
+	echo=registerWindow	!PID!	!PID!.oobe	!win[%PID%.oobe]X!	!win[%PID%.oobe]Y!	!win[%PID%.oobe]W!	!win[%PID%.oobe]H!	1
+) >> "!sst.dir!\temp\kernelPipe"
+echo=¤DW	!PID!.lsp
 if errorlevel 1 goto fontsetup
 goto start
 :pagewait
@@ -368,13 +400,13 @@ set /a "halt.winH=lines + 4"
 exit /b 0
 :setTheme
 set /a "selected%~1Theme%~2=1"
-if not defined theme[!selected%1Theme!] (
-	if !selected%1Theme! gtr !theme%1Count! set "selected%~1Theme=1"
-	if !selected%1Theme! lss 1 set "selected%~1Theme=!theme[%~1]Count!"
-)
+if !selected%1Theme! gtr !themeCount! set "selected%~1Theme=1"
+if !selected%1Theme! lss 1 set "selected%~1Theme=!themeCount!"
 if "%~1"=="BG" (
 	echo=¤CTRL	APPLYTHEME	!theme[%selectedBGTheme%]!
 	echo=¤MW	!PID!.oobe	o6=%\e%[3C ◄ %\e%[C ► 	l6=%\e%[10C%\e%[7m %\e%[!themeSNW!X!theme[%selectedBGTheme%]!%\e%[27m
+) else (
+	echo=¤MW	!PID!.oobe	o9=%\e%[3C ◄ %\e%[C ► 	l9=%\e%[10C%\e%[7m %\e%[!themeSNW!X!theme[%selectedFGTheme%]!%\e%[27m
 )
 set continue=
 exit /b 0
