@@ -157,11 +157,11 @@ for /l %%a in (1 1 9) do echo=¤MW	!PID!.oobe^
 if not defined selectedBGTheme set "selectedBGTheme=1"
 if not defined selectedFGTheme set "selectedFGTheme=1"
 
-set /a "themeCount=1, themeSNW=win[!PID!.oobe]W-15, btn[FGthemeNext]=(btn[BGthemeNext]Y=btn[themePrev]Y=6)+3"
+set /a "themeCount=1, themeSNW=win[!PID!.oobe]W-15, btn[FGthemeNext]Y=(btn[BGthemeNext]Y=btn[themePrev]Y=6)+3"
 for %%a in (FG BG) do (
 	set "btn[%%athemePrev]=:setTheme %%a -"
 	set "btn[%%athemeNext]=:setTheme %%a +"
-	set /a "btn[%%athemeNext]BX=(btn[%%athemeNext]X=(btn[%%athemePrev]BX=(btn[%%athemePrev]X=3)+2)+2)+2"
+	set /a "btn[%%athemePrev]Y=btn[%%athemeNext]Y, btn[%%athemeNext]BX=(btn[%%athemeNext]X=(btn[%%athemePrev]BX=(btn[%%athemePrev]X=3)+2)+2)+2"
 )
 set theme[1]=lo-fi
 for /f "delims=" %%R in ('dir /b /a:D "!sst.dir!\resourcepacks"') do for /f "delims=" %%T in ('dir /b /a:-D "!sst.dir!\resourcepacks\%%~nxR\themes" ^| find /v "CBUI"') do if "%%~nxT" neq "lo-fi" (
