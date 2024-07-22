@@ -3,8 +3,10 @@ setlocal enabledelayedexpansion
 for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000),t2=t1"
 echo=>> "temp\bootStatus-!sst.localtemp!"
 echo=¤EXIT>> "temp\bootStatus-!sst.localtemp!"
+set wait=1
 :autisticLoop
-if not exist "temp\bootStatus-!sst.localtemp!-exit" goto autisticLoop
+set /a wait+=1
+if !wait! lss 1000 if not exist "temp\bootStatus-!sst.localtemp!-exit" goto autisticLoop
 for /l %%# in (1 1 100000) do rem
 del "temp\bootStatus-!sst.localtemp!" > nul 2>&1
 del "temp\bootStatus-!sst.localtemp!-exit" > nul 2>&1
