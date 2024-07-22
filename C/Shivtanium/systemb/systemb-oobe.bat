@@ -134,23 +134,25 @@ if errorlevel 1 goto accountsetup
 set buttons=BGthemePrev BGthemeNext FGthemePrev FGthemeNext
 
 
-set "l2=Login Screen Customization                     "
-set "l4=Pick a theme for the Login Screen's background."
+set "l2=Customization  [ 1 / 2 ]      "
+set "l5=Login Screen background theme:"
+set "l8=Login Screen window theme:    "
 set /a "olspX=lspX=originalX+win[!PID!.oobe]W-(lspW=32), lspY=win[!PID!.oobe]Y+(win[!PID!.oobe]H-(lspH=8))/2"
-echo=¤CW	!PID!.lsp	!lspX!	!lspY!	!lspW!	!lspH!	Window Preview
+echo=¤CW	!PID!.lsp	!lspX!	!lspY!	!lspW!	!lspH!	Window Preview	!theme[%selectedFGtheme%]!
 echo=¤FOCUS	!PID!.oobe
 for /l %%a in (4 4 40) do (
 	set /a "win[%PID%.oobe]X=originalX-%%a/2, lspX=olspX+%%a/2"
 	echo=¤MW	!PID!.oobe^
-	l2=  !l2:~-%%a,26!	l4=  !l4:~-%%a!	l6=%\e%[7m%\e%[%%aX%\e%[27m	l9=%\e%[7m%\e%[%%aX%\e%[27m^
+	l2=  !l2:~-%%a,26!	l5=  !l5:~-%%a!	l6=%\e%[7m%\e%[%%aX%\e%[27m	l8=  !l8:~-%%a!	l9=%\e%[7m%\e%[%%aX%\e%[27m^
 	x=!win[%PID%.oobe]X!
 	echo=¤MW	!PID!.lsp	x=!lspX!
+	echo=¤OV	%\e%[999;!win[%PID%.oobe]X!H%\e%[48;2;;;;38;5;231m%\e%[0K%\e%[1KShivtanium !sys.tag! !sys.ver! !sys.subvinfo! ^| !date! !time!%\e%[0K
 )
 (
 	echo=unRegisterWindow	!PID!.oobe
 	echo=registerWindow	!PID!	!PID!.oobe	!win[%PID%.oobe]X!	!win[%PID%.oobe]Y!	!win[%PID%.oobe]W!	!win[%PID%.oobe]H!	1
 ) >> "!sst.dir!\temp\kernelPipe"
-echo=¤MW	!PID!.oobe	l2=  !l2:~0,26!	l4=  !l4!
+echo=¤MW	!PID!.oobe	l2=  !l2:~0,24!	l5=  !l5!	l8=  !l8!
 for /l %%a in (1 1 9) do echo=¤MW	!PID!.oobe^
 	l6=%\e%[%%aC%\e%[7m%\e%[4%%aX%\e%[27m	l9=%\e%[%%aC%\e%[7m%\e%[4%%aX%\e%[27m
 
@@ -170,22 +172,23 @@ for /f "delims=" %%R in ('dir /b /a:D "!sst.dir!\resourcepacks"') do for /f "del
 )
 if defined theme[!selectedBGTheme!] echo=¤CTRL	APPLYTHEME	!theme[%selectedBGTheme%]!
 
-echo=¤MW	!PID!.oobe	l2=  !l2:~0,26!	l4=  !l4!^
+echo=¤MW	!PID!.oobe	l2=  !l2:~0,26!	l5=  !l5!	l8=  !l8!^
 	o6=%\e%[3C ◄ %\e%[C ► 	l6=%\e%[10C%\e%[7m %\e%[!themeSNW!X!theme[%selectedBGTheme%]!%\e%[27m^
 	o9=%\e%[3C ◄ %\e%[C ► 	l9=%\e%[10C%\e%[7m %\e%[!themeSNW!X!theme[%selectedFGTheme%]!%\e%[27m
 
 call :pagewait
 for /l %%a in (!themeSNW! -4 4) do (
 	set /a "y=(z=(x=themeSNW-%%a+3)+1)+7"
-	echo=¤MW	!PID!.oobe	l2=%\e%[!x!C!l2:~0,%%a!!l2:~%%a,8!	l4=%\e%[!x!C!l4:~0,%%a!!l4:~%%a,8!^
+	echo=¤MW	!PID!.oobe	l2=%\e%[!x!C!l2:~0,%%a!!l2:~%%a,4!	l5=%\e%[!x!C!l5:~0,%%a!!l4:~%%a,4!	l8=%\e%[!x!C!l8:~0,%%a!!l4:~%%a,4!^
 	o6=%\e%[!z!C ◄ %\e%[C ► 	l6=%\e%[!y!C%\e%[7m %\e%[%%aX!theme[%selectedBGTheme%]:~0,%%a!%\e%[27m^
 	o9=%\e%[!z!C ◄ %\e%[C ► 	l9=%\e%[!y!C%\e%[7m %\e%[%%aX!theme[%selectedFGTheme%]:~0,%%a!%\e%[27m
 )
-echo=¤MW	!PID!.oobe	l2=	l4=	o6=	o9=	l6=	l9=
+echo=¤MW	!PID!.oobe	l2=	l5=	l6=	l8=	l9=	o6=	o9=
 for /l %%a in (36 -4 0) do (
 	set /a "win[%PID%.oobe]X=originalX-%%a/2, lspX=olspX+%%a/2"
 	echo=¤MW	!PID!.oobe	x=!win[%PID%.oobe]X!
 	echo=¤MW	!PID!.lsp	x=!lspX!
+	echo=¤OV	%\e%[999;!win[%PID%.oobe]X!H%\e%[48;2;;;;38;5;231m%\e%[0K%\e%[1KShivtanium !sys.tag! !sys.ver! !sys.subvinfo! ^| !date! !time!%\e%[0K
 )
 echo=¤CTRL	APPLYTHEME	lo-fi
 (
@@ -196,43 +199,46 @@ echo=¤DW	!PID!.lsp
 if errorlevel 1 goto fontsetup
 goto start
 :pagewait
-for /l %%# in (1 1 1000) do if not defined continue for /l %%# in (1 1 1000) do if not defined continue (
-	set kernelOut=
-	set /p "kernelOut="
-	if defined kernelOut if "!kernelOut!"=="click=1" (
-		if "!focusedWindow!"=="!PID!.oobe" (
-			set /a "relativeMouseX=mouseXpos - win[!PID!.oobe]X, relativeMouseY=mouseYpos - win[!PID!.oobe]Y"
-			if "!relativeMouseY!"=="!contentH!" (
-				if !relativeMouseX! geq !nextButtonX! if !relativeMouseX! leq !nextButtonBX! (
-					echo=¤MW	!PID!.oobe	o!contentH!=%\e%[2C Back %\e%8%\e%[!nextButtonX!C%\e%[7m Next %\e%[27m
+for /l %%# in (1 1 1000) do if not defined continue (
+	echo=¤OV	%\e%[999;!win[%PID%.oobe]X!H%\e%[48;2;;;;38;5;231m%\e%[0K%\e%[1KShivtanium !sys.tag! !sys.ver! !sys.subvinfo! ^| !date! !time!%\e%[0K
+	for /l %%# in (1 1 1000) do if not defined continue (
+		set kernelOut=
+		set /p "kernelOut="
+		if defined kernelOut if "!kernelOut!"=="click=1" (
+			if "!focusedWindow!"=="!PID!.oobe" (
+				set /a "relativeMouseX=mouseXpos - win[!PID!.oobe]X, relativeMouseY=mouseYpos - win[!PID!.oobe]Y"
+				if "!relativeMouseY!"=="!contentH!" (
+					if !relativeMouseX! geq !nextButtonX! if !relativeMouseX! leq !nextButtonBX! (
+						echo=¤MW	!PID!.oobe	o!contentH!=%\e%[2C Back %\e%8%\e%[!nextButtonX!C%\e%[7m Next %\e%[27m
+					)
+					if !relativeMouseX! geq 2 if !relativeMouseX! leq 7 (
+						echo=¤MW	!PID!.oobe	o!contentH!=%\e%[2C%\e%[7m Back %\e%[27m%\e%8%\e%[!nextButtonX!C Next 
+					)
 				)
-				if !relativeMouseX! geq 2 if !relativeMouseX! leq 7 (
-					echo=¤MW	!PID!.oobe	o!contentH!=%\e%[2C%\e%[7m Back %\e%[27m%\e%8%\e%[!nextButtonX!C Next 
-				)
-			)
-			for %%a in (!buttons!) do if "!relativeMouseY!"=="!btn[%%~a]Y!" if !relativeMouseX! geq !btn[%%~a]X! if !relativeMouseX! leq !btn[%%~a]BX! (
-				set continue=0
-				call !btn[%%~a]!
-			)
-		)
-	) else if "!kernelOut!"=="click=0" (
-		if "!focusedWindow!"=="!PID!.oobe" (
-			echo=¤MW	!PID!.oobe	o!contentH!=%\e%[2C Back %\e%8%\e%[!nextButtonX!C Next 
-			set /a "relativeMouseX=mouseXpos - win[!PID!.oobe]X, relativeMouseY=mouseYpos - win[!PID!.oobe]Y"
-			if "!relativeMouseY!"=="!contentH!" (
-				if !relativeMouseX! geq !nextButtonX! if !relativeMouseX! leq !nextButtonBX! (
+				for %%a in (!buttons!) do if "!relativeMouseY!"=="!btn[%%~a]Y!" if !relativeMouseX! geq !btn[%%~a]X! if !relativeMouseX! leq !btn[%%~a]BX! (
 					set continue=0
-				)
-				if !relativeMouseX! geq 2 if !relativeMouseX! leq 7 (
-					set continue=1
+					call !btn[%%~a]!
 				)
 			)
-		)
-	) else if "!kernelOut!"=="exitProcess=!PID!" (
-		exit 0
-	) else if "!kernelOut!"=="exit" (
-		exit 0
-	) else set "!kernelOut!">nul 2>&1
+		) else if "!kernelOut!"=="click=0" (
+			if "!focusedWindow!"=="!PID!.oobe" (
+				echo=¤MW	!PID!.oobe	o!contentH!=%\e%[2C Back %\e%8%\e%[!nextButtonX!C Next 
+				set /a "relativeMouseX=mouseXpos - win[!PID!.oobe]X, relativeMouseY=mouseYpos - win[!PID!.oobe]Y"
+				if "!relativeMouseY!"=="!contentH!" (
+					if !relativeMouseX! geq !nextButtonX! if !relativeMouseX! leq !nextButtonBX! (
+						set continue=0
+					)
+					if !relativeMouseX! geq 2 if !relativeMouseX! leq 7 (
+						set continue=1
+					)
+				)
+			)
+		) else if "!kernelOut!"=="exitProcess=!PID!" (
+			exit 0
+		) else if "!kernelOut!"=="exit" (
+			exit 0
+		) else set "!kernelOut!">nul 2>&1
+	)
 )
 if not defined continue goto pagewait
 for /f "delims=" %%a in ("!continue!") do (
@@ -244,65 +250,68 @@ echo=¤MW	!PID!.oobe	o!btn[%1]Y!=%\e%[3C%\e%[7m%\e%[!inputW!X!txt.%1:~-%inputC%!
 set continue=
 set continue.exit=
 :textinput.loop
-for /l %%# in (1 1 1000) do if not defined continue for /l %%# in (1 1 1000) do if not defined continue (
-	set kernelOut=
-	set /p "kernelOut="
-	if defined kernelOut if "!kernelOut:~0,12!"=="keysPressed=" (
-		set "sys.keys=!kernelOut:~12!"
-	) else if "!kernelOut:~0,14!"=="keysPressedRN=" (
-		if "!focusedWindow!"=="!PID!.oobe" (
-			set "!kernelOut!">nul 2>&1
-			for %%k in (!keysPressedRN!) do (
-				set "char=!charset_L:~%%k,1!"
-				if "!sys.keys!" neq "!sys.keys:-16-=!" set "char=!charset_U:~%%k,1!"
-				if "!sys.keys!" neq "!sys.keys:-17-=!" set "char=!charset_A:~%%k,1!"
-				if "!char!"==" " (
-					if "%%~k" neq "32" set char=
-					if "%%~k"=="8" (
-						if "!txt.%1!" neq " " set "txt.%~1=!txt.%~1:~0,-1!"
+for /l %%# in (1 1 1000) do if not defined continue (
+	echo=¤OV	%\e%[999;!win[%PID%.oobe]X!H%\e%[48;2;;;;38;5;231m%\e%[0K%\e%[1KShivtanium !sys.tag! !sys.ver! !sys.subvinfo! ^| !date! !time!%\e%[0K
+	for /l %%# in (1 1 1000) do if not defined continue (
+		set kernelOut=
+		set /p "kernelOut="
+		if defined kernelOut if "!kernelOut:~0,12!"=="keysPressed=" (
+			set "sys.keys=!kernelOut:~12!"
+		) else if "!kernelOut:~0,14!"=="keysPressedRN=" (
+			if "!focusedWindow!"=="!PID!.oobe" (
+				set "!kernelOut!">nul 2>&1
+				for %%k in (!keysPressedRN!) do (
+					set "char=!charset_L:~%%k,1!"
+					if "!sys.keys!" neq "!sys.keys:-16-=!" set "char=!charset_U:~%%k,1!"
+					if "!sys.keys!" neq "!sys.keys:-17-=!" set "char=!charset_A:~%%k,1!"
+					if "!char!"==" " (
+						if "%%~k" neq "32" set char=
+						if "%%~k"=="8" (
+							if "!txt.%1!" neq " " set "txt.%~1=!txt.%~1:~0,-1!"
+							echo=¤MW	!PID!.oobe	o!btn[%1]Y!=%\e%[3C%\e%[7m%\e%[!inputW!X!txt.%1:~-%inputC%!_%\e%[27m
+						)
+					)
+					if defined char (
+						set "txt.%~1=!txt.%~1!!char!"
 						echo=¤MW	!PID!.oobe	o!btn[%1]Y!=%\e%[3C%\e%[7m%\e%[!inputW!X!txt.%1:~-%inputC%!_%\e%[27m
+					) else if "%%~k"=="13" (
+						set continue.exit=0
+						set continue=13
+						echo=¤MW	!PID!.oobe	o!btn[%1]Y!=%\e%[3C%\e%[!inputW!X!txt.%1:~-%inputC%!
 					)
 				)
-				if defined char (
-					set "txt.%~1=!txt.%~1!!char!"
-					echo=¤MW	!PID!.oobe	o!btn[%1]Y!=%\e%[3C%\e%[7m%\e%[!inputW!X!txt.%1:~-%inputC%!_%\e%[27m
-				) else if "%%~k"=="13" (
-					set continue.exit=0
-					set continue=13
-					echo=¤MW	!PID!.oobe	o!btn[%1]Y!=%\e%[3C%\e%[!inputW!X!txt.%1:~-%inputC%!
-				)
 			)
-		)
-	) else if "!kernelOut!"=="click=1" (
-		if "!focusedWindow!"=="!PID!.oobe" (
-			set /a "relativeMouseX=mouseXpos - win[!PID!.oobe]X, relativeMouseY=mouseYpos - win[!PID!.oobe]Y"
-			if "!relativeMouseY!"=="!contentH!" (
-				if !relativeMouseX! geq !nextButtonX! if !relativeMouseX! leq !nextButtonBX! (
-					echo=¤MW	!PID!.oobe	o!contentH!=%\e%[2C Back %\e%8%\e%[!nextButtonX!C%\e%[7m Next %\e%[27m
-				)
-				if !relativeMouseX! geq 2 if !relativeMouseX! leq 7 (
-					echo=¤MW	!PID!.oobe	o!contentH!=%\e%[2C%\e%[7m Back %\e%[27m%\e%8%\e%[!nextButtonX!C Next 
-				)
-			)
-		)
-	) else if "!kernelOut!"=="click=0" (
-		if "!focusedWindow!"=="!PID!.oobe" (
-			echo=¤MW	!PID!.oobe	o!contentH!=%\e%[2C Back %\e%8%\e%[!nextButtonX!C Next 
-			set /a "relativeMouseX=mouseXpos - win[!PID!.oobe]X, relativeMouseY=mouseYpos - win[!PID!.oobe]Y"
-			if "!relativeMouseY!" neq "!btn[%~1]Y!" (
-				set continue=True
-				echo=¤MW	!PID!.oobe	o!btn[%1]Y!=%\e%[3C%\e%[!inputW!X!txt.%1:~-%inputC%!
+		) else if "!kernelOut!"=="click=1" (
+			if "!focusedWindow!"=="!PID!.oobe" (
+				set /a "relativeMouseX=mouseXpos - win[!PID!.oobe]X, relativeMouseY=mouseYpos - win[!PID!.oobe]Y"
 				if "!relativeMouseY!"=="!contentH!" (
-					if !relativeMouseX! geq !nextButtonX! if !relativeMouseX! leq !nextButtonBX! set continue.exit=True
-					if !relativeMouseX! geq 2 if !relativeMouseX! leq 7 set continue.exit=1
+					if !relativeMouseX! geq !nextButtonX! if !relativeMouseX! leq !nextButtonBX! (
+						echo=¤MW	!PID!.oobe	o!contentH!=%\e%[2C Back %\e%8%\e%[!nextButtonX!C%\e%[7m Next %\e%[27m
+					)
+					if !relativeMouseX! geq 2 if !relativeMouseX! leq 7 (
+						echo=¤MW	!PID!.oobe	o!contentH!=%\e%[2C%\e%[7m Back %\e%[27m%\e%8%\e%[!nextButtonX!C Next 
+					)
 				)
 			)
-		)
-	) else if "!kernelOut!"=="exitProcess=!PID!" (
-		exit 0
-	) else if "!kernelOut!"=="exit" (
-		exit 0
-	) else set "!kernelOut!">nul 2>&1
+		) else if "!kernelOut!"=="click=0" (
+			if "!focusedWindow!"=="!PID!.oobe" (
+				echo=¤MW	!PID!.oobe	o!contentH!=%\e%[2C Back %\e%8%\e%[!nextButtonX!C Next 
+				set /a "relativeMouseX=mouseXpos - win[!PID!.oobe]X, relativeMouseY=mouseYpos - win[!PID!.oobe]Y"
+				if "!relativeMouseY!" neq "!btn[%~1]Y!" (
+					set continue=True
+					echo=¤MW	!PID!.oobe	o!btn[%1]Y!=%\e%[3C%\e%[!inputW!X!txt.%1:~-%inputC%!
+					if "!relativeMouseY!"=="!contentH!" (
+						if !relativeMouseX! geq !nextButtonX! if !relativeMouseX! leq !nextButtonBX! set continue.exit=True
+						if !relativeMouseX! geq 2 if !relativeMouseX! leq 7 set continue.exit=1
+					)
+				)
+			)
+		) else if "!kernelOut!"=="exitProcess=!PID!" (
+			exit 0
+		) else if "!kernelOut!"=="exit" (
+			exit 0
+		) else set "!kernelOut!">nul 2>&1
+	)
 )
 if not defined continue goto textinput.loop
 if "!continue!"=="13" (
@@ -407,6 +416,8 @@ if "%~1"=="BG" (
 	echo=¤MW	!PID!.oobe	o6=%\e%[3C ◄ %\e%[C ► 	l6=%\e%[10C%\e%[7m %\e%[!themeSNW!X!theme[%selectedBGTheme%]!%\e%[27m
 ) else (
 	echo=¤MW	!PID!.oobe	o9=%\e%[3C ◄ %\e%[C ► 	l9=%\e%[10C%\e%[7m %\e%[!themeSNW!X!theme[%selectedFGTheme%]!%\e%[27m
+	echo=¤DW	!PID!.lsp
+	echo=¤CW	!PID!.lsp	!lspX!	!lspY!	!lspW!	!lspH!	Window Preview	!theme[%selectedFGtheme%]!
 )
 set continue=
 exit /b 0
