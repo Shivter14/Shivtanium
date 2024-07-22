@@ -130,8 +130,38 @@ set x=
 set y=
 echo=¤MW	!PID!.oobe	l2=	l4=	l5=	l6=	l8=	o10=
 if errorlevel 1 goto accountsetup
+:loginThemeBG
+set buttons=themePrev themeNext
 
 
+set "l2=Login Screen Customization                     "
+set "l4=Pick a theme for the Login Screen's background."
+for /l %%a in (3 4 44) do echo=¤MW	!PID!.oobe^
+	l2=  !l2:~-%%a,26!	l4=  !l4:~-%%a!
+
+if not defined selectedBGTheme set "selectedBGTheme=1"
+
+set btn[themePrev]=:setTheme BG -
+set btn[themeNext]=:setTheme BG +
+
+set /a "themeBGCount=0, themeSNW=win[!PID!.oobe]W-15, btn[themeNext]BX=(btn[themeNext]X=(btn[themePrev]BX=(btn[themePrev]X=3)+2)+2)+2, btn[themeNext]Y=btn[themePrev]Y=6"
+for /f "delims=" %%R in ('dir /b /a:D "!sst.dir!\resourcepacks"') do for /f "delims=" %%T in ('dir /b /a:-D "!sst.dir!\resourcepacks\%%~nxR\themes"') do (
+	set /a themeBGCount+=1
+	set "theme[!themeBGCount!]=%%~nxT"
+)
+if defined theme[!selectedTheme!] echo=¤CTRL	APPLYTHEME	!theme[%selectedBGTheme%]!
+
+echo=¤MW	!PID!.oobe	l2=  !l2:~0,26!	l4=  !l4!	o6=%\e%[3C ◄ %\e%[C ► 	l6=%\e%[10C%\e%[7m %\e%[!themeSNW!X!theme[%selectedBGTheme%]!%\e%[27m
+
+call :pagewait
+for /l %%a in (!themeSNW! -4 4) do (
+	set /a "y=(z=(x=themeSNW-%%a+3)+1)+7"
+	echo=¤MW	!PID!.oobe	l2=%\e%[!x!C!l2:~0,%%a!!l2:~%%a,8!	l4=%\e%[!x!C!l4:~0,%%a!!l4:~%%a,8!	o6=%\e%[!z!C ◄ %\e%[C ► 	l6=%\e%[!y!C%\e%[7m %\e%[%%aX!theme[%selectedBGTheme%]:~0,%%a!%\e%[27m
+)
+echo=¤MW	!PID!.oobe	l2=	l4=	o6=
+echo=¤CTRL	APPLYTHEME	lo-fi
+
+if errorlevel 1 goto fontsetup
 goto start
 :pagewait
 for /l %%# in (1 1 1000) do if not defined continue for /l %%# in (1 1 1000) do if not defined continue (
@@ -335,4 +365,16 @@ for %%a in (%*) do (
 set /a "halt.winH=lines + 4"
 
 >>"!sst.dir!\temp\kernelPipe" echo=createProcess	!PID!	systemb-dialog 5 3 !halt.winW! !halt.winH! "!halt.title!	classic noCBUI" "!halt.winparams!" w-buttonW-2 h-2 7 " Close "
+exit /b 0
+:setTheme
+set /a "selected%~1Theme%~2=1"
+if not defined theme[!selected%1Theme!] (
+	if !selected%1Theme! gtr !theme%1Count! set "selected%~1Theme=1"
+	if !selected%1Theme! lss 1 set "selected%~1Theme=!theme[%~1]Count!"
+)
+if "%~1"=="BG" (
+	echo=¤CTRL	APPLYTHEME	!theme[%selectedBGTheme%]!
+	echo=¤MW	!PID!.oobe	o6=%\e%[3C ◄ %\e%[C ► 	l6=%\e%[10C%\e%[7m %\e%[!themeSNW!X!theme[%selectedBGTheme%]!%\e%[27m
+)
+set continue=
 exit /b 0
