@@ -14,8 +14,10 @@ echo=¤CW	!PID!.oobe	!win[%PID%.oobe]X!	!win[%PID%.oobe]Y!	!win[%PID%.oobe]W!	!w
 if exist "!asset[\sounds\windows-xp-welcome-music-remix.mp3]!" (	
 	start /b "Shivtanium sound handeler (ignore this)" cscript.exe //b core\playsound.vbs "!asset[\sounds\windows-xp-welcome-music-remix.mp3]!"
 	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "musicStart=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100",^
-	"win[!PID!.player]X=(sys.modeW - (win[!PID!.player]W=48)) / 2 + 1, win[!PID!.player]Y=sys.modeH - (win[!PID!.player]H=6) - 1"
-	>>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.player	!win[%PID%.player]X!	!win[%PID%.player]Y!	!win[%PID%.player]W!	!win[%PID%.player]H!	noCBUI
+	"win[!PID!.player]X=(sys.modeW - (win[!PID!.player]W=48)) / 2 + 1, win[!PID!.player]Y=sys.modeH - (win[!PID!.player]H=5) - 1, playBarW=(pauseButtonX=win[!PID!.player]W-3)-1"
+	echo=¤CW	!PID!.player	!win[%PID%.player]X!	!win[%PID%.player]Y!	!win[%PID%.player]W!	!win[%PID%.player]H!	Currently playing:	noCBUI
+	echo=¤MW	!PID!.player	o1=%\e%[!win[%PID%.player]W!X %\e%[7m Stray Objects %\e%[27m - Windows XP OOBE Music remix%\e%8%\e%[!pauseButtonX!C%\e%[A ■ 	l3= %\e%[7m%\e%[!playBarW!X%\e%[27m
+	>>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.player	!win[%PID%.player]X!	!win[%PID%.player]Y!	!win[%PID%.player]W!	!win[%PID%.player]H!
 )
 :start // Initial screen
 
