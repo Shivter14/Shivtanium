@@ -38,7 +38,6 @@ Shivtanium uses a custom-made Desktop Window Manager to render windows with them
 These themes can be customized with resource packs.
 
 Creating themes requires VT100 knowledge.
-
 The format is easy to understand just by looking at a theme located in: `C\Shivtanium\resourcepacks\init\themes\`
 
 * To modify the window button controls, change the `CBUI` value which should add 9 characters. If more are needed, `\e[#E` can be used to expand the limit by # characters.
