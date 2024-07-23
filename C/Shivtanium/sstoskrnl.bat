@@ -7,7 +7,7 @@ if !sys.CPU.count! lss 4 (
 	call :createProcess 0	systemb-dialog.bat 5 3 59 9 "Performance notification	noCBUI" "l2=  Your CPU only has !sys.CPU.count! logical processor(s).	l3=  This might lead to a bad experience.	l4=  The recommended minimum of logical processors is: 4	!temp.nr!" 50 7 7 " Close "
 	set temp.nr=
 )
-if not exist "!sst.root!\Users" (
+if /I "%~1"=="/forceoobe" (
 	call :createProcess 0	systemb-oobe.bat
 ) else call :createProcess 0	systemb-login.bat
 set sys.keys=
