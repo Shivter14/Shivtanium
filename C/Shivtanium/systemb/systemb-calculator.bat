@@ -40,7 +40,7 @@ set /a !math!
 set math=
 echo=¤CW	!PID!.calc	!win[%PID%.calc]X!	!win[%PID%.calc]Y!	!win[%PID%.calc]W!	!win[%PID%.calc]H!	Calculator
 >>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.calc	!win[%PID%.calc]X!	!win[%PID%.calc]Y!	!win[%PID%.calc]W!	!win[%PID%.calc]H!
-
+set "focusedWindow=!PID!.calc"
 
 for %%b in (!buttons!) do for /f "delims=" %%y in ("!button[%%~b]Y!") do (
 	set "win[!PID!.calc]o%%y=!win[%PID%.calc]o%%y!%\e%8%\e%[!button[%%~b]X!C!button[%%~b]title!"
