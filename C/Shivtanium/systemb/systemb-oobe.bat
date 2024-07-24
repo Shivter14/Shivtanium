@@ -10,7 +10,7 @@ set /a "nextButtonBX=(nextButtonX=(win[!PID!.oobe]W=64)-8)+5, contentH=(win[!PID
 if exist "!asset[\sounds\windows-xp-welcome-music-remix.mp3]!" (	
 	start /b "Shivtanium sound handeler (ignore this)" cscript.exe //b core\playsound.vbs "!asset[\sounds\windows-xp-welcome-music-remix.mp3]!"
 	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "musicStart=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100",^
-	"win[!PID!.player]X=(sys.modeW - (win[!PID!.player]W=48)) / 2 + 1, win[!PID!.player]Y=sys.modeH - (win[!PID!.player]H=5) - 1, musicDurationX=(playBarW=(pauseButtonX=win[!PID!.player]W-3)-1)-4"
+	"win[!PID!.player]X=(sys.modeW - (win[!PID!.player]W=50)) / 2 + 1, win[!PID!.player]Y=sys.modeH - (win[!PID!.player]H=5) - 1, musicDurationX=(playBarW=(pauseButtonX=win[!PID!.player]W-3)-1)-4"
 	For /F "tokens=1 delims=" %%a in (
 		'mshta vbscript:Execute^("Dim audio_lenght:With CreateObject(""WMPlayer.OCX""):.settings.mute = True:.url= ""!asset[\sounds\windows-xp-welcome-music-remix.mp3]!"":Do While Not .playstate = 3:CreateObject(""WScript.Shell"").Run ""ping localhost -n 1"",0,true:Loop:audio_lenght = Round(.currentMedia.duration):.Close:End With:CreateObject(""Scripting.FileSystemObject"").GetStandardStream(1).WriteLine(audio_lenght):close"^)'
 	) do (
@@ -20,10 +20,11 @@ if exist "!asset[\sounds\windows-xp-welcome-music-remix.mp3]!" (
 		set "musicDurationPM=  !musicDurationPM!"
 		set "musicDurationPM=!musicDurationPM:~-3!"
 	)
+	set soundChar=■
 	echo=¤CW	!PID!.player	!win[%PID%.player]X!	!win[%PID%.player]Y!	!win[%PID%.player]W!	!win[%PID%.player]H!	Currently playing:	lo-fi noCBUI
 	>>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.player	!win[%PID%.player]X!	!win[%PID%.player]Y!	!win[%PID%.player]W!	!win[%PID%.player]H!
-	echo=¤MW	!PID!.player	o1=%\e%[!win[%PID%.player]W!X %\e%[7m Stray Objects %\e%[27m - Windows XP OOBE Music remix%\e%8%\e%[!pauseButtonX!C%\e%[A ■ 	l2= 0:00%\e%8%\e%[!musicDurationX!C!musicDurationPM!:!musicDurationPS!	l3= %\e%[7m%\e%[!playBarW!X%\e%[27m
-)
+	echo=¤MW	!PID!.player	o1=%\e%[!win[%PID%.player]W!X %\e%[7m Stray Objects %\e%[27m - Windows XP OOBE Music remix%\e%8%\e%[!pauseButtonX!C ■ 	l2= 0:00%\e%8%\e%[!musicDurationX!C!musicDurationPM!:!musicDurationPS!	l3= %\e%[7m%\e%[!playBarW!X%\e%[27m
+) else set musicPaused=0
 echo=¤CTRL	APPLYTHEME	lo-fi
 echo=¤CW	!PID!.oobe	!win[%PID%.oobe]X!	!win[%PID%.oobe]Y!	!win[%PID%.oobe]W!	!win[%PID%.oobe]H!	 	lo-fi noCBUI
 
@@ -274,11 +275,17 @@ goto start
 :pagewait
 for /l %%# in (1 1 1000) do if not defined continue (
 	echo=¤OV	%\e%[999;!win[%PID%.oobe]X!H%\e%[48;2;;;;38;5;231m%\e%[0K%\e%[1KShivtanium !sys.tag! !sys.ver! !sys.subvinfo! ^| !date! !time!%\e%[0K
-	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "ct=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "playTime=(ct - musicStart) / 100, playTimePM=playTime / 60, playTimePS=playTime %% 60"
-	set "playTimePS=0!playTimePS!"
-	set "playTimePS=!playTimePS:~-2!"
-	echo=¤MW	!PID!.player	l2= !playTimePM!:!playTimePS!%\e%8%\e%[!musicDurationX!C!musicDurationPM!:!musicDurationPS!
-	for /l %%# in (1 1 1000) do if not defined continue (
+	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "_ct=ct, ct=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "playBar=(playTime=(ct - musicStart) / 100) * playBarW / musicDuration, playTimePM=playTime / 60, playTimePS=playTime %% 60"
+	if not defined musicPaused if "!_ct!" neq "!ct!" (
+		set "playTimePS=0!playTimePS!"
+		set "playTimePS=!playTimePS:~-2!"
+		echo=¤MW	!PID!.player	l2= !playTimePM!:!playTimePS!%\e%8%\e%[!musicDurationX!C!musicDurationPM!:!musicDurationPS!	o3=%\e%[2C%\e%[!playBar!X
+		if !playTime! geq !musicDuration! (
+			start /b "Shivtanium sound handeler (ignore this)" cscript.exe //b core\playsound.vbs "!asset[\sounds\windows-xp-welcome-music-remix.mp3]!"
+			for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "musicStart=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100"
+		)
+	)
+	for /l %%# in (1 1 900) do if not defined continue (
 		set kernelOut=
 		set /p "kernelOut="
 		if defined kernelOut if "!kernelOut!"=="click=1" (
@@ -296,6 +303,11 @@ for /l %%# in (1 1 1000) do if not defined continue (
 					set continue=0
 					call !btn[%%~a]!
 				)
+			) else if "!focusedWindow!"=="!PID!.player" (
+				set /a "relativeMouseX=mouseXpos - win[!PID!.player]X, relativeMouseY=mouseYpos - win[!PID!.player]Y"
+				if "!relativeMouseY!"=="1" if !relativeMouseX! geq !pauseButtonX! (
+					echo=¤MW	!PID!.player	o1=%\e%[!win[%PID%.player]W!X %\e%[7m Stray Objects %\e%[27m - Windows XP OOBE Music remix%\e%8%\e%[!pauseButtonX!C%\e%[7m !soundChar! %\e%[27m
+				)
 			)
 		) else if "!kernelOut!"=="click=0" (
 			if "!focusedWindow!"=="!PID!.oobe" (
@@ -309,6 +321,23 @@ for /l %%# in (1 1 1000) do if not defined continue (
 						set continue=1
 					)
 				)
+			) else if "!focusedWindow!"=="!PID!.player" (
+				set /a "relativeMouseX=mouseXpos - win[!PID!.player]X, relativeMouseY=mouseYpos - win[!PID!.player]Y"
+				if "!relativeMouseY!"=="1" if !relativeMouseX! geq !pauseButtonX! (
+					if defined musicPaused (
+						if exist "!asset[\sounds\windows-xp-welcome-music-remix.mp3]!" (
+							start /b "Shivtanium sound handeler (ignore this)" cscript.exe //b core\playsound.vbs "!asset[\sounds\windows-xp-welcome-music-remix.mp3]!" !musicPaused!0
+							for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "musicStart=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100 - musicPaused"
+							set musicPaused=
+							set soundChar=■
+						)
+					) else (
+						set soundChar=►
+						set /a "musicPaused=ct - musicStart"
+						taskkill /f /im cscript.exe > nul 2>&1
+					)
+				)
+				echo=¤MW	!PID!.player	o1=%\e%[!win[%PID%.player]W!X %\e%[7m Stray Objects %\e%[27m - Windows XP OOBE Music remix%\e%8%\e%[!pauseButtonX!C !soundChar! 
 			)
 		) else if "!kernelOut!"=="exitProcess=!PID!" (
 			exit 0
@@ -329,10 +358,16 @@ set continue.exit=
 :textinput.loop
 for /l %%# in (1 1 1000) do if not defined continue (
 	echo=¤OV	%\e%[999;!win[%PID%.oobe]X!H%\e%[48;2;;;;38;5;231m%\e%[0K%\e%[1KShivtanium !sys.tag! !sys.ver! !sys.subvinfo! ^| !date! !time!%\e%[0K
-	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "ct=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "playTime=(ct - musicStart) / 100, playTimePM=playTime / 60, playTimePS=playTime %% 60"
-	set "playTimePS=0!playTimePS!"
-	set "playTimePS=!playTimePS:~-2!"
-	echo=¤MW	!PID!.player	l2= !playTimePM!:!playTimePS!%\e%8%\e%[!musicDurationX!C!musicDurationPM!:!musicDurationPS!
+	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "_ct=ct, ct=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "playBar=(playTime=(ct - musicStart) / 100) * playBarW / musicDuration, playTimePM=playTime / 60, playTimePS=playTime %% 60"
+	if "!_ct!" neq "!ct!" (
+		set "playTimePS=0!playTimePS!"
+		set "playTimePS=!playTimePS:~-2!"
+		echo=¤MW	!PID!.player	l2= !playTimePM!:!playTimePS!%\e%8%\e%[!musicDurationX!C!musicDurationPM!:!musicDurationPS!	o3=%\e%[2C%\e%[!playBar!X
+		if !playTime! geq !musicDuration! (
+			start /b "Shivtanium sound handeler (ignore this)" cscript.exe //b core\playsound.vbs "!asset[\sounds\windows-xp-welcome-music-remix.mp3]!"
+			for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "musicStart=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100"
+		)
+	)
 	for /l %%# in (1 1 1000) do if not defined continue (
 		set kernelOut=
 		set /p "kernelOut="
