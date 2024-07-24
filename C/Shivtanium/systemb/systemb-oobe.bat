@@ -313,10 +313,12 @@ for %%a in (
 ) do set "usernameCheck=!usernameCheck:%%a=!"
 if "!usernameCheck!" neq " " (
 	call :getfonts.fail "Shivtanium Setup" "Invalid user name:" "  Invalid characters: %\e%[7m !usernameCheck:~1,32! %\e%[27m"
+	echo=¤MW	!PID!.oobe	l2=	l3=	l4=	l5=	l6=	l7=	l8=
 	goto accountsetup
 )
 cd "!sst.root!" || (
 	call :getfonts.fail "Shivtanium Setup" "Something went wrong:" "  Failed to changedir into sst.root."
+	echo=¤MW	!PID!.oobe	l2=	l3=	l4=	l5=	l6=	l7=	l8=
 	goto finish
 )
 md "Users" || (
@@ -327,6 +329,7 @@ md "Users\!txt.username:~1!" 2>"!sst.dir!\temp\proc\PID-!PID!-err" || (
 	set /p "error=" < "!sst.dir!\temp\proc\PID-!PID!-err"
 	call :getfonts.fail "Shivtanium Setup" "Something went wrong:" "  Failed to create the user profile: !errorlevel!" "%\e%[7m !error! %\e%[27m"
 	set error=
+	echo=¤MW	!PID!.oobe	l2=	l3=	l4=	l5=	l6=	l7=	l8=
 	goto finish
 )
 (
