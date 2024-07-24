@@ -29,6 +29,7 @@ echo=¤CTRL	APPLYTHEME	lo-fi
 echo=¤CW	!PID!.oobe	!win[%PID%.oobe]X!	!win[%PID%.oobe]Y!	!win[%PID%.oobe]W!	!win[%PID%.oobe]H!	 	lo-fi noCBUI
 
 >>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.oobe	!win[%PID%.oobe]X!	!win[%PID%.oobe]Y!	!win[%PID%.oobe]W!	!win[%PID%.oobe]H!	1
+set "focusedWindow=!PID!.oobe"
 :start // Initial screen
 
 set "s2=▓▓▓▒▒░░                                             ░░▒▒▓▓"
@@ -275,7 +276,7 @@ set buttons=
 set  "l4=Thank you for installing Shivtanium‼"
 set  "l6=  == Credits =="
 set  "l7=  Head Programmer          Shivter"
-set  "l8=  Font            viler@int10h.org"
+set  "l8=  DOS font        viler@int10h.org"
 set  "l9=  getInput64.dll         MousieDev"
 set "l10=  playSound.vbs           Sintrode"
 set "l11=  Audio Duration Script   RazorArt"
