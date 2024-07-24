@@ -9,6 +9,8 @@ if !sys.CPU.count! lss 4 (
 )
 if /I "%~1"=="/forceoobe" (
 	call :createProcess 0	systemb-oobe.bat
+) else if not exist "!sst.root!\users" (
+	call :createProcess 0	systemb-oobe.bat
 ) else call :createProcess 0	systemb-login.bat
 set sys.keys=
 set keysPressedOld=
