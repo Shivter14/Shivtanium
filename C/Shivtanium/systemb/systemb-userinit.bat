@@ -11,15 +11,24 @@ for %%a in (%*) do (
 )
 if not defined sys.username call :fail Argument error: 'username' is not defined.
 if not exist "!sst.root!" call :fail FATAL: sst.root doesn't exist.
+set sys.UPID=!PID!
+
 if "!sys.lowPerformanceMode!"=="True" (
 	echo=¤CTRL	APPLYTHEME	classic
-) else echo=¤CTRL	APPLYTHEME	aero
-set sys.UPID=!PID!
-if not exist "!sst.root!\Users" md "!sst.root!\Users"
+) else (
+	if exist "!sst.root!\Users\!sys.username!\userprofile.dat" (
+		set user.globalTheme=aero
+		for /f "usebackq tokens=1* delims==" %%a in ("!sst.root!\Users\!sys.username!\userprofile.dat") do (
+			set "user.%%a=%%b" > nul 2>&1
+		)
+		echo=¤CTRL	APPLYTHEME	!user.globalTheme!
+	) else echo=¤CTRL	APPLYTHEME	classic
+)
+
 call "!sst.dir!\systemb\systemb-desktop.bat" || call :fail systemb-desktop exitted with exit code !errorlevel!.
 >>"!sst.dir!\temp\kernelPipe" echo=exitProcess	!PID!
 exit 0
 :fail
 set args=%*
 call systemb-dialog.bat 4 2 48 7 "systemb-userinit	classic" "l2=  !args!	l4=  Login failed."
-exit 0
+exit /b 0
