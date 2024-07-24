@@ -123,4 +123,12 @@ More information about interacting with the process' environment and Shivtanium:
   ![image](https://github.com/user-attachments/assets/9dde2564-e682-4895-98a9-4840cd61ba49)
   ![image](https://github.com/user-attachments/assets/8aa95fe2-74a8-4655-9a0e-966e88f54b22)
 
+    == Credits ==
+    Head Programmer          Shivter
+    DOS font        viler@int10h.org
+    getInput64.dll         MousieDev
+    playSound.vbs           Sintrode
+    Audio Duration Script   RazorArt
+    Ideas      Icarus, Yeshi, Grub4K
+    
 </div>
