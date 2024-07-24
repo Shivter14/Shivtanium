@@ -39,7 +39,7 @@ for /l %%a in (1 1 5) do (
 	set "icon.directory.hidden.system[%%a]=!icon.directory[%%a]:255;255;255;48;2;255;255;0=63;0;63;48;2;127;0;127!"
 	set "icon.directory.system[%%a]=!icon.directory[%%a]:255;255;0=127;0;127!"
 )
-echo=¤CW	!PID!.explorer	!win[%PID%.explorer]X!	!win[%PID%.explorer]Y!	!win[%PID%.explorer]W!	!win[%PID%.explorer]H!	File Explorer
+echo=¤CW	!PID!.explorer	!win[%PID%.explorer]X!	!win[%PID%.explorer]Y!	!win[%PID%.explorer]W!	!win[%PID%.explorer]H!	╒═┐ File Explorer
 >>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.explorer	!win[%PID%.explorer]X!	!win[%PID%.explorer]Y!	!win[%PID%.explorer]W!	!win[%PID%.explorer]H!
 
 set scrollpos=0
@@ -155,7 +155,7 @@ for /l %%y in (1 1 !win[%PID%.explorer]H!) do (
 	set "l%%y="
 )
 for /f %%a in ('set tile[ 2^>nul') do set "%%a="
-for /f "delims=^!*" %%F in ('dir /b 2^>nul ^& dir /b /a:S 2^>nul') do (
+for /f "delims=^!*" %%F in ('dir /b /o:GN 2^>nul ^& dir /b /a:S 2^>nul') do (
 	set /a "posX=pos %% gridW, posY=(lines=pos / gridW) - scrollpos, pos+=1"
 	if !posY! geq 0 if !posY! leq !gfY! (
 		set "temp.attrib=%%~aF"
