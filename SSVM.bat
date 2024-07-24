@@ -1,12 +1,13 @@
-@echo off & setlocal enableDelayedExpansion
+@echo off
+setlocal enabledelayedexpansion
 for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
+goto init
 
 set "ssvm.args=%~1"
 if "!ssvm.args:~0,1!" neq ":" goto start
 	call %*
 	exit /b
 :start
-%= This makes sure that SSVM runs inside of conhost.exe and not any other terminal =%
 start "SSVM Launcher" conhost.exe cmd.exe /c %0 :init %*
 exit
 :init
@@ -20,9 +21,12 @@ chcp 65001>nul 2>&1 || (
 	exit /b
 ) 2>nul
 if not exist "%~dp0ssvm.cww" (
-	echo=# SSVM Settings #> "%~dp0ssvm.cww:
-	for %%a in ("mode=128,32	# The default text mode") do echo=%%~a>> "%~dp0ssvm.cww"
+	echo(# SSVM Settings #> "%~dp0ssvm.cww:
+	for %%a in (
+		"mode=128,32	# The default text mode"
+	) do echo(%%~a>> "%~dp0ssvm.cww"
 )
+for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
 
 for %%a in ("mode=128,32" "temp.fadein=0") do set "ssvm.%%~a"
 for /f "skip=1 eol=# tokens=1,2 delims==#	 " %%a in ('type "%~dp0ssvm.cww"') do set "ssvm.%%~a=%%~b"
@@ -41,17 +45,17 @@ if not exist "!GetInputPath!" (
 	if not exist "C\Shivtanium\core\!GetInputPath!" goto skipGetInput
 	set "getInputPath=C\Shivtanium\core\!GetInputPath!"
 )
-rundll32.exe !getInputPath!,inject >nul 2>&1 || goto skipGetInput
+rundll32.exe !getInputPath!,inject >nul 2>&1
 
 :skipGetInput
 set getInputPath=
 set /a "ssvm.boot.logoX=(!SSVM.modeW!-!spr.[SSVM].W!)/2+1", "ssvm.boot.logoY=(!SSVM.modeH!-!spr.[SSVM].H!)/2+2"
-for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000)", "t2=t1", "global.frameCount=(global.frameCount + 1) %% 0x7FFFFFFF", "fpsFrames+=1"
+for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "t2=t1", "global.frameCount=(global.frameCount + 1) %% 0x7FFFFFFF", "fpsFrames+=1"
 :bootanim.1
 
 	if "!keysPressed!"=="-27-" goto bootmenu
 	< nul set /p "=%\e%[38;2;!ssvm.temp.fadein!;!ssvm.temp.fadein!;!ssvm.temp.fadein!m%\e%[%ssvm.boot.logoY%;%ssvm.boot.logoX%H!spr.[SSVM]!"
-	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000)", "deltaTime=(t1 - t2)", "$TT+=deltaTime", "timer100cs+=deltaTime", "$sec=$TT / 100 %% 60", "$min=$TT / 100 / 60 %% 60", "t2=t1", "global.frameCount=(global.frameCount + 1) %% 0x7FFFFFFF", "fpsFrames+=1", "ssvm.temp.fadein+=deltaTime*4"
+	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "deltaTime=(t1 - t2)", "$TT+=deltaTime", "timer100cs+=deltaTime", "$sec=$TT / 100 %% 60", "$min=$TT / 100 / 60 %% 60", "t2=t1", "global.frameCount=(global.frameCount + 1) %% 0x7FFFFFFF", "fpsFrames+=1", "ssvm.temp.fadein+=deltaTime*4"
 	if !timer100cs! GEQ 100 (
 		set /a "timer100cs-=100,fps=fpsFrames,fpsFrames=0"
 		if !timer100cs! GEQ 100 set /a timer100cs=0
@@ -188,4 +192,3 @@ exit /b !ssvm.exitcode!
 	title Time: !$min!:!$sec! FPS:!fps! FrameTime: !deltaTime!cs Frames:!global.frameCount! totalTime:!$TT!
 if !ssvm.temp.fadein! gtr 0 goto bootanim.fadeout
 exit /b
-%= Goto loops are pretty laggy but this cannot run in an infinite loop, and it's fast anyway =%
