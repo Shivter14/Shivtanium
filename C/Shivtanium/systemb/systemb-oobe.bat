@@ -317,6 +317,8 @@ if "!usernameCheck!" neq " " (
 	echo=¤MW	!PID!.oobe	l2=	l3=	l4=	l5=	l6=	l7=	l8=
 	goto accountsetup
 )
+cd "!sst.dir!"
+call core\config --set loginBGtheme=!theme[%selectedBGTheme%]! --set loginTheme=!theme[%selectedFGTheme%]!
 cd "!sst.root!" || (
 	call :getfonts.fail "Shivtanium Setup" "Something went wrong:" "  Failed to changedir into sst.root."
 	echo=¤MW	!PID!.oobe	l2=	l3=	l4=	l5=	l6=	l7=	l8=
