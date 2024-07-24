@@ -270,8 +270,73 @@ for /l %%a in (36 -4 0) do (
 echo=¤DW	!PID!.lsp
 if errorlevel 1 goto loginTheme
 
-echo=¤CTRL	APPLYTHEME	lo-fi
-goto start
+:finish
+set buttons=
+set  "l4=Thank you for installing Shivtanium‼"
+set  "l6=  == Credits =="
+set  "l7=  Head Programmer          Shivter"
+set  "l8=  Font            viler@int10h.org"
+set  "l9=  getInput64.dll         MousieDev"
+set "l10=  playSound.vbs           Sintrode"
+set "l11=  Audio Duration Script   RazorArt"
+set "l12=  Ideas      Icarus, Yeshi, Grub4K"
+for /l %%a in (2 1 36) do (
+	echo=¤MW	!PID!.oobe	l4=%\e%[13C!l4:~0,%%a!
+)
+for /l %%y in (6 1 12) do (
+	for /l %%x in (4 4 34) do (
+		set /a "x=%%x/2-1"
+		echo=¤MW	!PID!.oobe	l%%y=%\e%[!x!C!l%%y:~2,%%x!
+	)
+)
+
+call :pagewait
+echo=¤MW	!PID!.oobe	l4=	l6=	l7=	l8=	l9=	l10=	l11=	l12=
+if errorlevel 1 goto userthemesetup
+for /l %%a in (3 4 51) do (
+	set /a "off=27-%%a/2"
+	echo=¤MW	!PID!.oobe^
+	l2=%\e%[!off!C%\e%[7m!s2:~0,%%a!!s2:~-7!%\e%[27m^
+	l3=%\e%[!off!C%\e%[7m!s3:~0,%%a!!s3:~-7!%\e%[27m^
+	l4=%\e%[!off!C%\e%[7m!s4:~0,%%a!!s4:~-7!%\e%[27m^
+	l5=%\e%[!off!C%\e%[7m!s5:~0,%%a!!s5:~-7!%\e%[27m^
+	l6=%\e%[!off!C%\e%[7m!s6:~0,%%a!!s6:~-7!%\e%[27m^
+	l7=%\e%[!off!C%\e%[7m!s7:~0,%%a!!s7:~-7!%\e%[27m^
+	l8=%\e%[!off!C%\e%[7m!s8:~0,%%a!!s8:~-7!%\e%[27m
+)
+ping -n 2 127.0.0.1 > nul 2>&1
+taskkill /f /im cscript.exe > nul 2>&1
+
+set "usernameCheck=!txt.username!"
+for %%a in (
+	- _ a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9
+) do set "usernameCheck=!usernameCheck:%%a=!"
+if "!usernameCheck!" neq " " (
+	call :getfonts.fail "Shivtanium Setup" "Invalid user name:" "  Invalid characters: %\e%[7m !usernameCheck:~1,32! %\e%[27m"
+	goto accountsetup
+)
+cd "!sst.root!" || (
+	call :getfonts.fail "Shivtanium Setup" "Something went wrong:" "  Failed to changedir into sst.root."
+	goto finish
+)
+md "Users" || (
+	call :getfonts.fail "Shivtanium Setup" "Something went wrong:" "  Failed to create '~:\Users': !errorlevel!" "  Non-fatal error. Continuing. . ."
+)
+md "Users\!txt.username:~1!" 2>"!sst.dir!\temp\proc\PID-!PID!-err" || (	
+	set error=
+	set /p "error=" < "!sst.dir!\temp\proc\PID-!PID!-err"
+	call :getfonts.fail "Shivtanium Setup" "Something went wrong:" "  Failed to create the user profile: !errorlevel!" "%\e%[7m !error! %\e%[27m"
+	set error=
+	goto finish
+)
+(
+	echo=globalTheme=!theme[%selectedUserTheme%]!
+) > "!sst.root!\Users\!txt.username:~1!\userprofile.dat"
+(
+	echo=createProcess	0	systemb-userinit --username "!txt.username:~1!"
+	echo=exitProcessTree	!PID!
+) >> "!sst.dir!\temp\kernelPipe"
+exit 0
 :pagewait
 for /l %%# in (1 1 1000) do if not defined continue (
 	echo=¤OV	%\e%[999;!win[%PID%.oobe]X!H%\e%[48;2;;;;38;5;231m%\e%[0K%\e%[1KShivtanium !sys.tag! !sys.ver! !sys.subvinfo! ^| !date! !time!%\e%[0K
@@ -359,7 +424,7 @@ set continue.exit=
 for /l %%# in (1 1 1000) do if not defined continue (
 	echo=¤OV	%\e%[999;!win[%PID%.oobe]X!H%\e%[48;2;;;;38;5;231m%\e%[0K%\e%[1KShivtanium !sys.tag! !sys.ver! !sys.subvinfo! ^| !date! !time!%\e%[0K
 	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "_ct=ct, ct=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "playBar=(playTime=(ct - musicStart) / 100) * playBarW / musicDuration, playTimePM=playTime / 60, playTimePS=playTime %% 60"
-	if "!_ct!" neq "!ct!" (
+	if not defined musicPaused if "!_ct!" neq "!ct!" (
 		set "playTimePS=0!playTimePS!"
 		set "playTimePS=!playTimePS:~-2!"
 		echo=¤MW	!PID!.player	l2= !playTimePM!:!playTimePS!%\e%8%\e%[!musicDurationX!C!musicDurationPM!:!musicDurationPS!	o3=%\e%[2C%\e%[!playBar!X
