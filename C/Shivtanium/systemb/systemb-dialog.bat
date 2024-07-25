@@ -1,12 +1,13 @@
 @echo off & setlocal enableDelayedExpansion
 set "initial_window_params=%~5"
 set "secondary_window_params=%~6"
-set /a "closeButtonX=(w=win[!PID!.systemb_dialog]W=%~3)-4, bx=x+w-1, h=win[!PID!.systemb_dialog]H=%~4, x=win[!PID!.systemb_dialog]X=%~1, y=win[!PID!.systemb_dialog]Y=%~2, buttonW=%~9, buttonX=%~7, buttonY=%~8, buttonB=buttonX+buttonW-1"
+set /a PID=PID
+set /a "closeButtonX=(w=win[!PID!.systemb_dialog]W=%~3)-4, bx=x+w-1, h=win[!PID!.systemb_dialog]H=%~4, x=win[!PID!.systemb_dialog]X=%~1, y=win[!PID!.systemb_dialog]Y=%~2, buttonW=%~9, buttonX=%~7, buttonY=%~8, buttonB=buttonX+buttonW-1" || >&2 echo=^^^^^^ At %~n0
 if !win[%PID%.systemb_dialog]W! lss 16 set /a "closeButtonX=(win[!PID!.systemb_dialog]W=32)-4"
 if !win[%PID%.systemb_dialog]H! lss 3 set "win[!PID!.systemb_dialog]H=7"
-if !win[%PID%.systemb_dialog]W! gtr !sys.modeW! set /a "x=win[!PID!.systemb_dialog]X=1, w=bx=win[!PID!,systemb_dialog]W=modeW, buttonW=%~9, buttonX=%~7, buttonB=buttonX+buttonW-1"
-if !win[%PID%.systemb_dialog]Y! geq !sys.modeH! set /a "win[!PID!.systemb_dialog]Y=sys.modeH-1, buttonY=%~8"
-if !bx! gtr !sys.modeW! set /a "x=win[!PID!.systemb_dialog]X=(bx=sys.modeW)-w+1, buttonW=%~9, buttonX=%~7, buttonB=buttonX+buttonW-1"
+if !win[%PID%.systemb_dialog]W! gtr !sys.modeW! set /a "x=win[!PID!.systemb_dialog]X=1, w=bx=win[!PID!,systemb_dialog]W=modeW, buttonW=%~9, buttonX=%~7, buttonB=buttonX+buttonW-1" || >&2 echo=^^^^^^ At %~n0
+if !win[%PID%.systemb_dialog]Y! geq !sys.modeH! set /a "win[!PID!.systemb_dialog]Y=sys.modeH-1, buttonY=%~8" || >&2 echo=^^^^^^ At %~n0
+if !bx! gtr !sys.modeW! set /a "x=win[!PID!.systemb_dialog]X=(bx=sys.modeW)-w+1, buttonW=%~9, buttonX=%~7, buttonB=buttonX+buttonW-1" || >&2 echo=^^^^^^ At %~n0
 
 shift /1
 set "buttonName=%~9"
