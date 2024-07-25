@@ -185,14 +185,6 @@ if !posY! lss 0 (
 	goto reload
 )
 
-if "!scrollpos!"=="0" (
-	set "pipe=¤MW	!PID!.explorer	p!win[%PID%.explorer]RH!="
-	for /l %%y in (1 1 !win[%PID%.explorer]RH!) do set "pipe=!pipe!	o%%y=%\e%[!sidebarW!X	l%%y="
-	echo=!pipe!
-)
-
-
-
 for /l %%Y in (0 1 !gfY!) do for /l %%X in (0 1 !gridW!) do for /f "tokens=1-3 delims=;" %%a in ("!item[%%Xx%%Y]Y!;!item[%%Xx%%Y]BY!;!item[%%Xx%%Y]icon!") do (
 	set temp=0
 	for /l %%y in (%%a 1 %%b) do (
