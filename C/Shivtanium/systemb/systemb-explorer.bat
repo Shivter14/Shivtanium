@@ -41,6 +41,7 @@ for /l %%a in (1 1 5) do (
 )
 echo=¤CW	!PID!.explorer	!win[%PID%.explorer]X!	!win[%PID%.explorer]Y!	!win[%PID%.explorer]W!	!win[%PID%.explorer]H!	╒═┐ File Explorer
 >>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.explorer	!win[%PID%.explorer]X!	!win[%PID%.explorer]Y!	!win[%PID%.explorer]W!	!win[%PID%.explorer]H!
+set "focusedWindow=!PID!.explorer"
 
 set scrollpos=0
 call :reload
