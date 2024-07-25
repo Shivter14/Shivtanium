@@ -19,7 +19,7 @@ popd
 set "sst.dir=!cd!"
 if /I "!sst.noTempClear!" neq "True" (
 	if not exist temp md temp
-	rd /s /q temp > nul 2>&1 || del /F /Q temp > nul 2>&1
+	rd /s /q temp > nul 2>&1
 	if exist temp call :halt "{Temp directory deletion}" "There is another instance of Shivtanium currently running.\nThe system will not start to prevent glitches."
 )
 md temp >nul 2>&1
@@ -73,7 +73,7 @@ for %%a in (
 )
 for /f "tokens=1 delims==" %%a in ('set sst.boot') do if /I "%%~a" neq "sst.boot.logoX" if /I "%%~a" neq "sst.boot.logoY" set "%%a="
 cd "%~dp0"
-call sstoskrnl.bat < "temp\kernelPipe" > "temp\kernelOut" 2>"temp\kernelErr" 3> "temp\DWM-!sst.localtemp!"
+call sstoskrnl.bat %* < "temp\kernelPipe" > "temp\kernelOut" 2>"temp\kernelErr" 3> "temp\DWM-!sst.localtemp!"
 
 :startup.submsg
 
@@ -176,7 +176,7 @@ for /f "tokens=1 delims==" %%a in ('set') do for /f "tokens=1 delims=._" %%c in 
 	if "!unload!"=="True" set "%%a="
 )
 set PATHEXT=.COM;.EXE;.BAT
-set "PATH=!windir!\system32;!windir!;!sst.dir!\systemb"
+set "PATH=!windir!\system32;!windir!;!sst.dir!\systemb;!sst.dir!\core"
 set unload=
 exit /b 0
 :loadSettings
@@ -220,7 +220,9 @@ for %%a in (
 	if "!%%~c!"=="" call :halt "%~nx0:loadSettings" "Failed to define variable translation:\n%%~c = %%~b"
 )
 
-set /a "dwm.tps=100", "dwm.tdt=100/dwm.tps", "sst.proccount=0", "sys.click=0"
+if not defined \a for /f "delims=" %%A in ('forfiles /p "%~dp0." /m "%~nx0" /c "cmd /c echo(0x07"') do set "\a=%%A"
+
+set /a "sst.proccount=0", "sys.click=0"
 exit /b 0
 :injectDLLs
 cd "!sst.dir!"
