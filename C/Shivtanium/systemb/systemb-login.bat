@@ -37,6 +37,9 @@ for /l %%# in () do (
 					if "%%~k"=="8" (
 						if "!systemb.login.username!" neq " " set "systemb.login.username=!systemb.login.username:~0,-1!"
 						echo=¤MW	!PID!.systemb_login	o6=%\e%[2C%\e%[!systemb.login.tW!X!systemb.login.username:~-60!
+					) else if "%%~k"=="27" (
+						set "systemb.login.username= "
+						echo=¤MW	!PID!.systemb_login	o6=%\e%[2C%\e%[!systemb.login.tW!X
 					)
 				)
 				if defined char (
