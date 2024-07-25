@@ -318,17 +318,13 @@ if "!usernameCheck!" neq " " (
 	goto accountsetup
 )
 cd "!sst.dir!"
-call core\config --set loginBGtheme=!theme[%selectedBGTheme%]! --set loginTheme=!theme[%selectedFGTheme%]! || (
-	call :getfonts.fail "Shivtanium Setup" "Something went wrong:" "  Failed to configure the login theme." "  Non-fatal error. Continuing. . ."
-)
+call core\config --set loginBGtheme=!theme[%selectedBGTheme%]! --set loginTheme=!theme[%selectedFGTheme%]!
 cd "!sst.root!" || (
 	call :getfonts.fail "Shivtanium Setup" "Something went wrong:" "  Failed to changedir into sst.root."
 	echo=¤MW	!PID!.oobe	l2=	l3=	l4=	l5=	l6=	l7=	l8=
 	goto finish
 )
-md "Users" || (
-	call :getfonts.fail "Shivtanium Setup" "Something went wrong:" "  Failed to create '~:\Users': !errorlevel!" "  Non-fatal error. Continuing. . ."
-)
+if not exist Users md Users
 md "Users\!txt.username:~1!" 2>"!sst.dir!\temp\proc\PID-!PID!-err" || (	
 	set error=
 	set /p "error=" < "!sst.dir!\temp\proc\PID-!PID!-err"
