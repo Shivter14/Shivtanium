@@ -90,6 +90,7 @@ Modifying the keyboard layout can be done in the following way:
 
 * To *re-bind* a key to a different character, find the character, and replace it with a different one.
 * To *bind a key by its keycode*, change the character at the position based on the keycode.
+
   (Example: Keycode of `F1` is 112; go to the 112th place)
 
 ## How can I create interactive batch scripts compatible with Shivtanium?
