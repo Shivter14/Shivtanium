@@ -74,7 +74,7 @@ for /l %%# in () do (
 							set scrollpos=0
 							call :reload
 						) else if "%%~xF"==".bat" (
-							>>"!sst.dir!\temp\kernelPipe" echo=createProcess	!sys.UPID!	%%~F
+							>>"!sst.dir!\temp\kernelPipe" echo=createProcess	!sys.UPID!	%%~F	--UPID	!sys.UPID!	--username "!sys.username!"
 						) else (
 							pushd "%%~dpF"
 							start %%~nxF
