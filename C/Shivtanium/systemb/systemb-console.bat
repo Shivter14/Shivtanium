@@ -25,6 +25,7 @@ set /a "closeButtonX=(win[!PID!.conhost]W=64)-3, conP=(conH=(win[!PID!.conhost]H
 echo=¤CW	!PID!.conhost	!win[%PID%.conhost]X!	!win[%PID%.conhost]Y!	!win[%PID%.conhost]W!	!win[%PID%.conhost]H!	Terminal	discord
 echo=¤MW	!PID!.conhost	l!conP!=]
 >>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.conhost	!win[%PID%.conhost]X!	!win[%PID%.conhost]Y!	!win[%PID%.conhost]W!	!win[%PID%.conhost]H!
+set "focusedWindow=!PID!.conhost"
 set "input= "
 for /l %%# in () do (
 	set kernelOut=
