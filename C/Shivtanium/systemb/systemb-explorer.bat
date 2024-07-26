@@ -218,5 +218,4 @@ for /l %%y in (1 1 !win[%PID%.explorer]RH!) do (
 )
 echo=!pipe!
 set pipe=
-set > "!sst.dir!\temp\proc\PID-!PID!-memoryDump"
 exit /b 0
