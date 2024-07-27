@@ -33,7 +33,7 @@ Input is handled by the Shivtanium OS Kernel, which also handles:
 
 And much more...
 
-Graphics & windows are handled by the Desktop Window Manager. It uses many kinds of VT sequences, optimizations, and all sorts of techniques to render windows quickly and smoothly.
+Graphics & windows are handled by the Desktop Window Manager. It uses many kinds of VT sequences, optimizations, and all sorts of techniques in order to render windows quickly and smoothly.
 
 More information about it can be found in the following sections and the ![DWM Wiki](https://github.com/Shivter14/Shivtanium/wiki/Desktop-Window-Manager).
 
