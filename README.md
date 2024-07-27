@@ -104,23 +104,6 @@ With help from the Shivtanium Kernel;
 
 Information about creating applications for Shivtanium can be found on the ![Kernel Wiki](https://github.com/Shivter14/Shivtanium/wiki/kernel). (In progress)
 
-## How can I create external commands for the Shivtanium Interpreter?
-
-- Create a batch file in `C\Shivtanium\core`.
-- Name it with the following format: `ic-<command>.bat`
-- Do not use `@echo off` nor `setlocal enableDelayedExpansion`.
-To call your newly created command, use `call \bin\<command>`.
-
-More information about interacting with the process' environment and Shivtanium:
-
-- `%~1` is the PID of the calling process.
-
-- To modify it's variables, use `"pid[%~1]v<variable>"`.
-
-- Printing anything will be redirected straight into the Desktop Window Manager.
-
-- To communicate with the Kernel, redirect (add) data into `!sst.dir!\temp\kernelPipe`. Warning: Don't *lock* the pipe! Other processes might want to be using it >:(
-
 ## Screenshots
 
 <div align="center">
