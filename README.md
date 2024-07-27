@@ -136,7 +136,7 @@ More information about interacting with the process' environment and Shivtanium:
     getInput64.dll         MousieDev
     playSound.vbs           Sintrode
     Audio Duration Script   RazorArt
-    Ideas      Icarus, Yeshi, Grub4K
+    Ideas     Icarus, Yeshi, Grub4K,
         and members from server.bat!
     
 </div>
