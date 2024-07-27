@@ -90,7 +90,7 @@ Modifying the keyboard layout can be done in the following way:
 
 * Open the `keyboard_init.bat` file in the specified resource pack. (default: `init`)
 
-* Change one of the character sets (`charset_L` - Lower case, `charset_U` - Upper case, `charset_A` - Alternative)
+* Change one of the character sets. (`charset_L` - Lower case, `charset_U` - Upper case, `charset_A` - Alternative)
 
 * To *re-bind* a key to a different character, find the character, and replace it with a different one.
 
