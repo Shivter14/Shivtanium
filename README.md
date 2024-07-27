@@ -27,6 +27,8 @@ Input is handled by the Shivtanium OS Kernel, which also handles:
 
 - Resizing windows
 
+- Automatically deleting windows when their process exits
+
 - Shutdown & Rebooting
 
 And much more...
