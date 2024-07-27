@@ -88,7 +88,7 @@ Example: `A` is pressed without `Shift` nor `Alt`;
 
 Modifying the keyboard layout can be done in the following way:
 
-* Open the `keyboard_init.bat` file in the specified resource pack (default: `init`)
+* Open the `keyboard_init.bat` file in the specified resource pack. (default: `init`)
 
 * Change one of the character sets (`charset_L` - Lower case, `charset_U` - Upper case, `charset_A` - Alternative)
 
