@@ -13,9 +13,7 @@ Shivtanium has a Kernel, which handles:
 
 - System shutdown & reboot
 
-- Killing processes
-
-- Starting processes
+- Process management
 
 - Registering windows
 
@@ -26,8 +24,6 @@ Shivtanium has a Kernel, which handles:
 - Automatically deleting windows when their process exits
 
 - Shutdown & Rebooting
-
-- Process management
 
 Shivtanium also has desktop environments. The default & original one is `systemb`. You can find screenshots at the bottom of this document.
 
