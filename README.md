@@ -11,8 +11,6 @@
 
 Shivtanium has a Kernel, which handles:
 
-- System shutdown & reboot
-
 - Process management
 
 - Registering windows
