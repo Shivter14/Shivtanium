@@ -1,3 +1,7 @@
+@if not defined sst.dir (
+	echo off & setlocal enableDelayedExpansion & set "\e=" & call :kernelPanic "Invalid environment" "The Shivtanium kernel requires to be run in main.bat"
+)
+
 for /f "tokens=1 delims==" %%a in ('set dwm. 2^>nul ^& set spr. 2^>nul ^& set ssvm. 2^>nul') do set "%%a="
 cd "!sst.dir!" || call :kernelPanic "Unable to locate system directory" "The system failed to start:\nValue sst.dir: '!sst.dir!'\n ^^^^^^  Invalid directory."
 if not exist "temp\proc" md "temp\proc"
@@ -103,12 +107,12 @@ for /l %%# in () do (
 	)
 	set "sys.keys= !keysPressed!"
 	set "sys.keysRN=!sys.keys:-= !"
+	if "!sys.keysRN!" neq "!keysPressedOld!" (
+		echo=keysPressed=!sys.keys!
+		set /a ioTotal+=1
+	)
+	for %%k in (!keysPressedOld!) do set "sys.keysRN=!sys.keysRN: %%k = !"
 	if defined focusedWindow (
-		if "!sys.keysRN!" neq "!keysPressedOld!" (
-			echo=keysPressed=!sys.keys!
-			set /a ioTotal+=1
-		)
-		for %%k in (!keysPressedOld!) do set "sys.keysRN=!sys.keysRN: %%k = !"
 		if "!sys.keysRN: =!" neq "" (
 			echo=keysPressedRN=!sys.keysRN!
 			set /a ioTotal+=1
@@ -133,6 +137,8 @@ for /l %%# in () do (
 			set movingWindowOffset=
 			
 			call :createProcess 0	systemb-login.bat
+		) else if "!sys.keysRN!"=="  69 " (
+			call :createProcess	0	systemb-taskmgr.bat
 		)
 	)
 
