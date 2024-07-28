@@ -1,4 +1,6 @@
-aero=r=63, g=255-(x×127/modeH), b=255
+aero=r=63, g=230-(x×120/modeH), b=255
+winAero=r=63, g=230-(x×120/modeH), b=255
 FGcolor=5;15
 TIcolor=5;12
 TTcolor=5;231
+CBUI=[38;5;231m[48;2;0;192;192m - [48;2;0;255;255m □ [48;2;255;0;0m × 

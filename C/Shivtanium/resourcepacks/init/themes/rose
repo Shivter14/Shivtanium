@@ -1,4 +1,5 @@
 scene=[H[0m[48;2;160;31;40m[2JRose theme
+sceneBGcolor=2;160;31;40
 FGcolor=5;231
 BGcolor=5;210
 TIcolor=5;167
@@ -6,3 +7,4 @@ TTcolor=5;231
 CBUI=[D[38;5;231;48;5;210m -  □  × [48;5;167m 
 CBUIOffset=-1
 aero=
+winAero=

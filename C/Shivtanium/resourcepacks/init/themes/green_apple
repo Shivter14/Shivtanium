@@ -1,7 +1,9 @@
 scene=[H[0m[48;5;22;38;5;231m[2J'Green apple' theme
+sceneBGcolor=5;22
 FGcolor=5;22
 BGcolor=5;193
 TIcolor=5;10
 TTcolor=5;22
 CBUI=[48;5;82m -  □  × 
 aero=
+winAero=
