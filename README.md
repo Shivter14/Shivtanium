@@ -29,7 +29,7 @@ Shivtanium has a Kernel, which handles:
 
 - Process management
 
-Shivtanium also has desktop environments. The default & original one is `systemb`.
+Shivtanium also has desktop environments. The default & original one is `systemb`. You can find screenshots at the bottom of this document.
 
 Graphics & windows are handled by the Desktop Window Manager. It uses many kinds of VT sequences, optimizations, and all sorts of techniques in order to render windows quickly and smoothly.
 
