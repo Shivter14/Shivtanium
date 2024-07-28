@@ -9,11 +9,7 @@
 
 </div>
 
-Shivtanium runs *sub systems*; Like the `systemb` application set.
-
-These subsystems can run in parallel, and can communicate with each other.
-
-Input is handled by the Shivtanium OS Kernel, which also handles:
+Shivtanium has a Kernel, which handles:
 
 - System shutdown & reboot
 
@@ -31,7 +27,9 @@ Input is handled by the Shivtanium OS Kernel, which also handles:
 
 - Shutdown & Rebooting
 
-And much more...
+- Process management
+
+Shivtanium also has desktop environments. The default & original one is `systemb`.
 
 Graphics & windows are handled by the Desktop Window Manager. It uses many kinds of VT sequences, optimizations, and all sorts of techniques in order to render windows quickly and smoothly.
 
