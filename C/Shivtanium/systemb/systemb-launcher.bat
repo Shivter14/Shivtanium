@@ -17,6 +17,7 @@ set "math=win[systemb_launcher]BY=win[systemb_launcher]Y+win[systemb_launcher]H-
 set "buttons= "
 
 for %%b in (
+	"about		sidebarW	sidebarX	win[systemb_launcher]BY-8	:about		About"
 	"settings	sidebarW	sidebarX	win[systemb_launcher]BY-7	:settings	Settings"
 	"terminal	sidebarW	sidebarX	win[systemb_launcher]BY-6	:terminal	Terminal"
 	"explorer	sidebarW	sidebarX	win[systemb_launcher]BY-5	:explorer	Explorer"
@@ -26,7 +27,7 @@ for %%b in (
 	
 	"calculator	win[systemb_launcher]W-sidebarW-6	2	win[systemb_launcher]Y+2	:calculator	Calculator"
 	"taskmgr	win[systemb_launcher]W-sidebarW-6	2	win[systemb_launcher]Y+3	:taskmgr	Task Manager"
-	"NEL		win[systemb_launcher]W-sidebarW-6	2	win[systemb_launcher]Y+4	:launchProgram NewEngine-Launcher\Shivtanium-NewEngine-Launcher	NewEngine Launcher"
+	"NEL		win[systemb_launcher]W-sidebarW-6	2	win[systemb_launcher]Y+4	:launchProgram NewEngine-Launcher\Shivtanium-NewEngine-Launcher.bat	NewEngine Launcher"
 ) do for /f "tokens=1-5* delims=	" %%0 in ("%%~b") do (
 	set "buttons="%%~0" !buttons!"
 	set "button[%%~0]=%%~4"
@@ -128,6 +129,12 @@ goto exit
 goto exit
 :taskmgr
 >>"!sst.dir!\temp\kernelPipe" echo=createProcess	!sys.UPID!	systemb-taskmgr.bat --username "!sys.username!" --UPID !sys.UPID!
+goto exit
+:about
+set "sys.username=!sys.username!."
+>>"!sst.dir!\temp\kernelPipe" echo=createProcess	!sys.UPID!	systemb-dialog.bat (sys.modeW-w)/2+1 3 60 15 "About Shivtanium"^
+ "l1=%\e%[7m▓▓▓▒▒░░%\e%[45X%\e%[45C░░▒▒▓▓%\e%[27m	l2=%\e%[7m▓▓▒▒░░   ▄▄▄ ▄    ▄      ▄%\e%[12X%\e%[12C▄%\e%[12X%\e%[12C░░▒▒▓▓▓%\e%[27m	l3=%\e%[7m▓▓▓▒▒░░ █    █          ▄█▄%\e%[25X%\e%[25C░░▒▒▓▓%\e%[27m	l4=%\e%[7m▓▓▒▒░░   ▀▀▄ █▀▀▄ █ █ █  █  ▄▀▀▄ █▀▀▄ █ █  █ █▀▄▀▄ ░░▒▒▓▓▓%\e%[27m	l5=%\e%[7m▓▓▓▒▒░░ ▄▄▄▀ █  █ █ ▀█▀  █  ▀▄▄█ █  █ █ ▀▄▄█ █ █ █  ░░▒▒▓▓%\e%[27m	l6=%\e%[7m▓▓▒▒░░%\e%[45X%\e%[10C▀%\e%[9C▀%\e%[9C▀%\e%[8C▀     ░░▒▒▓▓▓%\e%[27m	l7=%\e%[7m▓▓▓▒▒░░%\e%[45X%\e%[45C░░▒▒▓▓%\e%[27m	l9=  Shivtanium version !sys.tag! !sys.ver! !sys.subvinfo!	l10=  Copyright © Shivter 2021 - 2024	l12=  Logged in as !sys.username:~0,43!" w-buttonW-2 h-2 7 " Close "
+ 
 goto exit
 :launchProgram
 set "arg=%~1"
