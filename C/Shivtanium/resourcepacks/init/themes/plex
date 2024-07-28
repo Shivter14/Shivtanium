@@ -1,0 +1,7 @@
+aero=r=14+(x×64/modeH), g=18+(x×92/modeH), b=117+(x×92/modeH)
+winAero=r=152+(x×64/modeH), g=186+(x×69/modeH), b=232+(x×23/modeH)
+TIColor=2;79;136;214
+TTColor=2;216;258;232
+BGColor=2;211;223;247
+FGColor=2;;;
+CBUI=[D[7m -  □  × [27m 
