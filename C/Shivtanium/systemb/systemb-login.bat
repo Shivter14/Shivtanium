@@ -25,7 +25,7 @@ for /l %%# in () do (
 	if defined kernelOut (
 		if "!kernelOut:~0,12!"=="keysPressed=" (
 			set "sys.keys=!kernelOut:~12!"
-		) else if "!kernelOut:~0,14!"=="keysPressedRN=" (if "!focusedWindow!"=="!PID!.systemb_login" (
+		) else if "!kernelOut:~0,14!;!focusedWindow!"=="keysPressedRN=;!PID!.systemb_login" (
 			set "sys.keysRN=!kernelOut:~14!"
 			
 			for %%k in (!sys.keysRN!) do (
@@ -69,7 +69,7 @@ for /l %%# in () do (
 					)
 				) >> "!sst.dir!\temp\kernelPipe"
 			)
-		)) else if "!kernelOut!"=="click=1" (
+		) else if "!kernelOut!"=="click=1" (
 			set /a "relativeMouseX=mouseXpos - win[!PID!.systemb_login]X, relativeMouseY=mouseYpos - win[!PID!.systemb_login]Y"
 			if "!relativeMouseY!"=="0" if !relativeMouseX! geq !closeButtonX! ((
 				echo=exitProcessTree	!PID!
