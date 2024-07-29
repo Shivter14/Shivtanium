@@ -6,13 +6,38 @@ if not defined PID (
 	exit /b 1
 )
 set /a PID=PID
-set /a "nextButtonBX=(nextButtonX=(win[!PID!.oobe]W=64)-8)+5, contentH=(win[!PID!.oobe]H=16)-2, originalX=win[!PID!.oobe]X=(sys.modeW - win[!PID!.oobe]W) / 2 + 1, win[!PID!.oobe]Y=(sys.modeH - win[!PID!.oobe]H) / 2, inputC=(inputW=win[!PID!.oobe]W-6)-1"
+set /a "nextButtonBX=(nextButtonX=(win[!PID!.oobe]W=64)-8)+5, contentH=(win[!PID!.oobe]H=16)-2, originalX=win[!PID!.oobe]X=(sys.modeW - win[!PID!.oobe]W) / 2 + 1, originalY=win[!PID!.oobe]Y=(sys.modeH - win[!PID!.oobe]H) / 2, inputC=(inputW=win[!PID!.oobe]W-6)-1"
+
+if not exist "!sst.dir!\resourcepacks\init\sounds" md "!sst.dir!\resourcepacks\init\sounds"
+for %%a in (
+	boot.mp3
+	shutdown.mp3
+	windows-xp-welcome-music-remix.mp3
+) do if not exist "!asset[\sounds\%%a]!" if not exist "!sst.dir!\resourcepacks\init\sounds\%%~a" (
+	echo=¤CW	!PID!.getAssets	5	3	84	8	Downloading assets	classic noCBUI
+	>>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.getAssets	5	3	84	8
+	set contentW=80
+	echo=¤MW	!PID!.getAssets	l2=  Downloading %\e%[7m %%~a %\e%[27m . . .	l4=  %% Total    %% Received %% Xferd  Average Speed   Time    Time     Time  Current	l5=                                 Dload  Upload   Total   Spent    Left  Speed
+	cd "!sst.dir!\resourcepacks\init\sounds" || exit 1
+	curl -o "%%~a" "https://raw.githubusercontent.com/Shivter14/Shivtanium/main/C/Shivtanium/resourcepacks/init/sounds/%%~a" 2>&1 | call "!sst.dir!\core\streamIntoWindow" !PID!.getAssets	l6=  
+	if errorlevel 1 (
+		call :errorbox "Failed to download assets" "The following file failed to download:" "%\e%[7m %%~a %\e%[27m" "Reason: %\e%[7m curl error !errorlevel! %\e%[27m"
+	) else if not exist "%%a" (
+		call :errorbox "Failed to download assets" "The following file failed to download:" "%\e%[7m %%~a %\e%[27m" "Reason: Generic error !errorlevel!"
+	)
+	echo=¤DW	!PID!.getAssets
+	>>"!sst.dir!\temp\kernelPipe" echo=unRegisterWindow	!PID!.getAssets
+	cd "!sst.dir!" || exit 1
+	set "asset[\sounds\%%~a]=!sst.dir!\resourcepacks\init\sounds\%%~a"
+)
+
+
 if exist "!asset[\sounds\windows-xp-welcome-music-remix.mp3]!" (	
 	start /b "Shivtanium sound handeler (ignore this)" cscript.exe //b core\playsound.vbs "!asset[\sounds\windows-xp-welcome-music-remix.mp3]!"
 	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "musicStart=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100",^
 	"win[!PID!.player]X=(sys.modeW - (win[!PID!.player]W=50)) / 2 + 1, win[!PID!.player]Y=sys.modeH - (win[!PID!.player]H=5) - 1, musicDurationX=(playBarW=(pauseButtonX=win[!PID!.player]W-3)-1)-4"
 	For /F "tokens=1 delims=" %%a in (
-		'mshta vbscript:Execute^("Dim audio_lenght:With CreateObject(""WMPlayer.OCX""):.settings.mute = True:.url= ""!asset[\sounds\windows-xp-welcome-music-remix.mp3]!"":Do While Not .playstate = 3:CreateObject(""WScript.Shell"").Run ""ping localhost -n 1"",0,true:Loop:audio_lenght = Round(.currentMedia.duration):.Close:End With:CreateObject(""Scripting.FileSystemObject"").GetStandardStream(1).WriteLine(audio_lenght):close"^)'
+		'mshta vbscript:Execute^("Dim audio_lenght:With CreateObject(""WMPlayer.OCX""):.settings.mute = True:.url= ""resourcepacks\init\sounds\windows-xp-welcome-music-remix.mp3"":Do While Not .playstate = 3:CreateObject(""WScript.Shell"").Run ""ping localhost -n 1"",0,true:Loop:audio_lenght = Round(.currentMedia.duration):.Close:End With:CreateObject(""Scripting.FileSystemObject"").GetStandardStream(1).WriteLine(audio_lenght):close"^)'
 	) do (
 		set /a "musicDuration=%%a, musicDurationPM=%%a / 60, musicDurationPS=%%a %% 60"
 		set "musicDurationPS=0!musicDurationPS!"
@@ -159,8 +184,20 @@ set "l8=Login Screen window theme:    "
 set /a "olspX=lspX=originalX+win[!PID!.oobe]W-(lspW=32), lspY=win[!PID!.oobe]Y+(win[!PID!.oobe]H-(lspH=8))/2"
 echo=¤CW	!PID!.lsp	!lspX!	!lspY!	!lspW!	!lspH!	Window Preview	!theme[%selectedFGtheme%]!
 echo=¤FOCUS	!PID!.oobe
-for /l %%a in (4 4 40) do (
-	set /a "win[%PID%.oobe]X=originalX-%%a/2, lspX=olspX+%%a/2"
+
+if !sys.modeW! lss 104 (
+	set /a "olspY=lspY=originalY+win[!PID!.oobe]H-lspH, olspX=lspX=(sys.modeW - lspW) / 2 + 1"
+	echo=¤MW	!PID!.lsp	x=!lspX!	y=!lspY!
+	for /l %%a in (4 4 40) do (
+		set /a "win[!PID!.oobe]Y=originalY-%%a/6, lspY=olspY+%%a/6"
+		echo=¤MW	!PID!.oobe^
+		l2=  !l2:~-%%a,26!	l5=  !l5:~-%%a!	l6=%\e%[7m%\e%[%%aX%\e%[27m	l8=  !l8:~-%%a!	l9=%\e%[7m%\e%[%%aX%\e%[27m^
+		y=!win[%PID%.oobe]Y!
+		echo=¤MW	!PID!.lsp	y=!lspY!
+		echo=¤OV	%\e%[999;!win[%PID%.oobe]X!H%\e%[48;2;;;;38;5;231m%\e%[0K%\e%[1KShivtanium !sys.tag! !sys.ver! !sys.subvinfo! ^| !date! !time!%\e%[0K
+	)
+) else for /l %%a in (4 4 40) do (
+	set /a "win[!PID!.oobe]X=originalX-%%a/2, lspX=olspX+%%a/2"
 	echo=¤MW	!PID!.oobe^
 	l2=  !l2:~-%%a,26!	l5=  !l5:~-%%a!	l6=%\e%[7m%\e%[%%aX%\e%[27m	l8=  !l8:~-%%a!	l9=%\e%[7m%\e%[%%aX%\e%[27m^
 	x=!win[%PID%.oobe]X!
@@ -313,14 +350,14 @@ for %%a in (
 	- _ a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9
 ) do set "usernameCheck=!usernameCheck:%%a=!"
 if "!usernameCheck!" neq " " (
-	call :getfonts.fail "Shivtanium Setup" "Invalid user name:" "  Invalid characters: %\e%[7m !usernameCheck:~1,32! %\e%[27m"
+	call :errorbox "Shivtanium Setup" "Invalid user name:" "  Invalid characters: %\e%[7m !usernameCheck:~1,32! %\e%[27m"
 	echo=¤MW	!PID!.oobe	l2=	l3=	l4=	l5=	l6=	l7=	l8=
 	goto accountsetup
 )
 cd "!sst.dir!"
 call core\config --set loginBGtheme=!theme[%selectedBGTheme%]! --set loginTheme=!theme[%selectedFGTheme%]!
 cd "!sst.root!" || (
-	call :getfonts.fail "Shivtanium Setup" "Something went wrong:" "  Failed to changedir into sst.root."
+	call :errorbox "Shivtanium Setup" "Something went wrong:" "  Failed to changedir into sst.root."
 	echo=¤MW	!PID!.oobe	l2=	l3=	l4=	l5=	l6=	l7=	l8=
 	goto finish
 )
@@ -328,7 +365,7 @@ if not exist Users md Users
 md "Users\!txt.username:~1!" 2>"!sst.dir!\temp\proc\PID-!PID!-err" || (	
 	set error=
 	set /p "error=" < "!sst.dir!\temp\proc\PID-!PID!-err"
-	call :getfonts.fail "Shivtanium Setup" "Something went wrong:" "  Failed to create the user profile: !errorlevel!" "%\e%[7m !error! %\e%[27m"
+	call :errorbox "Shivtanium Setup" "Something went wrong:" "  Failed to create the user profile: !errorlevel!" "%\e%[7m !error! %\e%[27m"
 	set error=
 	echo=¤MW	!PID!.oobe	l2=	l3=	l4=	l5=	l6=	l7=	l8=
 	goto finish
@@ -542,17 +579,17 @@ echo=¤MW	!PID!.getfonts	l2=  Downloading %\e%[7m oldschool_pc_font_pack_v2.2_wi
 
 curl -fkLO https://int10h.org/oldschool-pc-fonts/download/oldschool_pc_font_pack_v2.2_win.zip 2>&1 | call "!sst.dir!\core\streamIntoWindow" !PID!.getfonts	l6=  
 if errorlevel 1 (
-	call :getfonts.fail "Failed to download assets" "The following file failed to download:" "%\e%[7m oldschool_pc_font_pack_v2.2_win.zip %\e%[27m" "Reason: %\e%[7m curl error !errorlevel! %\e%[27m"
+	call :errorbox "Failed to download assets" "The following file failed to download:" "%\e%[7m oldschool_pc_font_pack_v2.2_win.zip %\e%[27m" "Reason: %\e%[7m curl error !errorlevel! %\e%[27m"
 	goto getfonts.exit
 ) else if not exist "oldschool_pc_font_pack_v2.2_win.zip" (
-	call :getfonts.fail "Failed to download assets" "The following file failed to download:" "%\e%[7m oldschool_pc_font_pack_v2.2_win.zip %\e%[27m" "Reason: Generic error !errorlevel!"
+	call :errorbox "Failed to download assets" "The following file failed to download:" "%\e%[7m oldschool_pc_font_pack_v2.2_win.zip %\e%[27m" "Reason: Generic error !errorlevel!"
 	goto getfonts.exit
 )
 echo=¤MW	!PID!.getfonts	l2=  Extracting %\e%[7m oldschool_pc_font_pack_v2.2_win.zip %\e%[27m . . .	l4=	l5=	l6=
 :getfonts.skipdownload
 if exist "ttf - Mx (mixed outline+bitmap)\MxPlus_IBM_VGA_8x16.ttf" goto getfonts.skipextraction
 tar -xf "oldschool_pc_font_pack_v2.2_win.zip" || (
-	call :getfonts.fail "Failed to extract assets" "The following archive failed to extract:" "%\e%[7m oldschool_pc_font_pack_v2.2_win.zip %\e%[27m" "Reason: %\e%[7m tar error !errorlevel! %\e%[27m"
+	call :errorbox "Failed to extract assets" "The following archive failed to extract:" "%\e%[7m oldschool_pc_font_pack_v2.2_win.zip %\e%[27m" "Reason: %\e%[7m tar error !errorlevel! %\e%[27m"
 	goto getfonts.exit
 )
 echo=¤MW	!PID!.getfonts	l2=  Waiting for license agreement . . . (Close the notepad window to continue)
@@ -566,7 +603,7 @@ popd
 echo=¤DW	!PID!.getfonts
 >>"!sst.dir!\temp\kernelPipe" echo=unRegisterWindow	!PID!.getfonts
 exit /b 0
-:getfonts.fail
+:errorbox
 set halt.title=
 set halt.winparams=
 set halt.winW=16
