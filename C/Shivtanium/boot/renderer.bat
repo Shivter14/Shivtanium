@@ -53,6 +53,7 @@ for /l %%. in () do (
 	if "!input:~-5!"=="¤EXIT" (
 		<nul set /p "=%\e%[!y!;!bufferX!H%\e%[2A          %\e%[B%\e%[10D          %\e%[B%\e%[10D          %\e%[B%\e%[10D          %\e%[B%\e%[10D          "
 		if exist "%~f1" del "%~f1" >nul 2>&1 < nul
+		copy nul "temp\bootStatus-!sst.localtemp!-exit" > nul 2>&1
 		exit
 	) else if "!input:~-5!"=="¤FADE" set ts=!t1!
 	<nul set /p "=!input!%\e%[48;2;;;m!framebuffer!"
