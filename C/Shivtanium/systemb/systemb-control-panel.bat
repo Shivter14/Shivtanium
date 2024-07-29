@@ -22,7 +22,7 @@ if not defined sys.username call systemb-dialog.bat (sys.modeW-w)/2 (sys.modeH-h
 if not defined sys.UPID     call systemb-dialog.bat (sys.modeW-w)/2 (sys.modeH-h)/2 48 6 "Control Panel" "l2=  Something went wrong:	l3=    Missing parameter: --UPID"     w-buttonW-2 h-2 7 " Close "
 set /a PID=PID
 set /a "pagesBY=5, currentPage=2, contentW=(win[!PID!.control]W=60)-(sidebarW=16)-4, contentH=(inbH=(win[!PID!.control]H=16)-1)-1, win[!PID!.control]X=(sys.modeW-win[!PID!.control]W)/2, win[!PID!.control]Y=(sys.modeH-win[!PID!.control]H)/2, closeButtonX=win[!PID!.control]W-4"
-echo=¤CW	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!	Control Panel	eyeburn
+echo=¤CW	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!	Control Panel
 >>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!
 set "page[2]= Performance    "
 set "page[3]= Appearance     "
@@ -120,23 +120,50 @@ for /l %%y in (1 1 !inbH!) do set "pipe=!pipe!	o%%y=!o%%y!"
 echo=!pipe!
 set pipe=
 exit /b 0
+:page[3].prev
+set /a selectedTheme-=1
+if !selectedTheme! lss 1 set selectedTheme=!themeCount!
+echo=¤CTRL	APPLYTHEME	!theme[%selectedTheme%]!
+echo=¤DW	!PID!.control
+echo=¤CW	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!	Control Panel
+goto page[3].quickreload
+:page[3].next
+set /a "selectedTheme=selectedTheme %% themeCount + 1"
+echo=¤CTRL	APPLYTHEME	!theme[%selectedTheme%]!
+echo=¤DW	!PID!.control
+echo=¤CW	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!	Control Panel
+goto page[3].quickreload
 :page[3] Appearance
+for /f "tokens=1 delims==" %%a in ('set btn[ 2^>nul') do set "%%a="
+
+set user.globalTheme=aero
+for /f "usebackq tokens=1* delims==" %%a in ("!sst.root!\Users\!sys.username!\userprofile.dat") do (
+	set "user.%%a=%%b" > nul 2>&1
+)
+set buttons=prev next
+set /a "btn[prev]Y=btn[next]Y=5, btn[prev]X=(btn[prev]BX=(btn[next]X=(btn[next]BX=win[!PID!.control]W-4)-2)-1)-2, themeCount=0, selectedTheme=1"
+set btn[prev]=:page[3].prev
+set btn[next]=:page[3].next
+set "btn[prev]title= ◄ "
+set "btn[next]title= ► "
+
+for /f "delims=" %%R in ('dir /b /a:D "!sst.dir!\resourcepacks"') do for /f "delims=" %%T in ('dir /b /a:-D "!sst.dir!\resourcepacks\%%~nxR\themes" ^| find /v "CBUI"') do (
+	set /a themeCount+=1
+	set "theme[!themeCount!]=%%~nxT"
+	if "!user.globalTheme!"=="%%~nxT" set selectedTheme=!themeCount!
+)
+:page[3].quickreload
 for /l %%y in (1 1 !inbH!) do (
 	set "o%%y=%\e%[!sidebarW!X"
 	set "l%%y="
 )
 for /l %%y in (2 1 !pagesBY!) do set "o%%y=!o%%y!!page[%%y]!"
 set "o!currentPage!=%\e%[!sidebarW!X%\e%[7m!page[%currentPage%]!%\e%[27m"
-for /f "tokens=1 delims==" %%a in ('set btn[ 2^>nul') do set "%%a="
 
 set "l2=%\e%[!sidebarW!C Appearance"
-
-set user.globalTheme=aero
-for /f "usebackq tokens=1* delims==" %%a in ("!sst.root!\Users\!sys.username!\userprofile.dat") do (
-	set "user.%%a=%%b" > nul 2>&1
-)
-
-set "l4=%\e%[!sidebarW!C Current theme: %\e%[7m !user.globalTheme! %\e%[27m
+set "l4=%\e%[!sidebarW!C Current theme:"
+set "l5=%\e%[!sidebarW!C%\e%[7m%\e%[!contentW!X%\e%[27m %\e%[7m !theme[%selectedTheme%]:~0,%contentW%!%\e%[27m
+set "o5=!o5!%\e%8%\e%[!btn[prev]X!C ◄  ► "
 
 set "pipe=¤MW	!PID!.control"
 for /l %%y in (1 1 !inbH!) do set "pipe=!pipe!	l%%y=!l%%y!	o%%y=!o%%y!"
