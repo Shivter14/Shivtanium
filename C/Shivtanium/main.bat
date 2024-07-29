@@ -13,10 +13,10 @@ if not exist "%~dp0" exit /b 404
 chcp.com 65001>nul
 
 cd "%~dp0" || exit /b 404
+set "sst.dir=!cd!"
 pushd ..
 set "sst.root=!cd!"
 popd
-set "sst.dir=!cd!"
 if /I "!sst.noTempClear!" neq "True" (
 	if not exist temp md temp
 	rd /s /q temp > nul 2>&1
