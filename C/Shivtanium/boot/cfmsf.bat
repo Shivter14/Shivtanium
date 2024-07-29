@@ -13,8 +13,6 @@ for %%F in (
 	core\config.bat
 	core\getinput64.dll
 	core\playsound.vbs
-	resourcepacks\init\sounds\boot.mp3
-	resourcepacks\init\sounds\shutdown.mp3
 	resourcepacks\init\sprites\bootlogo.spr
 	resourcepacks\init\themes\aero
 	resourcepacks\init\themes\classic
