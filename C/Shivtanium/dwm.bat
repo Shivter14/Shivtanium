@@ -75,7 +75,7 @@ for /l %%# in () do (
 			)) else (
 				if "%%~1"=="!win.focused!" set windows.redraw="%%~1"
 				set "win[%%~1]r="
-				for /l %%l in (4 1 !win[%%~1]RH!) do set "win[%%~1]r=!win[%%~1]r!%\e%8%\e%[B%\e%7!win[%%~1]p%%l!%\e%8%dwm.char.L%%\e%[38;!win[%%~1]FGcolor!m!win[%%~1]l%%l!%\e%8%\e%[48;!win[%%~1]TIcolor!;38;!win[%%~1]TTcolor!m!win[%%~1]o%%l!"
+				for /l %%l in (4 1 !win[%%~1]RH!) do set "win[%%~1]r=!win[%%~1]r!%\e%8%\e%[B%\e%7!win[%%~1]p%%l!!win[%%~1]l%%l!%\e%8%\e%[48;!win[%%~1]TIcolor!;38;!win[%%~1]TTcolor!m!win[%%~1]o%%l!"
 			)
 		) else if "%%~0"=="OV" (
 			set "overlay=%%~1"
@@ -121,27 +121,20 @@ for /l %%# in () do (
 				set "win[%%~1]pt=%\e%[48;!win[%%~1]TIcolor!m%\e%[38;!win[%%~1]TTcolor!m%\e%[!temp.bl!X!win[%%~1]title:~0,%%~b!%\e%8%\e%[!temp.bl!C!win[%%~1]CBUI!"
 				
 				if "!win[%%~1]aero!" neq "" (
-					if "!win[%%~1]aero!"=="default" (
-						for /l %%y in (2 1 !temp.H!) do (
-							set "win[%%~1]p%%y=%\e%[48;2;!dwm.aero[%%y]!;38;!win[%%~1]TIcolor!m%dwm.char.L%%\e%[%%~aX%\e%[%%~aC%dwm.char.R%"
-							set "win[%%~1]p!win[%%~1]H!=%\e%[48;2;!dwm.aero[%%y]!;38;!win[%%~1]TIcolor!m%dwm.char.S%!dwm.bottombuffer:~0,%%~a!%dwm.char.S%"
-						)					
-					) else (
-						for /l %%y in (1 1 !temp.H!) do (
-							set /a "x=(%%y+!win[%%~1]Y!-1)", "!win[%%~1]aero:×=*!"
-							set "win[%%~1]p%%y=%\e%[48;2;!r!;!g!;!b!;38;!win[%%~1]TIcolor!m%dwm.char.L%%\e%[%%~aX%\e%[%%~aC%dwm.char.R%"
-						)
-						set "win[%%~1]p!win[%%~1]RH!=%\e%[48;2;!r!;!g!;!b!;38;!win[%%~1]TIcolor!m%dwm.char.S%!dwm.bottombuffer:~0,%%~a!%dwm.char.S%"
-						set r=
-						set g=
-						set b=
-						set x=
+					for /l %%y in (1 1 !temp.H!) do (
+						set /a "x=(%%y+!win[%%~1]Y!-1)", "!win[%%~1]aero:×=*!"
+						set "win[%%~1]p%%y=%\e%[48;2;!r!;!g!;!b!;38;!win[%%~1]TIcolor!m %\e%[%%~aX%\e%[%%~aC%dwm.char.R%%\e%8%dwm.char.L%%\e%[48;2;!r!;!g!;!b!;38;!win[%%~1]FGcolor!m"
 					)
+					set "win[%%~1]p!win[%%~1]RH!=%\e%[48;2;!r!;!g!;!b!;38;!win[%%~1]TIcolor!m !dwm.bottombuffer:~0,%%~a!%dwm.char.S%%\e%8%dwm.char.L%%\e%[48;2;!r!;!g!;!b!;38;!win[%%~1]FGcolor!m"
+					set r=
+					set g=
+					set b=
+					set x=
 				) else (
 					for /l %%y in (1 1 !temp.H!) do (
-						set "win[%%~1]p%%y=%\e%[48;!win[%%~1]BGcolor!;38;!win[%%~1]TIcolor!m%dwm.char.L%%\e%[%%~aX%\e%[%%~aC%dwm.char.R%"
+						set "win[%%~1]p%%y=%\e%[48;!win[%%~1]BGcolor!;38;!win[%%~1]TIcolor!m %\e%[%%~aX%\e%[%%~aC%dwm.char.R%%\e%8%dwm.char.L%%\e%[38;!win[%%~1]FGcolor!m"
 					)
-					set "win[%%~1]p!win[%%~1]RH!=%\e%[48;!win[%%~1]BGcolor!;38;!win[%%~1]TIcolor!m%dwm.char.S%!dwm.bottombuffer:~0,%%~a!%dwm.char.S%"
+					set "win[%%~1]p!win[%%~1]RH!=%\e%[48;!win[%%~1]BGcolor!;38;!win[%%~1]TIcolor!m !dwm.bottombuffer:~0,%%~a!%dwm.char.S%%\e%8%dwm.char.L%%\e%[38;!win[%%~1]FGcolor!m"
 				)
 			)
 			
@@ -153,7 +146,7 @@ for /l %%# in () do (
 			set "win.focused=%%~1"
 			
 			set "win[%%~1]r="
-			for /l %%l in (4 1 !win[%%~1]RH!) do set "win[%%~1]r=!win[%%~1]r!%\e%8%\e%[B%\e%7!win[%%~1]p%%l!%\e%8%dwm.char.L%%\e%[38;!win[%%~1]FGcolor!m!win[%%~1]l%%l!%\e%8%\e%[48;!win[%%~1]TIcolor!;38;!win[%%~1]TTcolor!m!win[%%~1]o%%l!"
+			for /l %%l in (4 1 !win[%%~1]RH!) do set "win[%%~1]r=!win[%%~1]r!%\e%8%\e%[B%\e%7!win[%%~1]p%%l!!win[%%~1]l%%l!%\e%8%\e%[48;!win[%%~1]TIcolor!;38;!win[%%~1]TTcolor!m!win[%%~1]o%%l!"
 		) else if "%%~0"=="FOCUS" (
 			set win.order=!win.order: "%%~1"=! "%%~1"
 			set "mainbuffer=!mainbuffer!%\e%[H"
@@ -213,7 +206,7 @@ for /l %%# in () do (
 					echo=!mainbuffer!%\e%[H
 					set mainbuffer=
 				)
-				set "mainbuffer=!mainbuffer!%\e%[!win[%%~w]Y!;!win[%%~w]X!H%\e%7!win[%%~w]pt!%\e%8%\e%[B%\e%7!win[%%~w]p1!%\e%8%dwm.char.L%%\e%[38;!win[%%~w]FGcolor!m!win[%%~w]l1!%\e%8%\e%[48;!win[%%~w]TIcolor!;38;!win[%%~w]TTcolor!m!win[%%~w]o1!%\e%8%\e%[B%\e%7!win[%%~w]p2!%\e%8%dwm.char.L%%\e%[38;!win[%%~w]FGcolor!m!win[%%~w]l2!%\e%8%\e%[48;!win[%%~w]TIcolor!;38;!win[%%~w]TTcolor!m!win[%%~w]o2!%\e%8%\e%[B%\e%7!win[%%~w]p3!%\e%8%dwm.char.L%%\e%[38;!win[%%~w]FGcolor!m!win[%%~w]l3!%\e%8%\e%[48;!win[%%~w]TIcolor!;38;!win[%%~w]TTcolor!m!win[%%~w]o3!!win[%%~w]r!"
+				set "mainbuffer=!mainbuffer!%\e%[!win[%%~w]Y!;!win[%%~w]X!H%\e%7!win[%%~w]pt!%\e%8%\e%[B%\e%7!win[%%~w]p1!!win[%%~w]l1!%\e%8%\e%[48;!win[%%~w]TIcolor!;38;!win[%%~w]TTcolor!m!win[%%~w]o1!%\e%8%\e%[B%\e%7!win[%%~w]p2!!win[%%~w]l2!%\e%8%\e%[48;!win[%%~w]TIcolor!;38;!win[%%~w]TTcolor!m!win[%%~w]o2!%\e%8%\e%[B%\e%7!win[%%~w]p3!!win[%%~w]l3!%\e%8%\e%[48;!win[%%~w]TIcolor!;38;!win[%%~w]TTcolor!m!win[%%~w]o3!!win[%%~w]r!"
 			)
 			if "!mainbuffer:~6400,1!" neq "" (
 				echo=!mainbuffer!%\e%[H
