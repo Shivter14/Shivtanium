@@ -36,7 +36,23 @@ Shivtanium uses a custom-made Desktop Window Manager to render windows with them
 These themes can be customized with resource packs.
 
 Creating themes requires VT100 knowledge.
-The format is easy to understand just by looking at a theme located in: `C\Shivtanium\resourcepacks\init\themes\`
+Themes located in: `C\Shivtanium\resourcepacks\init\themes\`
+
+Here is a basic theme example:
+```
+scene=[0m[48;2;58;110;155;38;5;231m[H[2JClassic theme
+sceneBGcolor=2;58;110;155
+BGcolor=2;229;227;222
+FGcolor=5;16
+TIcolor=5;247
+TTcolor=5;231
+NIcolor=5;8
+NTcolor=5;7
+CBUI=[48;5;8;38;5;231m -  □  × 
+aero=
+winAero=
+```
+- `scene` is the background. It should contain VT sequences that erase the screen.
 
 * To modify the window button controls, change the `CBUI` value which should add 9 characters. If more are needed, `\e[#E` can be used to expand the limit by # characters.
 
