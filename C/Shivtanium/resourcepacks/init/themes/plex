@@ -1,7 +1,9 @@
 aero=r=14+(x×64/modeH), g=18+(x×92/modeH), b=117+(x×92/modeH)
 winAero=r=132+(x×64/modeH), g=166+(x×89/modeH), b=232+(x×23/modeH)
 TIColor=2;79;136;214
-TTColor=2;216;258;232
+TTColor=2;216;255;232
+NIColor=2;52;90;142
+NTColor=2;144;170;154
 BGColor=2;211;223;247
 FGColor=2;;;
 CBUI=[D[7m -  □  × [27m 
