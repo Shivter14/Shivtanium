@@ -82,6 +82,24 @@ for /l %%# in () do (
 			set "mainbuffer=%\e%[H"
 			set windows.redraw=
 		) else if "%%~0"=="CW" (
+			if defined win.focused for /f "delims=" %%w in ("!win.focused!") do (
+				set windows.redraw="%%~w" "%%~1"
+				set /a "temp.bl=win[%%~w]W-9"
+				if "!win[%%~w]NIcolor!!win[%%~w]NTcolor!" neq "" for /f "tokens=1-4* delims=¤" %%a in ("!win[%%~w]NIcolor!¤!win[%%~w]TIcolor!¤!win[%%~w]NTcolor!¤!win[%%~w]TTcolor!¤!temp.bl!") do (
+					set "win[%%~w]TIcolor=%%a"
+					set "win[%%~w]NIcolor=%%b"
+					set "win[%%~w]TTcolor=%%c"
+					set "win[%%~w]NTcolor=%%d"
+					set "win[%%~w]r="
+					set "win[%%~w]pt=%\e%[48;!win[%%~w]TIcolor!m%\e%[38;!win[%%~w]TTcolor!m%\e%[!temp.bl!X!win[%%~w]title:~0,%%~e!%\e%8%\e%[!temp.bl!C!win[%%~w]CBUI!"
+					for %%l in (1 2 3) do set "win[%%~w]p%%l=!win[%%~w]p%%l:;38;%%bm=;38;%%am!"
+					for /l %%l in (4 1 !win[%%~w]RH!) do (
+						set "win[%%~w]p%%l=!win[%%~w]p%%l:;38;%%bm=;38;%%am!"
+						set "win[%%~w]r=!win[%%~w]r!%\e%8%\e%[B%\e%7!win[%%~w]p%%l!!win[%%~w]l%%l!%\e%8%\e%[48;!win[%%~w]TIcolor!;38;!win[%%~w]TTcolor!m!win[%%~w]o%%l!"
+					)
+				)
+				set temp.bl=
+			) else set windows.redraw="%%~1"
 			set "win[%%~1]X=%%~2"
 			set "win[%%~1]Y=%%~3"
 			set "win[%%~1]W=%%~4"
@@ -98,8 +116,8 @@ for /l %%# in () do (
 			set "win[%%~1]BGcolor=!dwm.BGcolor!"
 			set "win[%%~1]TTcolor=!dwm.TTcolor!"
 			set "win[%%~1]TIcolor=!dwm.TIcolor!"
-			set "win[%%~1]NTcolor=!dwm.TTcolor!"
-			set "win[%%~1]NIcolor=!dwm.TIcolor!"
+			set "win[%%~1]NTcolor=!dwm.NTcolor!"
+			set "win[%%~1]NIcolor=!dwm.NIcolor!"
 			set "win[%%~1]CBUI=!dwm.CBUI!"
 			set "win[%%~1]aero=!dwm.aero!"
 			set "win[%%~1]winAero=!dwm.winAero!"
@@ -142,16 +160,34 @@ for /l %%# in () do (
 			set temp.tl=
 			set temp.tlb=
 			set "mainbuffer=!mainbuffer!%\e%[H"
-			set windows.redraw="%%~1"
 			set "win.focused=%%~1"
 			
 			set "win[%%~1]r="
 			for /l %%l in (4 1 !win[%%~1]RH!) do set "win[%%~1]r=!win[%%~1]r!%\e%8%\e%[B%\e%7!win[%%~1]p%%l!!win[%%~1]l%%l!%\e%8%\e%[48;!win[%%~1]TIcolor!;38;!win[%%~1]TTcolor!m!win[%%~1]o%%l!"
 		) else if "%%~0"=="FOCUS" (
+			if defined win.focused set win.focused="!win.focused!"
+			set windows.redraw=
+			for %%w in (!win.focused! "%%~1") do (
+				set windows.redraw=!windows.redraw! %%w
+				set /a "temp.bl=win[%%~w]W-9"
+				if "!win[%%~w]NIcolor!!win[%%~w]NTcolor!" neq "" for /f "tokens=1-4* delims=¤" %%a in ("!win[%%~w]NIcolor!¤!win[%%~w]TIcolor!¤!win[%%~w]NTcolor!¤!win[%%~w]TTcolor!¤!temp.bl!") do (
+					set "win[%%~w]TIcolor=%%a"
+					set "win[%%~w]NIcolor=%%b"
+					set "win[%%~w]TTcolor=%%c"
+					set "win[%%~w]NTcolor=%%d"
+					set "win[%%~w]r="
+					set "win[%%~w]pt=%\e%[48;!win[%%~w]TIcolor!m%\e%[38;!win[%%~w]TTcolor!m%\e%[!temp.bl!X!win[%%~w]title:~0,%%~e!%\e%8%\e%[!temp.bl!C!win[%%~w]CBUI!"
+					for %%l in (1 2 3) do set "win[%%~w]p%%l=!win[%%~w]p%%l:;38;%%bm=;38;%%am!"
+					for /l %%l in (4 1 !win[%%~w]RH!) do (
+						set "win[%%~w]p%%l=!win[%%~w]p%%l:;38;%%bm=;38;%%am!"
+						set "win[%%~w]r=!win[%%~w]r!%\e%8%\e%[B%\e%7!win[%%~w]p%%l!!win[%%~w]l%%l!%\e%8%\e%[48;!win[%%~w]TIcolor!;38;!win[%%~w]TTcolor!m!win[%%~w]o%%l!"
+					)
+				)
+				set temp.bl=
+			)
 			set win.order=!win.order: "%%~1"=! "%%~1"
 			set "mainbuffer=!mainbuffer!%\e%[H"
 			set "win.focused=%%~1"
-			set windows.redraw="%%~1"
 		) else if "%%~0"=="DW" (
 			set "mainbuffer=!dwm.scene!"
 			for /f "tokens=1 delims==" %%a in ('set win[%%~1] 2^>nul') do set "%%a="
