@@ -59,6 +59,7 @@ winAero=
 - `TIcolor` is the *accent color* of the window, which is used for the title bar, buttons, and more graphical elements.
 - `TTcolor` is the *second accent color* of the window, which is used for the window title, button labels, and more.
 - `NIcolor` is a replacement for `TIcolor`, when the window is unfocused. Setting it to nothing disables this feature.
+- `NTcolor` is a replacement for `TTcolor`, same as above.
 
 * To modify the window button controls, change the `CBUI` value which should add 9 characters. If more are needed, `\e[#E` can be used to expand the limit by # characters.
 
