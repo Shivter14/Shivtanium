@@ -216,13 +216,18 @@ for /l %%# in () do (
 		) else if "%%~0"=="exitProcessTree" (
 			call :killProcessTree	%%1
 		) else if "%%~0"=="config" (
-			for /f "tokens=1* delims==" %%x in ("%%~1") do for %%s in (
+			for /f "tokens=1* delims==^!" %%x in ("%%~1") do for %%s in (
 				lowPerformanceMode
 				reduceMotion
 			) do if "%%x"=="%%s" (
 				set "sys.%%x=%%y"
 				set /a ioTotal+=1
-				echo=%%x=%%y
+				echo=sys.%%x=%%y
+				if /I "%%x=%%y"=="lowPerformanceMode=True" (
+					for %%w in (!windows!) do (
+						echo=¤CW	%%~w	!win[%%~w]X!	!win[%%~w]Y!	!win[%%~w]W!	!win[%%~w]H!	^^!win[%%~w]title:~1^^!	classic
+					)
+				) >&3
 			)
 		) else if "%%~0"=="powerState" (
 			if /I "%%~1"=="shutdown" (
