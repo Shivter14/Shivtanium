@@ -53,6 +53,7 @@ aero=
 winAero=
 ```
 - `scene` is the background. It should contain VT sequences that erase the screen.
+- `sceneBGcolor` is the color for the background. Since DWM uses window moving techniques that don't redraw the background, a generic background color is needed.
 
 * To modify the window button controls, change the `CBUI` value which should add 9 characters. If more are needed, `\e[#E` can be used to expand the limit by # characters.
 
