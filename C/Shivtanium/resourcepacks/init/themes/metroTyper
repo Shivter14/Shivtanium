@@ -4,6 +4,8 @@ BGcolor=2;;15;
 FGcolor=5;82
 TIcolor=5;22
 TTcolor=5;83
+NIcolor=2;;64;
+NTcolor=5;40
 CBUI=[38;5;231m[48;2;0;127;0m - [48;2;0;191;0m □ [48;2;0;255;0m × 
 aero=r=0, g=96-(x×64/modeH), b=0
 winAero=
