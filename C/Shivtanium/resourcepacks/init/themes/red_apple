@@ -1,10 +1,12 @@
-scene=[H[0m[48;5;88m[2J'Red apple' theme
-sceneBGcolor=5;88
+scene=[H[0;48;2;135;;m[2J'Red apple' theme
+sceneBGcolor=2;135;;
 FGcolor=5;52
 BGcolor=5;216
 TIcolor=5;196
 TTcolor=5;231
-CBUI=[D[38;5;52;48;5;216m -  □  × [48;5;196m 
+NIcolor=5;124
+NTcolor=5;7
+CBUI=[9X[D[38;5;52;48;5;216m -  □  × 
 CBUIOffset=-1
 aero=
 winAero=
