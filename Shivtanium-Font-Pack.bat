@@ -26,6 +26,7 @@ for %%i in (!return!) do set "icon=!icon!![%%~i]! "
 echo=[!time!] Finished.[4;8H!icon!
 pause >nul
 exit /b 0
+
 :font/VGA/Shivtanium-Simple
 for %%a in (
 	"[#A]= ▄▄%\e%[B%\e%[3D█  █%\e%[B%\e%[4D█▄▄█%\e%[B%\e%[4D█  █%\e%[3A"
