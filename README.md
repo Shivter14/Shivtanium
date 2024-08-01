@@ -54,6 +54,7 @@ winAero=
 ```
 - `scene` is the background. It should contain VT sequences that erase the screen.
 - `sceneBGcolor` is the color for the background. Since DWM uses window moving techniques that don't redraw the background, a generic background color is needed.
+
 - `BGcolor` is the background color for a window.
 - `FGcolor` is the foreground color for a window.
 - `TIcolor` is the *accent color* of the window, which is used for the title bar, buttons, and more graphical elements.
