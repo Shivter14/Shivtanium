@@ -1,5 +1,5 @@
 @echo off & setlocal enableDelayedExpansion
-rem Shivtanium Font Pack revision 2. Font hand made by Shivter, Rendering system originates from Icarus
+rem Shivtanium Font Pack revision 2. Font hand made by Shivter, Rendering system originates from Icarus.
 mode 144,28
 chcp 65001>nul
 for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
