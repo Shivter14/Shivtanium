@@ -71,15 +71,8 @@ It's even easier to create sprites, it's just raw ASCII art located in: `C\Shivt
 
 The sprite loader automatically detects and assigns the width of sprites while loading.
 
-## Customization
 
-- The display dimensions can be changed in `ssvm.cww` value `mode`.
-
-- The OS name seen in SSVM can be changed in `C\SSVM.cww`.
-
-And of course, the `ShivtaniumOS.sstfs` filesystem can be modified with knowledge of the Shivtanium Programming Language.
-
-### Keyboard & typing
+## Keyboard & typing
 
 Shivtanium uses a keyboard layout system, where the keyboard layout is a batch file located in the resource pack:
 `keyboard_init.bat`
