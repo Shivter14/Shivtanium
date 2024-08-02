@@ -63,6 +63,8 @@ winAero=
 - `NIcolor` is a replacement for `TIcolor`, when the window is unfocused. Setting it to nothing disables this feature.
 - `NTcolor` is a replacement for `TTcolor`, same as above.
 
+- `CBUI` is the Window Control UI Elements.
+
 * To modify the window button controls, change the `CBUI` value which should add 9 characters. If more are needed, `\e[#E` can be used to expand the limit by # characters.
 
 * For more help, head to the ![DWM Wiki](https://github.com/Shivter14/Shivtanium/wiki/Desktop-Window-Manager).
