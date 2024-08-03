@@ -10,7 +10,7 @@
 
 </div>
 
-Shivtanium has a Kernel, which handles:
+The Shivtanium Kernel handles:
 
 - Process management
 
