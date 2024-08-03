@@ -60,8 +60,8 @@ winAero=
 
 - `NIcolor` is a replacement for `TIcolor`, when the window is unfocused. Setting it to nothing disables this feature.
 - `NTcolor` is a replacement for `TTcolor`, same as above.
-
 - `CBUI` is the Window Control UI Elements.
+
 - `aero` is an arithmetic equasion that is used for calculating an RGB color for a line in the background.
   - It should define 3 values: `r`, `g`, `b`.
   - The value of the current line being generated is `x`.
