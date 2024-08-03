@@ -1,5 +1,4 @@
-@echo off
-setlocal enabledelayedexpansion
+@echo off & setlocal enabledelayedexpansion
 if not exist "!sst.dir!\temp" (
 	echo This program is a Shivtanium service and cannot be called outside of Shivtanium.
 	exit /b 1
