@@ -56,8 +56,8 @@ winAero=
 - `BGcolor` is the background color for a window.
 - `FGcolor` is the foreground color for a window.
 - `TIcolor` is the *accent color* of the window, which is used for the title bar, buttons, and more graphical elements.
-
 - `TTcolor` is the *second accent color* of the window, which is used for the window title, button labels, and more.
+
 - `NIcolor` is a replacement for `TIcolor`, when the window is unfocused. Setting it to nothing disables this feature.
 - `NTcolor` is a replacement for `TTcolor`, same as above.
 
