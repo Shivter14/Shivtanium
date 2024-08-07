@@ -65,6 +65,7 @@ winAero=
 - `aero` is an arithmetic equasion that is used for calculating an RGB color for a line in the background.
   - It should define 3 values: `r`, `g`, `b`
   - The value of the current line being generated is `x`.
+- `winAero` is similar to `aero`, but it applies for window backgrounds. If set to nothing, `aero` is used instead.
 
 * To modify the window button controls, change the `CBUI` value which should add 9 characters. If more are needed, `\e[#E` can be used to expand the limit by # characters.
 
