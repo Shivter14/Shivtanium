@@ -51,23 +51,14 @@ for %%a in (
 	":startServices|Starting services"
 	"start /b cmd /c boot\cfmsf.bat|Checking for missing files"
 	"start /b cmd /c boot\updateCheckSvc.bat|Checking for updates"
-	"cmd /c boot\fadeout.bat|Startup finished"
-	":injectDLLs"
+	":injectDLLs|Injecting DLLs"
 	":waitForBootServices"
 ) do for /f "tokens=1-2* delims=|" %%b in (%%a) do (
 	set "sst.boot.command=%%~b"
 	set sst.boot.command=!sst.boot.command:'="!
-	if "%%~c"=="" (
-		echo=%\e%[!sst.boot.msgY!;!sst.boot.msgX!H%\e%[2K>> "temp\bootStatus-!sst.localtemp!"
-	) else (
+	if "%%~c" neq "" (
 		set "sst.boot.msg=%%~c"
-		set sst.boot.msglen=0
-		for /l %%b in (9,-1,0) do (
-			set /a "sst.boot.msglen|=1<<%%b"
-			for %%c in (!sst.boot.msglen!) do if "!sst.boot.msg:~%%c,1!" equ "" set /a "sst.boot.msglen&=~1<<%%b"
-		)
-		set /a "sst.boot.msgX=(!sys.modeW!-!sst.boot.msglen!+1)/2"
-		echo=%\e%[!sst.boot.logoY!;!sst.boot.logoX!H!spr.[bootlogo.spr]!%\e%[!sst.boot.msgY!;!sst.boot.msgX!H%\e%[2K!sst.boot.msg!%\e%[B%\e%[2K%\e%[H>> "temp\bootStatus-!sst.localtemp!"
+		echo=!sst.boot.msg!>> "temp\bootStatus-!sst.localtemp!"
 	)
 	call !sst.boot.command! || call :halt "Boot" "Something went wrong.\nCommand: %%~b\nText: %%~c\nErrorlevel: !errorlevel!"
 )
@@ -92,9 +83,7 @@ call sstoskrnl.bat %* < "temp\kernelPipe" > "temp\kernelOut" 2>"temp\kernelErr" 
 	)
 	
 	set /a "sst.boot.msgX=(sys.modeW-sst.boot.msglen+1)/2", "sst.boot.submsgX=(sys.modeW-sst.boot.submsglen+1)/2"
-	set "buffer=%\e%[!sst.boot.logoY!;!sst.boot.logoX!H!spr.[bootlogo.spr]!"
-	if "%~3"=="/nologo" set buffer=
-	echo=!buffer!%\e%[!sst.boot.msgY!;!sst.boot.msgX!H%\e%[2K!sst.boot.msg!%\e%[B%\e%[!sst.boot.submsgX!G%\e%[2K!sst.boot.submsg!%\e%[H
+	echo=!sst.boot.msg!;!sst.boot.submsg!>> "temp\bootStatus-!sst.localtemp!"
 
 exit /b
 :memoryDump
@@ -225,24 +214,62 @@ if not defined \a for /f "delims=" %%A in ('forfiles /p "%~dp0." /m "%~nx0" /c "
 set /a "sst.proccount=0", "sys.click=0"
 exit /b 0
 :injectDLLs
+
+>>"!sst.dir!\temp\bootStatus-!sst.localtemp!" (
+	echo=Startup Finished
+	echo=¤EXITANIM
+)
+:waitForAnimations
+if not exist "!sst.dir!\temp\pf-bootanim" goto waitForAnimations
+
 cd "!sst.dir!"
 set "noResize=1"
 if not exist core\getInput64.dll call :halt "%~nx0:injectDLLs" "Missing File: core\getInput64.dll"
 rundll32.exe core\getInput64.dll,inject|| call :halt "%~nx0:injectDLLs" "Failed to inject getInput64.dll\nErrorlevel: !errorlevel!"
-cmd /c rem
-if not defined getInputInitialized call :halt "%~nx0:injectDLLs" "Failed to inject getInput64.dll: Unknown error.\nErrorlevel: %errorlevel%"
+if not defined getInputInitialized call :halt "%~nx0:injectDLLs" "Failed to inject getInput64.dll: Unknown error.\nErrorlevel: !errorlevel!"
 exit /b
 :startServices
 rem if exist "!asset[\sounds\boot.mp3]!" start "<Shivtanium startup sound handeler> (ignore this)" /min cscript.exe //b core\playsound.vbs "!asset[\sounds\boot.mp3]!"
+setlocal enabledelayedexpansion
+
+for %%a in (
+	"ssvm"
+	"temp"
+	"pid"
+) do for /f "tokens=1 delims==" %%b in ('set %%a 2^>nul') do set "%%b="
+for /f "delims=" %%a in ('dir /b /a:-D "!sys.dir!\resourcepacks\init\themes\*"') do (
+	set "theme[%%~a]= "
+	for /f "usebackq tokens=1* delims==" %%x in ("!sys.dir!\resourcepacks\init\themes\%%~a") do (
+		if /I "%%~x" neq "CBUIOffset" set theme[%%a]=!theme[%%a]! "%%~x=%%~y"
+	)
+	set "theme[%%~a]=!theme[%%~a]:~2!"
+)
+
+set modeW=
+set modeH=
+set dwm.char.L=█
+set dwm.char.B=▄
+set dwm.char.R=█
+set dwm.char.S=█
+set "dwm.bottombuffer=▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄"
+
+for /f "tokens=2 delims=:" %%a in ('mode con') do (
+	set "token=%%~a"
+	if not defined modeH (
+		set "modeH=!token: =!"
+	) else if not defined modeW set "modeW=!token: =!"
+)
+
 copy nul "temp\DWM-!sst.localtemp!" > nul
 copy nul "temp\DWMResp-!sst.localtemp!" > nul
 start /b cmd /c dwm.bat < "temp\DWM-!sst.localtemp!" 3> "temp\DWMResp-!sst.localtemp!"
+endlocal
 exit /b 0
 :waitForBootServices
 cmd /c "%~f0" :waitForBootServices
 exit /b
 :waitForBootServices.service
-set "services=cfmsf updateCheckSvc fadeout"
+set "services=cfmsf updateCheckSvc bootanim"
 for /l %%. in () do (
 	for %%F in (!services!) do if exist "!sst.dir!\temp\pf-%%~F" (
 		set svcIn=
@@ -256,7 +283,7 @@ for /l %%. in () do (
 		if not defined new_services exit 0
 		set "services=!new_services!"
 		set new_services=
-		if "!services!" == "!services:fadeout=!" call :startup.submsg "Waiting for startup tasks:" "!services!" /nologo
+		if "!services!" == "!services:bootanim=!" call :startup.submsg "Waiting for startup tasks:" "!services!" /nologo
 	)
 )
 :checkCompat
