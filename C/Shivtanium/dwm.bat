@@ -2,37 +2,8 @@
 setlocal enabledelayedexpansion
 if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
 if not defined sys.dir set "sys.dir=!cd!"
-set modeW=
-set modeH=
-set dwm.char.L=█
-set dwm.char.B=▄
-set dwm.char.R=█
-set dwm.char.S=█
-set "dwm.bottombuffer=▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄"
 
-for /f "tokens=2 delims=:" %%a in ('mode con') do (
-	set "token=%%~a"
-	if not defined modeH (
-		set "modeH=!token: =!"
-	) else if not defined modeW set "modeW=!token: =!"
-)
-set input=
-set /p input=
-
-for /f "delims=" %%a in ('dir /b /a:-D "!sys.dir!\resourcepacks\init\themes\*"') do (
-	set "theme[%%~a]= "
-	for /f "usebackq tokens=1* delims==" %%x in ("!sys.dir!\resourcepacks\init\themes\%%~a") do (
-		if /I "%%~x" neq "CBUIOffset" set theme[%%a]=!theme[%%a]! "%%~x=%%~y"
-	)
-	set "theme[%%~a]=!theme[%%~a]:~2!"
-)
-
-set theme[disable_aero]="aero="
-for %%a in (
-	"ssvm"
-	"temp"
-	"pid"
-) do for /f "tokens=1 delims==" %%b in ('set %%a 2^>nul') do set "%%b="
+set theme[disable_aero]="aero=" "winAero="
 
 set "dwm.barbuffer=                                                                                                                                                                                                                                                                "
 set "dwm.bottombuffer=▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄"
