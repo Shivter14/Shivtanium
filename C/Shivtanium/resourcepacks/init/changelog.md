@@ -112,4 +112,5 @@ This also includes the updated Desktop Window Manager with better window moving.
 - Trailer
 - Youtube videos
 - Finish up the Wiki
-And that's the predictions for the future by Shivter.
+
+### And that's the predictions for the future by Shivter.
