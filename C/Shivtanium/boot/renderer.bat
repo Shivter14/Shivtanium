@@ -28,19 +28,18 @@ for /l %%a in (0 2 57) do (
 )
 
 
-for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "t2=t1", "MA=0"
+for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "t2=t1", "MA=0"
 echo=%\e%[48;2;;;;38;2;255;255;255m%\e%[2J
 :initial_animation
 	set /a "%buildstring%"
 	echo=%echostring%
-	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "j=(l+=(deltaTime=(t1 - t2))*2)+1", "t2=t1"
+	for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "j=(l+=(deltaTime=(t1 - t2))*2)+1", "t2=t1"
 if !l! lss 127 goto initial_animation
 set l=127
 set j=128
 
-:skip
 for /l %%. in () do (
-	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "deltaTime=(t1 - t2)", "t2=t1", "offsetX=t1 %% 3 - 1, offsetY=(t1 - 1) %% 3 - 1"
+	for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "deltaTime=(t1 - t2)", "t2=t1", "offsetX=t1 %% 3 - 1, offsetY=(t1 - 1) %% 3 - 1"
 	
 	set input=
 	set /p input=
@@ -60,17 +59,33 @@ for /l %%. in () do (
 	echo=%echostring%%\e%[48;2;;;;38;2;255;255;255m%\e%[!sst.boot.msgY!;!sst.boot.msgX!H%\e%[2K!sst.boot.msg:~1!
 )
 :exitAnim
-set /a sst.boot.fadeout=255
-for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100,t2=t1"
+for /f "usebackq tokens=1* delims==" %%a in ("!sst.dir!\settings.dat") do set "sys.%%~a=%%~b"
+for /f "usebackq tokens=1* delims==" %%x in ("!sst.dir!\resourcepacks\init\themes\!sys.loginBGtheme!") do set "dwm.%%x=%%y"
+
+for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100,t2=t1, sst.boot.fadeout=255"
 for /l %%. in () do (
-	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "DeltaTime=(t1-t2)", "t2=t1", "j=(l=(sst.boot.fadeout-=deltaTime*3)/2)+1"
+	for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "DeltaTime=(t1-t2)", "t2=t1", "j=(l=(sst.boot.fadeout-=deltaTime*4)/2)+1"
 	if "!deltaTime!" neq "0" (
 		set /a "%buildstring%, textFadeout=127 * %sinr:x=(sst.boot.fadeout*PI/255+PI32)% + 128"
 		echo=%echostring%%\e%[48;2;;;;38;2;!textFadeout!;!textFadeout!;!textFadeout!m%\e%[!sst.boot.msgY!;!sst.boot.msgX!H%\e%[2K!sst.boot.msg:~1!
 	) < nul
 	if !sst.boot.fadeout! lss 1 (
-		copy nul "!sst.dir!\temp\pf-bootanim" > nul
-		exit 0
+		set sst.boot.fadeout=0
+		for /l %%# in () do (
+			for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "sst.boot.fadeout+=(DeltaTime=(t1-t2))*4", "t2=t1"
+			if "!deltaTime!" neq "0" (
+				if !sst.boot.fadeout! gtr 255 (
+					copy nul "!sst.dir!\temp\pf-bootanim" > nul
+					exit 0
+				)
+				set "dwm.scene=%\e%[H"
+				for /l %%x in (1 1 !modeH!) do (
+					set /a "x=%%x", "!dwm.aero:×=*!", "r=r*sst.boot.fadeout/255, g=g*sst.boot.fadeout/255, b=b*sst.boot.fadeout/255"
+					set dwm.scene=!dwm.scene!%\e%[48;2;!r!;!g!;!b!m%\e%[2K%\e%[B
+				)
+				echo=!dwm.scene!
+			)
+		)
 	)
 )
 :loadSprites
