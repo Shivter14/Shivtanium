@@ -1,16 +1,15 @@
 @echo off
 setlocal enabledelayedexpansion
-for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000),t2=t1"
 echo=>> "!sst.dir!\temp\bootStatus-!sst.localtemp!"
 echo=¤EXIT>> "!sst.dir!\temp\bootStatus-!sst.localtemp!"
 set wait=1
 :autisticLoop
 set /a wait+=1
-if !wait! lss 1000 if not exist "!sst.dir!\temp\bootStatus-!sst.localtemp!-exit" goto autisticLoop
-for /l %%# in (1 1 100000) do rem
+if !wait! lss 10000 if not exist "!sst.dir!\temp\bootStatus-!sst.localtemp!-exit" goto autisticLoop
 del "!sst.dir!\temp\bootStatus-!sst.localtemp!" > nul 2>&1
 del "!sst.dir!\temp\bootStatus-!sst.localtemp!-exit" > nul 2>&1
 set /a sst.boot.fadeout+=1
+for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000),t2=t1"
 for /l %%. in () do (
 	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000)", "DeltaTime=(t1-t2)", "t2=t1", "sst.boot.fadeout-=deltaTime*500/sst.boot.fadeout"
 	if "!deltaTime!" neq "0" (
