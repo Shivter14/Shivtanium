@@ -49,8 +49,8 @@ for %%a in (
 	":loadSettings|Loading settings"
 	":checkCompat|Checking compatibility"
 	":startServices|Starting services"
-	"start /b cmd /c boot\cfmsf.bat|Checking for missing files"
-	"start /b cmd /c boot\updateCheckSvc.bat|Checking for updates"
+	"boot\cfmsf.bat|Checking for missing files"
+	"boot\updateCheckSvc.bat|Checking for updates"
 	":injectDLLs|Injecting DLLs"
 	":waitForBootServices"
 ) do for /f "tokens=1-2* delims=|" %%b in (%%a) do (
