@@ -30,6 +30,38 @@ for /l %%a in (0 2 57) do (
 
 for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "t2=t1", "MA=0"
 echo=%\e%[48;2;;;;38;2;255;255;255m%\e%[2J
+for /f "usebackq tokens=1* delims==" %%a in ("!sst.dir!\settings.dat") do set "sys.%%~a=%%~b"
+for /f "usebackq tokens=1* delims==" %%x in ("!sst.dir!\resourcepacks\init\themes\!sys.loginBGtheme!") do set "dwm.%%x=%%y"
+if defined dwm.sceneBGcolor (
+	if "!dwm.sceneBGcolor:~0,2!"=="2;" (
+		for /f "tokens=2-4 delims=;" %%a in ("!dwm.sceneBGcolor!") do set "dwm.aero=r=%%a, g=%%b, b=%%c"
+	) else if "!dwm.sceneBGcolor:~0,2!"=="5;" for /f "tokens=2 delims=;" %%a in ("!dwm.sceneBGcolor!") do (
+		if %%a lss 16 (
+			set "xth.dcp[0]=r=12, g=12, b=12"
+			set "xth.dcp[1]=r=0, g=55, b=218"
+			set "xth.dcp[2]=r=19, g=161, b=14"
+			set "xth.dcp[3]=r=58, g=150, b=221"
+			set "xth.dcp[4]=r=197, g=15, b=31"
+			set "xth.dcp[5]=r=136, g=23, b=152"
+			set "xth.dcp[6]=r=193, g=156, b=0"
+			set "xth.dcp[7]=r=204, g=204, b=204"
+			set "xth.dcp[8]=r=118, g=118, b=118"
+			set "xth.dcp[9]=r=59, g=120, b=255"
+			set "xth.dcp[10]=r=22, g=198, b=12"
+			set "xth.dcp[11]=r=97, g=214, b=214"
+			set "xth.dcp[12]=r=231, g=72, b=86"
+			set "xth.dcp[13]=r=180, g=0, b=158"
+			set "xth.dcp[14]=r=249, g=241, b=165"
+			set "xth.dcp[15]=r=242, g=242, b=242"
+			if defined xth.dcp[%%a] set /a "dwm.aero=!xth.dcp[%%a]!"
+		) else if %%a lss 232 (
+			set /a "r=(%%a - 16) / 36 * 95, g=(%%a - 16) / 6 %% 6 * 36, b=(%%a - 16) %% 6 * 36"
+			set "dwm.aero=r=!r!, g=!g!, b=!b!"
+			start
+		) else set "dwm.aero=r=g=b=(%%a - 232) * 226 / 24 + 12"
+	)
+)
+
 :initial_animation
 	set /a "%buildstring%"
 	echo=%echostring%
@@ -59,9 +91,6 @@ for /l %%. in () do (
 	echo=%echostring%%\e%[48;2;;;;38;2;255;255;255m%\e%[!sst.boot.msgY!;!sst.boot.msgX!H%\e%[2K!sst.boot.msg:~1!
 )
 :exitAnim
-for /f "usebackq tokens=1* delims==" %%a in ("!sst.dir!\settings.dat") do set "sys.%%~a=%%~b"
-for /f "usebackq tokens=1* delims==" %%x in ("!sst.dir!\resourcepacks\init\themes\!sys.loginBGtheme!") do set "dwm.%%x=%%y"
-
 for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100,t2=t1, sst.boot.fadeout=255"
 for /l %%. in () do (
 	for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "DeltaTime=(t1-t2)", "t2=t1", "j=(l=(sst.boot.fadeout-=deltaTime*4)/2)+1"
@@ -69,25 +98,26 @@ for /l %%. in () do (
 		set /a "%buildstring%, textFadeout=127 * %sinr:x=(sst.boot.fadeout*PI/255+PI32)% + 128"
 		echo=%echostring%%\e%[48;2;;;;38;2;!textFadeout!;!textFadeout!;!textFadeout!m%\e%[!sst.boot.msgY!;!sst.boot.msgX!H%\e%[2K!sst.boot.msg:~1!
 	) < nul
-	if !sst.boot.fadeout! lss 1 (
-		set sst.boot.fadeout=0
-		for /l %%# in () do (
-			for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "sst.boot.fadeout+=(DeltaTime=(t1-t2))*4", "t2=t1"
-			if "!deltaTime!" neq "0" (
-				if !sst.boot.fadeout! gtr 255 (
-					copy nul "!sst.dir!\temp\pf-bootanim" > nul
-					exit 0
-				)
-				set "dwm.scene=%\e%[H"
-				for /l %%x in (1 1 !modeH!) do (
-					set /a "x=%%x", "!dwm.aero:×=*!", "r=r*sst.boot.fadeout/255, g=g*sst.boot.fadeout/255, b=b*sst.boot.fadeout/255"
-					set dwm.scene=!dwm.scene!%\e%[48;2;!r!;!g!;!b!m%\e%[2K%\e%[B
-				)
-				echo=!dwm.scene!
-			)
+	if !sst.boot.fadeout! lss 1 call :fadein
+)
+:fadein
+set sst.boot.fadeout=0
+for /l %%# in () do (
+	for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "sst.boot.fadeout+=(DeltaTime=(t1-t2))*4", "t2=t1"
+	if "!deltaTime!" neq "0" (
+		if !sst.boot.fadeout! gtr 255 (
+			copy nul "!sst.dir!\temp\pf-bootanim" > nul
+			exit 0
 		)
+		set "dwm.scene=%\e%[H"
+		for /l %%x in (1 1 !modeH!) do (
+			set /a "x=%%x", "!dwm.aero:×=*!", "r=r*sst.boot.fadeout/255, g=g*sst.boot.fadeout/255, b=b*sst.boot.fadeout/255"
+			set dwm.scene=!dwm.scene!%\e%[48;2;!r!;!g!;!b!m%\e%[2K%\e%[B
+		)
+		echo=!dwm.scene!
 	)
 )
+exit /b
 :loadSprites
 set "spr.[%~2]=%\e%7"
 set /a "spr.W=0", "spr.[%~2].H=0"
