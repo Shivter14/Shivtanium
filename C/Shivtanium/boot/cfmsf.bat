@@ -16,9 +16,10 @@ for %%F in (
 	resourcepacks\init\themes\aero
 	resourcepacks\init\themes\classic
 	resourcepacks\init\themes\lo-fi
-	resourcepacks\init\themes\noCBUI
+	resourcepacks\init\themes\noCBUI.themeMod
+	resourcepacks\init\themes\noUnfocusedColors.themeMod
 ) do if not exist "!sst.dir!\%%~F" set msfl=!msfl! "%%~F"
 if defined msfl (
-	>"!sst.dir!\temp\pf-%~n0" echo=Missing files:!msfl!
+	>"!sst.dir!\temp\pf-%~n0" echo=Missing files:!msfl:\=/!
 ) else copy nul "!sst.dir!\temp\pf-%~n0" > nul
-exit
+exit /b
