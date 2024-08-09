@@ -182,8 +182,8 @@ if defined sys.boot.fadeout (
 set "sst.processes= "
 set "sst.processes.paused= "
 
-set dwm.scene=%\e%[H%\e%[0m%\e%[48;2;;;;38;5;231m%\e%[2JShivtanium OS !sys.tag! !sys.ver! !sys.subvinfo!
-set dwm.sceneBGcolor=2;;;
+set dwm.scene=%\e%[H%\e%[0m%\e%[48;5;0;38;5;231m%\e%[2JShivtanium OS !sys.tag! !sys.ver! !sys.subvinfo!
+set dwm.sceneBGcolor=5;0
 set dwm.BGcolor=5;231
 set dwm.FGcolor=5;16
 set dwm.TIcolor=5;12
@@ -237,12 +237,12 @@ for %%a in (
 	"temp"
 	"pid"
 ) do for /f "tokens=1 delims==" %%b in ('set %%a 2^>nul') do set "%%b="
-for /f "delims=" %%a in ('dir /b /a:-D "!sys.dir!\resourcepacks\init\themes\*"') do (
-	set "theme[%%~a]= "
-	for /f "usebackq tokens=1* delims==" %%x in ("!sys.dir!\resourcepacks\init\themes\%%~a") do (
-		if /I "%%~x" neq "CBUIOffset" set theme[%%a]=!theme[%%a]! "%%~x=%%~y"
+for /f "delims=" %%A in ('dir /b /a:-D "!sys.dir!\resourcepacks\init\themes\*"') do (
+	set "theme[%%~nA]= "
+	for /f "usebackq tokens=1* delims==" %%x in ("!sys.dir!\resourcepacks\init\themes\%%~A") do (
+		if /I "%%~x" neq "CBUIOffset" set theme[%%~nA]=!theme[%%~nA]! "%%~x=%%~y"
 	)
-	set "theme[%%~a]=!theme[%%~a]:~2!"
+	set "theme[%%~nA]=!theme[%%~nA]:~2!"
 )
 
 set modeW=
