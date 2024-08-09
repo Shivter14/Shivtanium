@@ -222,7 +222,7 @@ for %%a in (FG BG user) do (
 	set /a "btn[%%athemePrev]Y=btn[%%athemeNext]Y, btn[%%athemeNext]BX=(btn[%%athemeNext]X=(btn[%%athemePrev]BX=(btn[%%athemePrev]X=3)+2)+2)+2"
 )
 set theme[1]=lo-fi
-for /f "delims=" %%R in ('dir /b /a:D "!sst.dir!\resourcepacks"') do for /f "delims=" %%T in ('dir /b /a:-D "!sst.dir!\resourcepacks\%%~nxR\themes" ^| find /v "CBUI"') do if "%%~nxT" neq "lo-fi" (
+for /f "delims=" %%R in ('dir /b /a:D "!sst.dir!\resourcepacks"') do for /f "delims=" %%T in ('dir /b /a:-D "!sst.dir!\resourcepacks\%%~nxR\themes"') do if /I "%%~xT" neq ".themeMod" if "%%~nxT" neq "lo-fi" (
 	set /a themeCount+=1
 	set "theme[!themeCount!]=%%~nxT"
 )
