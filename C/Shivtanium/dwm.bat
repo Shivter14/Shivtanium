@@ -2,7 +2,6 @@
 setlocal enabledelayedexpansion
 if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
 if not defined sys.dir set "sys.dir=!cd!"
-
 set theme[disable_aero]="aero=" "winAero="
 
 set "dwm.barbuffer=                                                                                                                                                                                                                                                                "
