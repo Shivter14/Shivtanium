@@ -52,7 +52,7 @@ for %%a in (
 	"boot\cfmsf.bat|Checking for missing files"
 	"boot\updateCheckSvc.bat|Checking for updates"
 	":injectDLLs|Injecting DLLs"
-	":waitForBootServices"
+	":waitForBootServices|If you see this, the bootscreen is broken."
 ) do for /f "tokens=1-2* delims=|" %%b in (%%a) do (
 	set "sst.boot.command=%%~b"
 	set sst.boot.command=!sst.boot.command:'="!
