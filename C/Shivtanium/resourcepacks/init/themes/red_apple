@@ -1,5 +1,5 @@
 scene=[H[0;48;2;135;;m[2J'Red apple' theme
-sceneBGcolor=2;135;;
+sceneBGcolor=2;135;0;0
 FGcolor=5;52
 BGcolor=5;216
 TIcolor=5;196
