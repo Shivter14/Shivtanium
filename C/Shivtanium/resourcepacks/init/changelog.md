@@ -3,10 +3,29 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
 # Beta 1.3.1 [24w32a]
 - Added bootscreen modding support along with a new bootscreen.
+  This bootscreen does a fade-in into the login BG theme.
 - Fixed issues with VT breaking during startup animations
-- Updated DWM theme format: Windows can have unfocused TI+TT colors.
+- Changes to the Desktop Window Manager (DWM):
+  - Windows can have unfocused TI+TT colors.
+  - Added ThemeMods: Themes that aren't full themes.
+    These themes cannot be applied as global themes.
+	They can be used to disable theme features. Examples:
+	- `noCBUI.themeMod`
+	- `noUnfocusedColors.themeMod`
+	- `noWinAero.themeMod`
 - The ESC key can now be used to clear the text input on login.
 - Merged `systemb-launcher` into `systemb-desktop`.
+- Changes to the kernel:
+  - Added new switch: `/autorun <program> <parameters>`
+    This switch can be used to run a process as an initial process
+	The process' PID will be 0
+  - Window position packets are no longer sent in realtime while the
+    user is moving the window to improve performance This feature was
+	previously present in `lowPerformanceMode`.
+- Updated some legacy themes to use RGB colors instead of built-in
+  3bpc colors for stability reasons.
+- Optimized the file explorer. It has also been compiled by the new
+  compiler but that's not 100% finished so we're not gonna talk about it.
 
 # Beta 1.3.0 [Milestone 3]
 - The Control Panel customization page is now almost finished.
@@ -107,6 +126,7 @@ This also includes the updated Desktop Window Manager with better window moving.
 # Milestone 5 Plans
 - Add multilanguism.
 - Sprite viewer.
+- Finish up the compiler with non-called functions.
 
 # Full release plans
 - Trailer
