@@ -1,7 +1,6 @@
 @if not defined sst.dir (
-	echo off & setlocal enableDelayedExpansion & set "\e=" & call :kernelPanic "Invalid environment" "The Shivtanium kernel requires to be run in main.bat"
+	echo off & setlocal enableDelayedExpansion & for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a" & call :kernelPanic "Invalid environment" "The Shivtanium kernel requires to be run in main.bat"
 )
-
 for /f "tokens=1 delims==" %%a in ('set dwm. 2^>nul ^& set spr. 2^>nul ^& set ssvm. 2^>nul') do set "%%a="
 cd "!sst.dir!" || call :kernelPanic "Unable to locate system directory" "The system failed to start:\nValue sst.dir: '!sst.dir!'\n ^^^^^^  Invalid directory."
 if not exist "temp\proc" md "temp\proc"
@@ -13,6 +12,8 @@ if !sys.CPU.count! lss 4 (
 )
 if /I "%~1"=="/forceoobe" (
 	call :createProcess 0	systemb-oobe.bat
+) else if "%~1"=="/autorun" (
+	call :createProcess 0	%2 %3 %4 %5 %6 %7 %8 %9
 ) else if not exist "!sst.root!\users" (
 	call :createProcess 0	systemb-oobe.bat
 ) else call :createProcess 0	systemb-login.bat
@@ -21,13 +22,6 @@ set keysPressedOld=
 set "windows= "
 set ioTotal=0
 title Shivtanium OS !sys.tag! !sys.ver! !sys.subvinfo!
-(set \n=^^^
-
-)
-
-if /I "!sys.lowPerformanceMode!" neq "True" set @sendWindowPositionData=set /a ioTotal+=2%\n%
-	echo=win[^^!movingWindow^^!]X=^^!tempX^^!%\n%
-	echo=win[^^!movingWindow^^!]Y=^^!tempY^^!
 
 for /l %%# in () do (
 	set "sys.clickOld=!sys.click!"
@@ -65,8 +59,6 @@ for /l %%# in () do (
 					set /a ioTotal+=5
 					echo=win[!movingWindow!]X=!tempX!
 					echo=win[!movingWindow!]Y=!tempY!
-					set tempX=
-					set tempY=
 					set movingWindow=
 				) else (
 					set movingWindow=
@@ -91,7 +83,6 @@ for /l %%# in () do (
 			if !tempY! lss 1 (
 				set /a "tempY=win[!movingWindow!]Y=1, win[!movingWindow!]BY=win[!movingWindow!]H"
 			) else if !tempY! geq !sys.modeH! set /a "tempY=win[!movingWindow!]Y=sys.modeH-1, win[!movingWindow!]BY=win[!movingWindow!]Y+win[!movingWindow!]H-1"
-			%@sendWindowPositionData%
 			>&3 echo=¤MW	!movingWindow!	X=!tempX!	Y=!tempY!
 			set temps=
 		) else if "!sys.click!" neq "0" (
