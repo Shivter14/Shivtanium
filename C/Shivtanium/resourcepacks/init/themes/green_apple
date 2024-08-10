@@ -1,5 +1,5 @@
-scene=[H[0m[48;5;22;38;5;231m[2J'Green apple' theme
-sceneBGcolor=5;22
+scene=[H[0m[48;2;;95;;38;5;231m[2J'Green apple' theme
+sceneBGcolor=2;0;95;0
 FGcolor=5;22
 BGcolor=5;193
 TIcolor=5;10
