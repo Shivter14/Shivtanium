@@ -87,10 +87,6 @@ for /l %%# in () do (
 		if "!focusedWindow!"=="!PID!.calc" (
 			echo=¤MW	!PID!.calc	o4=!win[%PID%.calc]o4!	o5=!win[%PID%.calc]o5!	o6=!win[%PID%.calc]o6!	o7=!win[%PID%.calc]o7!	o8=!win[%PID%.calc]o8!
 		)
-	) else if "!kernelOut!"=="exit" (
-		exit 0
-	) else if "!kernelOut!"=="exitProcess=!PID!" (
-		exit 0
 	) else if "!kernelOut:~0,14!"=="keysPressedRN=" (
 		set "!kernelOut!" > nul 2>&1
 		if "!focusedWindow!"=="!PID!.calc" for %%k in (!keysPressedRN!) do (
@@ -111,6 +107,10 @@ for /l %%# in () do (
 			)
 			if defined char call :input "!char!"
 		)
+	) else if "!kernelOut!"=="exit" (
+		exit 0
+	) else if "!kernelOut!"=="exitProcess=!PID!" (
+		exit 0
 	) else set "!kernelOut!" > nul 2>&1
 )
 :input
