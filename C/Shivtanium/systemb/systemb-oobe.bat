@@ -7,7 +7,7 @@ if not defined PID (
 )
 set /a PID=PID
 set /a "nextButtonBX=(nextButtonX=(win[!PID!.oobe]W=64)-8)+5, contentH=(win[!PID!.oobe]H=16)-2, originalX=win[!PID!.oobe]X=(sys.modeW - win[!PID!.oobe]W) / 2 + 1, originalY=win[!PID!.oobe]Y=(sys.modeH - win[!PID!.oobe]H) / 2, inputC=(inputW=win[!PID!.oobe]W-6)-1"
-
+echo=¤CTRL	APPLYTHEME	lo-fi
 if not exist "!sst.dir!\resourcepacks\init\sounds" md "!sst.dir!\resourcepacks\init\sounds"
 for %%a in (
 	boot.mp3
@@ -46,12 +46,11 @@ if exist "!asset[\sounds\windows-xp-welcome-music-remix.mp3]!" (
 		set "musicDurationPM=!musicDurationPM:~-3!"
 	)
 	set soundChar=■
-	echo=¤CW	!PID!.player	!win[%PID%.player]X!	!win[%PID%.player]Y!	!win[%PID%.player]W!	!win[%PID%.player]H!	Currently playing:	lo-fi noCBUI
+	echo=¤CW	!PID!.player	!win[%PID%.player]X!	!win[%PID%.player]Y!	!win[%PID%.player]W!	!win[%PID%.player]H!	Currently playing:	lo-fi noCBUI noUnfocusedColors noWinAero
 	>>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.player	!win[%PID%.player]X!	!win[%PID%.player]Y!	!win[%PID%.player]W!	!win[%PID%.player]H!
 	echo=¤MW	!PID!.player	o1=%\e%[!win[%PID%.player]W!X %\e%[7m Stray Objects %\e%[27m - Windows XP OOBE Music remix%\e%8%\e%[!pauseButtonX!C ■ 	l2= 0:00%\e%8%\e%[!musicDurationX!C!musicDurationPM!:!musicDurationPS!	l3= %\e%[7m%\e%[!playBarW!X%\e%[27m
 ) else set musicPaused=0
-echo=¤CTRL	APPLYTHEME	lo-fi
-echo=¤CW	!PID!.oobe	!win[%PID%.oobe]X!	!win[%PID%.oobe]Y!	!win[%PID%.oobe]W!	!win[%PID%.oobe]H!	 	lo-fi noCBUI
+echo=¤CW	!PID!.oobe	!win[%PID%.oobe]X!	!win[%PID%.oobe]Y!	!win[%PID%.oobe]W!	!win[%PID%.oobe]H!	 	lo-fi noCBUI noUnfocusedColors noWinAero
 
 >>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.oobe	!win[%PID%.oobe]X!	!win[%PID%.oobe]Y!	!win[%PID%.oobe]W!	!win[%PID%.oobe]H!	1
 set "focusedWindow=!PID!.oobe"
@@ -182,7 +181,7 @@ set "l2=Customization  [ 1 / 2 ]      "
 set "l5=Login Screen background theme:"
 set "l8=Login Screen window theme:    "
 set /a "olspX=lspX=originalX+win[!PID!.oobe]W-(lspW=32), lspY=win[!PID!.oobe]Y+(win[!PID!.oobe]H-(lspH=8))/2"
-echo=¤CW	!PID!.lsp	!lspX!	!lspY!	!lspW!	!lspH!	Window Preview	!theme[%selectedFGtheme%]!
+echo=¤CW	!PID!.lsp	!lspX!	!lspY!	!lspW!	!lspH!	Window Preview	!theme[%selectedFGtheme%]! noUnfocusedColors
 echo=¤FOCUS	!PID!.oobe
 
 if !sys.modeW! lss 104 (
@@ -222,7 +221,7 @@ for %%a in (FG BG user) do (
 	set /a "btn[%%athemePrev]Y=btn[%%athemeNext]Y, btn[%%athemeNext]BX=(btn[%%athemeNext]X=(btn[%%athemePrev]BX=(btn[%%athemePrev]X=3)+2)+2)+2"
 )
 set theme[1]=lo-fi
-for /f "delims=" %%R in ('dir /b /a:D "!sst.dir!\resourcepacks"') do for /f "delims=" %%T in ('dir /b /a:-D "!sst.dir!\resourcepacks\%%~nxR\themes"') do if /I "%%~xT" neq ".themeMod" if "%%~nxT" neq "lo-fi" (
+for /f "delims=" %%R in ('dir /b /a:D "!sst.dir!\resourcepacks"') do for /f "delims=" %%T in ('dir /b /a:-D "!sst.dir!\resourcepacks\%%~nxR\themes") do if "%%~nT" neq "lo-fi" if /I "%%~xT" neq ".themeMod" (
 	set /a themeCount+=1
 	set "theme[!themeCount!]=%%~nxT"
 )
@@ -261,7 +260,7 @@ set "l2=Customization  [ 2 / 2 ]      "
 set "l4=Select a global theme for your"
 set "l5=user profile:                 "
 set /a "olspX=lspX=originalX, lspW=32, lspY=win[!PID!.oobe]Y+(win[!PID!.oobe]H-(lspH=8))/2"
-echo=¤CW	!PID!.lsp	!lspX!	!lspY!	!lspW!	!lspH!	Window Preview	!theme[%selectedUserTheme%]!
+echo=¤CW	!PID!.lsp	!lspX!	!lspY!	!lspW!	!lspH!	Window Preview	!theme[%selectedUserTheme%]! noUnfocusedColors
 echo=¤FOCUS	!PID!.oobe
 for /l %%a in (4 4 40) do (
 	set /a "win[%PID%.oobe]X=originalX+%%a/2, lspX=olspX-%%a/2"
@@ -281,7 +280,7 @@ echo=¤MW	!PID!.oobe	l2=  !l2:~0,26!	l4=  !l4!	l5=  !l5:~0,13!^
 	o6=%\e%[3C ◄ %\e%[C ► 	l6=%\e%[10C%\e%[7m %\e%[!themeSNW!X!theme[%selectedUserTheme%]!%\e%[27m
 
 set theme[1]=lo-fi
-for /f "delims=" %%R in ('dir /b /a:D "!sst.dir!\resourcepacks"') do for /f "delims=" %%T in ('dir /b /a:-D "!sst.dir!\resourcepacks\%%~nxR\themes" ^| find /v "CBUI"') do if "%%~nxT" neq "lo-fi" (
+for /f "delims=" %%R in ('dir /b /a:D "!sst.dir!\resourcepacks"') do for /f "delims=" %%T in ('dir /b /a:-D "!sst.dir!\resourcepacks\%%~nxR\themes") do if "%%~nT" neq "lo-fi" if /I "%%~xT" neq ".themeMod" (
 	set /a themeCount+=1
 	set "theme[!themeCount!]=%%~nxT"
 )
@@ -641,11 +640,11 @@ if "%~1"=="BG" (
 		echo=¤CTRL	APPLYTHEME	!theme[%selectedUserTheme%]!
 		echo=¤MW	!PID!.oobe	o6=%\e%[3C ◄ %\e%[C ► 	l6=%\e%[10C%\e%[7m %\e%[!themeSNW!X!theme[%selectedUserTheme%]!%\e%[27m
 		echo=¤DW	!PID!.lsp
-		echo=¤CW	!PID!.lsp	!lspX!	!lspY!	!lspW!	!lspH!	Window Preview	!theme[%selectedUserTheme%]!
+		echo=¤CW	!PID!.lsp	!lspX!	!lspY!	!lspW!	!lspH!	Window Preview	!theme[%selectedUserTheme%]! noUnfocusedColors
 	) else (
 		echo=¤MW	!PID!.oobe	o9=%\e%[3C ◄ %\e%[C ► 	l9=%\e%[10C%\e%[7m %\e%[!themeSNW!X!theme[%selectedFGTheme%]!%\e%[27m
 		echo=¤DW	!PID!.lsp
-		echo=¤CW	!PID!.lsp	!lspX!	!lspY!	!lspW!	!lspH!	Window Preview	!theme[%selectedFGtheme%]!
+		echo=¤CW	!PID!.lsp	!lspX!	!lspY!	!lspW!	!lspH!	Window Preview	!theme[%selectedFGtheme%]! noUnfocusedColors
 	)
 )
 set continue=
