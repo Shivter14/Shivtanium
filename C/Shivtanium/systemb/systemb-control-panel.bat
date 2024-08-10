@@ -147,7 +147,7 @@ set btn[next]=:page[3].next
 set "btn[prev]title= ◄ "
 set "btn[next]title= ► "
 
-for /f "delims=" %%R in ('dir /b /a:D "!sst.dir!\resourcepacks"') do for /f "delims=" %%T in ('dir /b /a:-D "!sst.dir!\resourcepacks\%%~nxR\themes" ^| find /v "CBUI"') do (
+for /f "delims=" %%R in ('dir /b /a:D "!sst.dir!\resourcepacks"') do for /f "delims=" %%T in ('dir /b /a:-D "!sst.dir!\resourcepacks\%%~nxR\themes"') do if /I "%%~xT" neq ".themeMod" (
 	set /a themeCount+=1
 	set "theme[!themeCount!]=%%~nxT"
 	if "!user.globalTheme!"=="%%~nxT" set selectedTheme=!themeCount!
