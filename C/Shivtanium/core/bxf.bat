@@ -87,8 +87,8 @@ for /l %%# in (1 1 100) do for /l %%# in (1 1 100) do (
 				set "expandFunction=%%a"
 				set "args=%%b"
 				call :expandFunction || exit /b
-			) else if not defined currentFunction echo=!line!
-		) else if not defined currentFunction echo=!line!
+			) else if not defined currentFunction echo(!line!
+		) else if not defined currentFunction echo(!line!
 	)
 )
 goto main.loop
@@ -102,7 +102,7 @@ for /f "delims=" %%f in ("!expandFunction:~1!") do (
 	set /a "fcl=!f@%%f!+2"
 	for /l %%# in (!fcl! 1 !f#%%f!) do (
 		set /p "fcl="
-		echo=!fcl!
+		echo(!fcl!
 	)
 ) < "!f\%%f!"
 exit /b 0
