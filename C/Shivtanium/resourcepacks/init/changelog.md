@@ -2,6 +2,8 @@
 This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
 # Beta 1.3.1 [24w32a]
+- Added the BXF compiler - Batch Expanded Functions.
+  More information will come out shortly.
 - Added bootscreen modding support along with a new bootscreen.
   This bootscreen does a fade-in into the login BG theme.
 - Fixed issues with VT breaking during startup animations
@@ -25,7 +27,7 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
 - Updated some legacy themes to use RGB colors instead of built-in
   3bpc colors for stability reasons.
 - Optimized the file explorer. It has also been compiled by the new
-  compiler but that's not 100% finished so we're not gonna talk about it.
+  BXF compiler.
 
 # Beta 1.3.0 [Milestone 3]
 - The Control Panel customization page is now almost finished.
