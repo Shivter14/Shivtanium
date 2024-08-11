@@ -4,11 +4,11 @@ if not defined subRoutine (
 	echo=Compiling started at !time!
 )
 if not exist "%~f1" (
-	echo File not found: %1
+	echo=File not found: %1
 	exit /b 9009
 )
 if exist "%~dpn1.bat" (
-	echo File already exists: "%~dpn1.bat"
+	echo=File already exists: "%~dpn1.bat"
 	exit /b 32
 )
 pushd "%~dp1"
