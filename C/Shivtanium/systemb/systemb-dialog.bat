@@ -14,6 +14,7 @@ set "buttonName=%~9"
 echo=¤CW	!PID!.systemb_dialog	!win[%PID%.systemb_dialog]X!	!win[%PID%.systemb_dialog]Y!	!win[%PID%.systemb_dialog]W!	!win[%PID%.systemb_dialog]H!	!initial_window_params!
 echo=¤MW	!PID!.systemb_dialog	!secondary_window_params!	o!buttonY!=%\e%[!buttonX!C!buttonName!
 >>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.systemb_dialog	!win[%PID%.systemb_dialog]X!	!win[%PID%.systemb_dialog]Y!	!win[%PID%.systemb_dialog]W!	!win[%PID%.systemb_dialog]H!
+set "focusedWindow=!PID!.systemb_dialog"
 for /l %%# in () do (
 	set kernelOut=
 	set /p "kernelOut="
