@@ -24,6 +24,8 @@ The Shivtanium Kernel handles:
 
 - Shutdown & Rebooting
 
+Shivtanium has a compiler called BXF, which adds expanded functions that don't have to be called along with import commands, and standard libraries.
+
 Shivtanium also has desktop environments. The default & original one is `systemb`. You can find screenshots at the bottom of this document.
 
 Graphics & windows are handled by the Desktop Window Manager. It uses many kinds of VT sequences, optimizations, and all sorts of techniques in order to render windows quickly and smoothly.
