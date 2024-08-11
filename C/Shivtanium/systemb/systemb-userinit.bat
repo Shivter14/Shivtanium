@@ -30,5 +30,5 @@ exit 0
 :fail
 set args=%*
 >>"!sst.dir!\temp\kernelPipe" echo=createProcess	0	systemb\systemb-login.bat
-call systemb-dialog.bat 4 2 48 7 "systemb-userinit	classic" "l2=  !args!	l4=  Login failed."
+call systemb-dialog.bat 4 2 48 7 "systemb-userinit	classic" "l2=  !args!	l4=  Login failed."	x-buttonW-2 y-2 7 " Close "
 exit /b 0
