@@ -1,7 +1,7 @@
-== Shivtanium Changelog ==
+# Shivtanium Changelog
 This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
-# Beta 1.3.1 [24w33a]
+## Beta 1.3.1 [24w33a]
 - Added the BXF compiler - Batch Expanded Functions.
   This compiler can be used as an alternative to macros.
   Full documentation is at: ![BXF Wiki](https://github.com/Shivter14/Shivtanium/wiki/BXF)
@@ -31,7 +31,7 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
 - Optimized the file explorer. It has also been compiled by the new
   BXF compiler.
 
-# Beta 1.3.0 [Milestone 3]
+## Beta 1.3.0 [Milestone 3]
 - The Control Panel customization page is now almost finished.
 - Changes to the kernel:
   - Enabling `lowPerformanceMode` now changes every window's theme to `classic`
@@ -56,7 +56,7 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
   & added a folder icon to the title bar.
 - Fixed focusing/input issues for many applications.
 
-# Beta 1.2.3 [24w28c]
+## Beta 1.2.3 [24w28c]
 - File explorer now sorts files & directories properly.
 - Added the Control Panel.
 - Fixed calculator grabbing inputs when it's not focused.
@@ -72,7 +72,7 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
 - Changed the Application Launcher's layout.
 - Removed the Interpreter for now. Might be added in the full release.
 
-# Beta 1.2.2 [24w28b]
+## Beta 1.2.2 [24w28b]
 - Added VT100 (graphical) optimizations.
 - BEFI boot menu revision 2; check the commit for more info.
 - Added a config file: ~:\Shivtanium\settings.dat
@@ -93,7 +93,7 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
 - Spaced out the icons in the File Explorer.
   Thanks to MousieDev and Grub4K for the suggestion. (also optimized it)
 
-# Beta 1.2.1 [24w28a]
+## Beta 1.2.1 [24w28a]
 - Added an application launcher. (start menu)
 - Added a calculator. (yet again, but now with systemb)
 - Added a file explorer.
@@ -102,7 +102,7 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
 - Fixed bugs.
 - Fixed race conditions.
 
-# Beta 1.2.0 [Milestone 2]
+## Beta 1.2.0 [Milestone 2]
 This release introduces the new Shivtanium OS Kernel; which
 handles Mouse input, Keyboard input, Window management, and more.
 The interpreter is currently disabled since it needs a partial re-write.
