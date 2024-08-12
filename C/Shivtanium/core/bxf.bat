@@ -1,6 +1,6 @@
 @echo off & setlocal enableDelayedExpansion
 if not defined subRoutine (
-	echo=BXF - Batch Expanded Functions ^| version 1.0.0
+	echo=BXF - Batch Expanded Functions ^| version 1.0.1
 	echo=Compiling started at !time!
 )
 if not exist "%~f1" (
@@ -45,6 +45,7 @@ for /l %%# in (1 1 100) do for /l %%# in (1 1 100) do (
 				set "f@!prefix!%%a=!cl!"
 				set "f\!prefix!%%a=%~f1"
 				set "currentFunction=!prefix!%%a"
+				>&2 echo=Registered function: @!currentFunction!
 			)
 		) else if "!line:~1,7!"=="import " (
 			set "import=!line:~8!"
@@ -61,6 +62,7 @@ for /l %%# in (1 1 100) do for /l %%# in (1 1 100) do (
 					call :error Import error at line !cl!: File not found: %%A
 					exit /b 7
 				)
+				>&2 echo=Imported !importFrom! as !importAs!
 				set "i@!importFrom!=!importAs!"
 				if defined prefix set "prefix=!prefix:"=!"
 				for /f "tokens=1* delims=." %%O in ("#.!prefix!") do (
@@ -83,12 +85,26 @@ for /l %%# in (1 1 100) do for /l %%# in (1 1 100) do (
 	) else if defined line (
 		set eof=0
 		if "!line!" neq "!line:@=!" (
-			for /f "tokens=1* delims=*^!	 " %%a in ("!line!") do if defined f%%a (
-				set "expandFunction=%%a"
-				set "args=%%b"
-				call :expandFunction || exit /b
-			) else if not defined currentFunction echo(!line!
-		) else if not defined currentFunction echo(!line!
+			for /f "tokens=1* delims=*^!	 " %%A in ("!line!") do (
+				set "expandFunction=%%A"
+				if "!expandFunction!" == "!expandFunction:.=!" set "expandFunction=@!prefix!!expandFunction:~1!"
+				if defined f!expandFunction! (
+					set "args=%%B"
+					if "!expandFunction:~0,1!"=="@" call :expandFunction || exit /b
+				) else if not defined currentFunction (
+					>&2 echo=[WARN] Failed to expand function ^(Possibly a forced ECHO OFF command^): !expandFunction!
+					echo(!line!
+				) else if "!line:~0,1!" neq "	" (
+					call :error Syntax error: Functions must be in a code block ^(TAB offset^)
+					exit /b 18
+				)
+			)
+		) else if not defined currentFunction (
+			echo(!line!
+		) else if "!line:~0,1!" neq "	" (
+			call :error Syntax error: Functions must be in a code block ^(TAB offset^)
+			exit /b 18
+		)
 	)
 )
 goto main.loop
@@ -97,17 +113,21 @@ if not defined f@!expandFunction:~1! (
 	call :error "Undefined function: !expandFunction!"
 	exit /b 4
 )
+set whitespacePrefix=
+if "!line:~0,1!" == "	" for /f "tokens=1 delims=*^!@" %%a in ("!line!") do set "whitespacePrefix=%%a"
 for /f "delims=" %%f in ("!expandFunction:~1!") do (
 	for /l %%# in (1 1 !f@%%f!) do set /p "="
 	set /a "fcl=!f@%%f!+2"
 	for /l %%# in (!fcl! 1 !f#%%f!) do (
+		set fcl=
 		set /p "fcl="
-		echo(!fcl!
+		if not defined fcl set "fcl=	"
+		echo(!whitespacePrefix!!fcl:~1!
 	)
 ) < "!f\%%f!"
 exit /b 0
 :error
-echo=[38;5;1mStack trace (!subRoutineN!):
+>&2 echo=[38;5;1mStack trace (!subRoutineN!):
 for /l %%a in (1 1 !subRoutineN!) do echo=At !routine[%%a]!
 echo=  %*[0m
 exit /b
