@@ -302,7 +302,7 @@ if "!processes: =!"=="" (
 if exist "temp\proc\PID-!PID!" del "temp\proc\PID-!PID!" >nul 2>&1 <nul
 if defined pid[!pid[%PID%]parent!]subs for /f %%a in ("!pid[%PID%]parent!") do set "pid[%%~a]subs=!pid[%%~a]subs: "%PID%"=!"
 for %%p in (!pid[%PID%]subs!) do call :killProcessTree %%~p
-for /f "tokens=1 delims==" %%a in ('set "pid[%~1]" 2^>nul') do set "%%a="
+for /f "delims==" %%a in ('set "pid[%~1]" 2^>nul') do set "%%a="
 exit /b
 :kernelPanic
 >&3 echo=¤CTRL	BSOD	%1	%2
