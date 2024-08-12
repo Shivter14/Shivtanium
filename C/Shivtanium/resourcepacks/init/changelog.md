@@ -1,9 +1,11 @@
 == Shivtanium Changelog ==
 This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
-# Beta 1.3.1 [24w32a]
+# Beta 1.3.1 [24w33a]
 - Added the BXF compiler - Batch Expanded Functions.
-  More information will come out shortly.
+  This compiler can be used as an alternative to macros.
+  Full documentation is at: ![BXF Wiki](https://github.com/Shivter14/Shivtanium/wiki/BXF)
+- BXF applications are automatically compiled on boot if they aren't compiled already.
 - Added bootscreen modding support along with a new bootscreen.
   This bootscreen does a fade-in into the login BG theme.
 - Fixed issues with VT breaking during startup animations
