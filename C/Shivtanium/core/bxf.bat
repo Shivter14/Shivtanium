@@ -1,18 +1,22 @@
 @echo off & setlocal enableDelayedExpansion
-if not defined subRoutine (
-	echo=BXF - Batch Expanded Functions ^| version 1.0.1
+if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
+if not defined subRoutineN (
+	echo=BXF - Batch Expanded Functions ^| version 1.0.2
 	echo=Compiling started at !time!
+	set subRoutineN=0
 )
 if not exist "%~f1" (
 	echo=File not found: %1
 	exit /b 9009
 )
-if exist "%~dpn1.bat" (
-	echo=File already exists: "%~dpn1.bat"
+set Outfile=%2
+if not defined Outfile set Outfile="%~dpn1.bat"
+if exist !Outfile! (
+	echo=File already exists: !Outfile!
 	exit /b 32
 )
 pushd "%~dp1"
-call :main "%~f1" < "%~f1" > "%~dpn1.bat"
+call :main "%~f1" < "%~f1" > !Outfile!
 popd
 if "!subRoutineN!;!errorlevel!"=="1;0" (
 	echo=Compiling finished at !time!
@@ -62,14 +66,14 @@ for /l %%# in (1 1 100) do for /l %%# in (1 1 100) do (
 					call :error Import error at line !cl!: File not found: %%A
 					exit /b 7
 				)
-				>&2 echo=Imported !importFrom! as !importAs!
+				>&2 echo=Importing !importFrom! as !importAs!
 				set "i@!importFrom!=!importAs!"
 				if defined prefix set "prefix=!prefix:"=!"
-				for /f "tokens=1* delims=." %%O in ("#.!prefix!") do (
+				for /f "tokens=1* delims=." %%O in ("!subRoutineN!.!prefix!") do (
 					set "prefix=!importAs!."
 					call :main "!importFrom!" < "!importFrom!" || exit /b
 					set "routine[!subRoutineN!]="
-					set /a subRoutineN-=1
+					set "subRoutineN=%%O"
 					set "prefix=%%P"
 				)
 			)
@@ -89,7 +93,6 @@ for /l %%# in (1 1 100) do for /l %%# in (1 1 100) do (
 				set "expandFunction=%%A"
 				if "!expandFunction!" == "!expandFunction:.=!" set "expandFunction=@!prefix!!expandFunction:~1!"
 				if defined f!expandFunction! (
-					set "args=%%B"
 					if "!expandFunction:~0,1!"=="@" call :expandFunction || exit /b
 				) else if not defined currentFunction (
 					>&2 echo=[WARN] Failed to expand function ^(Possibly a forced ECHO OFF command^): !expandFunction!
@@ -115,6 +118,11 @@ if not defined f@!expandFunction:~1! (
 )
 set whitespacePrefix=
 if "!line:~0,1!" == "	" for /f "tokens=1 delims=*^!@" %%a in ("!line!") do set "whitespacePrefix=%%a"
+for /f "tokens=1*" %%a in ("!line:*@=!") do (
+	setlocal disableDelayedExpansion
+	for %%c in (%%b) do echo(%whitespacePrefix%set "$%%~c"
+	endlocal
+)
 for /f "delims=" %%f in ("!expandFunction:~1!") do (
 	for /l %%# in (1 1 !f@%%f!) do set /p "="
 	set /a "fcl=!f@%%f!+2"
@@ -127,7 +135,10 @@ for /f "delims=" %%f in ("!expandFunction:~1!") do (
 ) < "!f\%%f!"
 exit /b 0
 :error
->&2 echo=[38;5;1mStack trace (!subRoutineN!):
-for /l %%a in (1 1 !subRoutineN!) do echo=At !routine[%%a]!
-echo=  %*[0m
+(
+	echo=%\e%[38;5;1mStack trace ^(!subRoutineN!^):
+	for /l %%a in (1 1 !subRoutineN!) do echo=At !routine[%%a]!
+	echo=
+	echo=%\e%[F  %*%\e%[0m
+) >&2
 exit /b
