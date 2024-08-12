@@ -1,0 +1,25 @@
+@echo off & setLocal enableDelayedExpansion
+set /a PID=PID
+#function createWindow
+	set /a "$w=win[!PID!.!$winName!]W=!$w!, $h=win[!PID!.!$winName!]H=!$h!, $x=win[!PID!.!$winName!]X=!$x!, $y=win[!PID!.!$winName!]Y=!$y!"
+	echo=¤CW	!PID!.!$winName!	!$x!	!$y!	!$w!	!$h!	!$title!	!$theme!
+	>>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.!$winName!	!$x!	!$y!	!$w!	!$h!	!$options!
+	set "$targetWin=!PID!.!$winName!"
+	for %%$ in (x y w h title theme options winName) do set "$%%$="
+	set "focusedWindow=!PID!.!$winName!"
+#end
+#function deleteWindow
+	echo=¤DW	!PID!.!$winName!
+	>>"!sst.dir!\temp\kernelPipe" echo=unRegisterWindow	!PID!	!PID!.!$winName!
+	for /f "delims==" %%$ in ('set $ 2^>nul ^&^& set win[!PID!.!$winName!] 2^>nul') do set "%%$="
+#end
+#function exit
+	>>"!sst.dir!\temp\kernelPipe" echo=exitProcessTree	!PID!
+	exit !$code!
+#end
+#function createProcess
+	if not defined $parent set $parent=!PID!
+	>>"!sst.dir!\temp\kernelPipe" echo=createProcess	!$parent!	!$exec!
+	set $parent=
+	set $exec=
+#end
