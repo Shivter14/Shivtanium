@@ -34,20 +34,20 @@ for /f "tokens=2 delims=:" %%a in ('mode con') do (
 )
 set /a "sst.boot.msgY=!sys.modeH!/2+7"
 <nul set /p "=%\e%[H%\e%[48;2;0;0;0m%\e%[38;2;255;255;255m"
-if not exist "temp\bootStatus-!sst.localtemp!" copy nul "temp\bootStatus-!sst.localtemp!" > nul
-
+copy nul temp\kernelPipe > nul 2>&1 || call :halt "preparePipe" "Failed to prepare pipe:\n'temp\kernelPipe'"
+copy nul temp\kernelOut  > nul 2>&1 || call :halt "preparePipe" "Failed to prepare pipe:\n'temp\kernelOut'"
+if not exist "temp\bootStatus-!sst.localtemp!" copy nul "temp\bootStatus-!sst.localtemp!" > nul || call :halt "preparePipe" "Failed to prepare pipe:\n'temp\bootStatus-!sst.localtemp!'"
 if /I "!sst.noguiboot!" neq "True" (
 	start /b "" cmd /c boot\renderer.bat "temp\bootStatus-!sst.localtemp!" < "temp\bootStatus-!sst.localtemp!"
 )
 set "processes= "
-copy nul temp\kernelPipe > nul 2>&1 || call :halt "preparePipe" "Failed to prepare pipe:\n'temp\kernelPipe'"
-copy nul temp\kernelOut  > nul 2>&1 || call :halt "preparePipe" "Failed to prepare pipe:\n'temp\kernelOut'"
 
 for %%a in (
 	":clearEnv|Clearing environment"
 	":loadresourcepack init|Loading resources"
 	":loadSettings|Loading settings"
 	":checkCompat|Checking compatibility"
+	":compileBXF|Compiling BXF applications"
 	":startServices|Starting services"
 	"boot\cfmsf.bat|Checking for missing files"
 	"boot\updateCheckSvc.bat|Checking for updates"
@@ -67,25 +67,14 @@ cd "%~dp0"
 call sstoskrnl.bat %* < "temp\kernelPipe" > "temp\kernelOut" 2>"temp\kernelErr" 3> "temp\DWM-!sst.localtemp!"
 
 :startup.submsg
-
-	set "sst.boot.msg=%~1"
-	set "sst.boot.submsg=%~2"
-	set sst.boot.msglen=0
-	set sst.boot.submsglen=0
-	for /l %%b in (9,-1,0) do (
-		set /a "sst.boot.msglen|=1<<%%b"
-		for %%c in (!sst.boot.msglen!) do if "!sst.boot.msg:~%%c,1!" equ "" set /a "sst.boot.msglen&=~1<<%%b"
-	)
-	
-	for /l %%b in (9,-1,0) do (
-		set /a "sst.boot.submsglen|=1<<%%b"
-		for %%c in (!sst.boot.submsglen!) do if "!sst.boot.submsg:~%%c,1!" equ "" set /a "sst.boot.submsglen&=~1<<%%b"
-	)
-	
-	set /a "sst.boot.msgX=(sys.modeW-sst.boot.msglen+1)/2", "sst.boot.submsgX=(sys.modeW-sst.boot.submsglen+1)/2"
-	echo=!sst.boot.msg!;!sst.boot.submsg!>> "temp\bootStatus-!sst.localtemp!"
-
+set "sst.boot.msg=%~1"
+set "sst.boot.submsg=%~2"
+>>"temp\bootStatus-!sst.localtemp!" echo(!sst.boot.msg!;!sst.boot.submsg!
 exit /b
+
+# This will never execute
+# ) - The purpose of this is to make Notepad++ formatting prettier.
+
 :memoryDump
 pushd "!sst.dir!\temp" || exit /b !errorlevel!
 set > memoryDump
@@ -132,13 +121,13 @@ set spr.tempW=
 exit /b 0
 :halt
 if exist temp (
-	echo=¤EXIT>> "temp\bootStatus-!sst.localtemp!"
+	>>"!sst.dir!\temp\bootStatus-!sst.localtemp!" echo=¤EXITANIM
+	call :waitForAnimations
 )
 set "halt.text=%~2"
 set halt.text=!halt.text:\n=","!
 set "halt.pausemsg= Press any key to exit. . . "
 set "halt.tracemsg= At %~1: "
-for /l %%. in (0 1 100000) do rem
 for /l %%a in (64 -1 0) do (
 	<nul set /p "=%\e%[2;3H%\e%[48;2;255;0;0m%\e%[38;2;255;255;255m%\e%[?25l Execution halted %\e%[4;3H!halt.tracemsg:~%%a!"
 	for /l %%. in (0 1 10000) do rem
@@ -219,8 +208,7 @@ exit /b 0
 	echo=Startup Finished
 	echo=¤EXITANIM
 )
-:waitForAnimations
-if not exist "!sst.dir!\temp\pf-bootanim" goto waitForAnimations
+call :waitForAnimations
 
 cd "!sst.dir!"
 set "noResize=1"
@@ -288,4 +276,39 @@ for /l %%. in () do (
 )
 :checkCompat
 if "!sys.CPU.architecture!" neq "AMD64" call :halt "%~nx0:checkCompat" "Incompatible processor architecture: !sys.CPU.architecture!\nShivtanium requires processor architecture AMD64/x86_64"
+exit /b
+:compileBXF
+set bxf.failed=
+> "!sst.dir!\temp\BXFstartup.log" echo=Something went wrong while compiling BXF applications. This log has been saved to "temp\BXFstartup.log"
+cd "!sst.dir!" || exit /b
+(for %%F in ("systemb\*.bxf") do (
+	call :startup.submsg "!sst.boot.msg!" "File: %%F"
+	if not exist "%%~dpn.bat" call bxf.bat "%%~fF" || set bxf.failed=True
+)) >> "!sst.dir!\temp\BXFstartup.log" 2>&1
+if not defined bxf.failed (
+	del "!sst.dir!\temp\BXFstartup.log"
+	exit /b 0
+)
+>>"!sst.dir!\temp\bootStatus-!sst.localtemp!" echo=¤EXITANIM
+call :waitForAnimations
+echo=%\e%[48;2;0;0;0;38;2;255;255;255m%\e%[H%\e%[2J
+call :compileBXF.failed < "!sst.dir!\temp\BXFstartup.log"
+exit /b 0
+:compileBXF.failed
+set lineDef=
+for /l %%# in (2 1 !sys.modeH!) do (
+	set line=
+	set /p "line="
+	echo(!line!
+)
+if not defined line (
+	pause<con>con
+	exit /b
+)
+<nul set /p "=-- More --"
+pause<con>nul
+echo=%\e%[2K%\e%[F
+goto compileBXF.failed
+:waitForAnimations
+if not exist "!sst.dir!\temp\pf-bootanim" goto waitForAnimations
 exit /b
