@@ -1,7 +1,8 @@
 @echo off & setlocal enableDelayedExpansion
 if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
+
 if not defined subRoutineN (
-	echo=BXF - Batch Expanded Functions ^| version 1.0.4
+	echo=BXF - Batch Expanded Functions ^| version 1.0.5
 	echo=Compiling started at !time!
 	set subRoutineN=0
 )
@@ -45,16 +46,35 @@ for /l %%# in (1 1 100) do for /l %%# in (1 1 100) do (
 				exit /b 2
 			)
 			
-			for /f "delims=*^!= " %%a in ("!line:~10!") do (
+			for /f "delims=*^!=; " %%a in ("!line:~10!") do (
 				if defined f@%%a (
 					call :error Syntax error: Can't re-define a function.
 					exit /b 3
 				)
 				set "f@!prefix!%%a=!cl!"
 				set "f\!prefix!%%a=%~f1"
-				set "fl=!line:*$=!"
-				if "!line!" neq "!line: $=!" (
-					set "f$!prefix!%%a=!fl:~0,-1!"
+				
+				if "!line!" neq "!line:; =!" (
+					set "f¤!prefix!%%a=!line:*$$=!"
+					set "$=#!line:*; =!"
+					set "lineLen="
+					for %%$ in (4096 2048 1024 512 256 128 64 32 16) do if "!$:~%%$!" NEQ "" (
+						set /a "lineLen+=%%$"
+						set "$=!$:~%%$!"
+					)
+					set "$=!$:~1!FEDCBA9876543210"
+					set /a lineLen+=0x!$:~15,1!
+					
+					set "$=#!end!"
+					set "endLen="
+					for %%$ in (4096 2048 1024 512 256 128 64 32 16) do if "!$:~%%$!" NEQ "" (
+						set /a "endLen+=%%$"
+						set "$=!$:~%%$!"
+					)
+					set "$=!$:~1!FEDCBA9876543210"
+					set /a "endLen+=0x!$:~15,1!, length=lineLen - endLen - 4"
+					set "$=!line:*; =!"
+					for %%b in (!length!) do set "f$!prefix!%%a=!$:~,%%b!"
 				)
 				set "currentFunction=!prefix!%%a"
 				>&2 echo=Registered function: @!currentFunction!
@@ -95,7 +115,6 @@ for /l %%# in (1 1 100) do for /l %%# in (1 1 100) do (
 			)
 			
 			set "f#!currentFunction!=!cl!"
-			set "f¤!currentFunction!=!line:*$=!"
 			set currentFunction=
 		)
 	) else if defined line (
