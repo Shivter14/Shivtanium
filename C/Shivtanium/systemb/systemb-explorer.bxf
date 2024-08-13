@@ -187,7 +187,7 @@ for /l %%# in () do (
 					)
 				) else if "%%~k"=="13" (
 					cd "!addressbar:~1!">nul 2>&1 || (
-						for /f "" %%w in ('set /a !ftW!-4') do (
+						for /f "" %%w in ('set /a !ftW!-7') do (
 							set /a "Xpos=win[!PID!.explorer]X+sidebarW+2, Ypos=win[!PID!.explorer]Y+2"
 							echo=createProcess	!sys.UPID!	systemb-dialog.bat !Xpos! !Ypos! !rsW! 7 "File Explorer: Invalid directory" "l2=  The directory you entered is invalid:	o3=%\e%[3C!addressbar:~-%%~w!" w-buttonW-2 h-2 7 " Close "
 							set Xpos=
