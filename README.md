@@ -24,7 +24,7 @@ The Shivtanium Kernel handles:
 
 - Shutdown & Rebooting
 
-Shivtanium has a compiler called BXF, which adds expanded functions that don't have to be called along with import commands, and standard libraries.
+Shivtanium has a compiler called BXF, which adds expanded functions that don't have to be called along with import commands, and standard libraries. These files have the `.bxf` extension.
 
 Shivtanium also has desktop environments. The default & original one is `systemb`. You can find screenshots at the bottom of this document.
 
