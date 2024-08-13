@@ -1,7 +1,7 @@
 @echo off & setlocal enableDelayedExpansion
 if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
 if not defined subRoutineN (
-	echo=BXF - Batch Expanded Functions ^| version 1.0.3
+	echo=BXF - Batch Expanded Functions ^| version 1.0.4
 	echo=Compiling started at !time!
 	set subRoutineN=0
 )
@@ -52,12 +52,8 @@ for /l %%# in (1 1 100) do for /l %%# in (1 1 100) do (
 				)
 				set "f@!prefix!%%a=!cl!"
 				set "f\!prefix!%%a=%~f1"
-				set "fl=!line:* {=!"
-				if "!line!" neq "!line: {=!" (
-					if "!fl:~-1!" neq "}" (
-						call :error Function definiton error at line !cl!: Expected "}". !fl!
-						exit /b 38
-					)
+				set "fl=!line:*$=!"
+				if "!line!" neq "!line: $=!" (
 					set "f$!prefix!%%a=!fl:~0,-1!"
 				)
 				set "currentFunction=!prefix!%%a"
@@ -99,7 +95,7 @@ for /l %%# in (1 1 100) do for /l %%# in (1 1 100) do (
 			)
 			
 			set "f#!currentFunction!=!cl!"
-			set "f¤!currentFunction!=!line:*:=!"
+			set "f¤!currentFunction!=!line:*$=!"
 			set currentFunction=
 		)
 	) else if defined line (
