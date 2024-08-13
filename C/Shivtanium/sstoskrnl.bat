@@ -43,7 +43,7 @@ for /l %%# in () do (
 							set /a ioTotal+=1
 						) else set "focusedWindow=%%~w"
 						if "!sys.mouseYpos!"=="!win[%%~w]Y!" if "!win[%%~w]D:~0,1!" neq "1" (
-							set /a "movingWindowOffset=sys.mouseXpos-!win[%%~w]X!"
+							set /a "movingWindowOffset=sys.mouseXpos-!win[%%~w]X!, tempX=!win[%%~w]X!, tempY=!win[%%~w]Y!"
 							set "movingWindow=!focusedWindow!"
 						)
 					)
@@ -57,6 +57,7 @@ for /l %%# in () do (
 			) else (
 				if defined movingWindow (
 					set /a ioTotal+=5
+					if not defined tempX call :kernelPanic "Fatal error in kernel-side window manager" "Attempted to move a window to an undefined position. This is a critical bug, please report it at: github.com/Shivter14/Shivtanium/issues"
 					echo=win[!movingWindow!]X=!tempX!
 					echo=win[!movingWindow!]Y=!tempY!
 					set movingWindow=
@@ -304,7 +305,7 @@ if defined pid[!pid[%PID%]parent!]subs for /f %%a in ("!pid[%PID%]parent!") do s
 for %%p in (!pid[%PID%]subs!) do call :killProcessTree %%~p
 for /f "delims==" %%a in ('set "pid[%~1]" 2^>nul') do set "%%a="
 exit /b
-:kernelPanic
+:kernelPanic trace text
 >&3 echo=¤CTRL	BSOD	%1	%2
 echo=¤EXIT>&3
 echo=exit
