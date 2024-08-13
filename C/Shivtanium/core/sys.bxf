@@ -23,3 +23,17 @@ set /a PID=PID
 	set $parent=
 	set $exec=
 #end
+#function pullEvents
+	set kernelOut=
+	set /p kernelOut=
+	if not defined kernelOut (rem
+#end
+#function onEvent; ) else if "!kernelOut!"=="$$" (
+#end
+#function handleStdEvents
+	) else if "!kernelOut!"=="exitProcess=!PID!" (
+		exit 0
+	) else if "!kernelOut!"=="exit" (
+		exit 0
+	) else set "!kernelOut!">nul 2>&1
+#end
