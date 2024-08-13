@@ -1,7 +1,7 @@
 @echo off & setlocal enableDelayedExpansion
 if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
 if not defined subRoutineN (
-	echo=BXF - Batch Expanded Functions ^| version 1.0.2
+	echo=BXF - Batch Expanded Functions ^| version 1.0.3
 	echo=Compiling started at !time!
 	set subRoutineN=0
 )
@@ -16,12 +16,16 @@ if exist !Outfile! (
 	exit /b 32
 )
 pushd "%~dp1"
-call :main "%~f1" < "%~f1" > !Outfile!
+set exitcode=0
+call :main "%~f1" < "%~f1" > !Outfile! || (
+	set exitcode=!errorlevel!
+	del !Outfile!
+)
 popd
 if "!subRoutineN!;!errorlevel!"=="1;0" (
 	echo=Compiling finished at !time!
 )
-exit /b
+exit /b !exitcode!
 :main
 set /a subRoutineN+=1
 set "routine[!subRoutineN!]=%~f1"
@@ -41,13 +45,21 @@ for /l %%# in (1 1 100) do for /l %%# in (1 1 100) do (
 				exit /b 2
 			)
 			
-			for /f "delims=*^!=" %%a in ("!line:~10!") do (
+			for /f "delims=*^!= " %%a in ("!line:~10!") do (
 				if defined f@%%a (
 					call :error Syntax error: Can't re-define a function.
 					exit /b 3
 				)
 				set "f@!prefix!%%a=!cl!"
 				set "f\!prefix!%%a=%~f1"
+				set "fl=!line:* {=!"
+				if "!line!" neq "!line: {=!" (
+					if "!fl:~-1!" neq "}" (
+						call :error Function definiton error at line !cl!: Expected "}". !fl!
+						exit /b 38
+					)
+					set "f$!prefix!%%a=!fl:~0,-1!"
+				)
 				set "currentFunction=!prefix!%%a"
 				>&2 echo=Registered function: @!currentFunction!
 			)
@@ -63,27 +75,31 @@ for /l %%# in (1 1 100) do for /l %%# in (1 1 100) do (
 					exit /b 6
 				)
 				if not exist "!importFrom!" (
-					call :error Import error at line !cl!: File not found: %%A
-					exit /b 7
+					if not exist "%~dp0%%A" (
+						call :error Import error at line !cl!: File not found: %%A
+						exit /b 7
+					) else set "importFrom=%~dp0%%A"
 				)
 				>&2 echo=Importing !importFrom! as !importAs!
 				set "i@!importFrom!=!importAs!"
 				if defined prefix set "prefix=!prefix:"=!"
-				for /f "tokens=1* delims=." %%O in ("!subRoutineN!.!prefix!") do (
+				for /f "tokens=1-2* delims=." %%N in ("!cl!.!subRoutineN!.!prefix!") do (
 					set "prefix=!importAs!."
 					call :main "!importFrom!" < "!importFrom!" || exit /b
 					set "routine[!subRoutineN!]="
 					set "subRoutineN=%%O"
 					set "prefix=%%P"
+					set "cl=%%N"
 				)
 			)
-		) else if "!line!"=="#end" (
+		) else if "!line:~0,4!"=="#end" (
 			if not defined currentFunction (
 				call :error Syntax error: Unexpected #end at line !cl!.
 				exit /b 1
 			)
 			
 			set "f#!currentFunction!=!cl!"
+			set "f¤!currentFunction!=!line:*:=!"
 			set currentFunction=
 		)
 	) else if defined line (
@@ -95,7 +111,9 @@ for /l %%# in (1 1 100) do for /l %%# in (1 1 100) do (
 				if defined f!expandFunction! (
 					if "!expandFunction:~0,1!"=="@" call :expandFunction || exit /b
 				) else if not defined currentFunction (
-					>&2 echo=[WARN] Failed to expand function ^(Possibly a forced ECHO OFF command^): !expandFunction!
+					if "!expandFunction:~0,1!"=="@" if /I "!expandFunction!" neq "@echo" (
+						>&2 echo=[WARN] Failed to expand function ^(Possibly a forced ECHO OFF command^): !expandFunction!
+					)
 					echo(!line!
 				) else if "!line:~0,1!" neq "	" (
 					call :error Syntax error: Functions must be in a code block ^(TAB offset^)
@@ -118,17 +136,26 @@ if not defined f@!expandFunction:~1! (
 )
 set whitespacePrefix=
 if "!line:~0,1!" == "	" for /f "tokens=1 delims=*^!@" %%a in ("!line!") do set "whitespacePrefix=%%a"
-for /f "tokens=1*" %%a in ("!line:*@=!") do (
-	setlocal disableDelayedExpansion
-	for %%c in (%%b) do echo(%whitespacePrefix%set "$%%~c"
-	endlocal
+
+
+if defined f$!expandFunction:~1! (
+	for /f "delims=" %%f in ("!expandFunction:~1!") do (
+		set "expand=!line:*@=!"
+		echo(!whitespacePrefix!!f$%%f!!expand:* =!!f¤%%f!
+	)
+) else (
+	for /f "tokens=1*" %%a in ("!line:*@=!") do (
+		setlocal disableDelayedExpansion
+		for %%c in (%%b) do echo(%whitespacePrefix%set "$%%~c"
+		endlocal
+	)
 )
 for /f "delims=" %%f in ("!expandFunction:~1!") do (
 	for /l %%# in (1 1 !f@%%f!) do set /p "="
 	set /a "fcl=!f@%%f!+2"
 	for /l %%# in (!fcl! 1 !f#%%f!) do (
 		set fcl=
-		set /p "fcl="
+		set /p fcl=
 		if not defined fcl set "fcl=	"
 		echo(!whitespacePrefix!!fcl:~1!
 	)
