@@ -281,8 +281,9 @@ exit /b
 set bxf.failed=
 > "!sst.dir!\temp\BXFstartup.log" echo=Something went wrong while compiling BXF applications. This log has been saved to "temp\BXFstartup.log"
 cd "!sst.dir!" || exit /b
-(for %%F in ("systemb\*.bxf") do (
+(for %%F in ("systemb\*.bxf") do if not exist "%%~dpnF.bat" (
 	call :startup.submsg "!sst.boot.msg!" "File: %%F"
+	<nul set /p "=%\e%[48;2;0;0;0;38;2;255;255;255m"
 	if not exist "%%~dpn.bat" call bxf.bat "%%~fF" || set bxf.failed=True
 )) >> "!sst.dir!\temp\BXFstartup.log" 2>&1
 if not defined bxf.failed (
