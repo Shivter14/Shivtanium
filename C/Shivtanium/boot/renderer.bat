@@ -60,7 +60,7 @@ if defined dwm.sceneBGcolor (
 			start
 		) else set "dwm.aero=r=g=b=(%%a - 232) * 226 / 24 + 12"
 	)
-)
+) else if defined dwm.aero set "dwm.aero=!dwm.aero:×=*!"
 
 :initial_animation
 	set /a "%buildstring%"
@@ -79,16 +79,24 @@ for /l %%. in () do (
 		call :exitAnim
 	)
 	if defined input (
-		set "sst.boot.msg=#!input!"
+		for /f "tokens=1* delims=^!;" %%a in ("!input!") do (
+			set "sst.boot.msg=#%%a"
+			set "sst.boot.submsg=#%%b"
+		)
 		set sst.boot.msglen=0
-			for /l %%b in (9,-1,0) do (
-				set /a "sst.boot.msglen|=1<<%%b"
-				for %%c in (!sst.boot.msglen!) do if "!sst.boot.msg:~%%c,1!" equ "" set /a "sst.boot.msglen&=~1<<%%b"
-			)
-		set /a "sst.boot.msgX=(!sys.modeW!-!sst.boot.msglen!)/2"
+		for /l %%b in (9,-1,0) do (
+			set /a "sst.boot.msglen|=1<<%%b"
+			for %%c in (!sst.boot.msglen!) do if "!sst.boot.msg:~%%c,1!" equ "" set /a "sst.boot.msglen&=~1<<%%b"
+		)
+		set sst.boot.submsglen=0
+		for /l %%b in (9,-1,0) do (
+			set /a "sst.boot.submsglen|=1<<%%b"
+			for %%c in (!sst.boot.submsglen!) do if "!sst.boot.submsg:~%%c,1!" equ "" set /a "sst.boot.submsglen&=~1<<%%b"
+		)
+		set /a "sst.boot.msgX=(sys.modeW-sst.boot.msglen)/2, sst.boot.submsgX=(sys.modeW-sst.boot.submsglen)/2"
 	)
 	set /a "%buildstring%"
-	echo=%echostring%%\e%[48;2;;;;38;2;255;255;255m%\e%[!sst.boot.msgY!;!sst.boot.msgX!H%\e%[2K!sst.boot.msg:~1!
+	echo=%echostring%%\e%[48;2;;;;38;2;255;255;255m%\e%[!sst.boot.msgY!;!sst.boot.msgX!H%\e%[2K!sst.boot.msg:~1!%\e%[2E%\e%[!sst.boot.submsgX!G%\e%[2K!sst.boot.submsg:~1!
 )
 :exitAnim
 for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100,t2=t1, sst.boot.fadeout=255"
@@ -110,11 +118,11 @@ for /l %%# in () do (
 			exit 0
 		)
 		set "dwm.scene=%\e%[H"
-		for /l %%x in (1 1 !modeH!) do (
-			set /a "x=%%x", "!dwm.aero:×=*!", "r=r*sst.boot.fadeout/255, g=g*sst.boot.fadeout/255, b=b*sst.boot.fadeout/255"
+		for /l %%x in (1 1 !sys.modeH!) do (
+			set /a "x=%%x", "!dwm.aero:mode=sys.mode!", "r=r*sst.boot.fadeout/255, g=g*sst.boot.fadeout/255, b=b*sst.boot.fadeout/255"
 			set dwm.scene=!dwm.scene!%\e%[48;2;!r!;!g!;!b!m%\e%[2K%\e%[B
 		)
-		echo=!dwm.scene!
+		echo=!dwm.scene!%\e%[H
 	)
 )
 exit /b
