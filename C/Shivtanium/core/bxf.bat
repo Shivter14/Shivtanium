@@ -2,7 +2,7 @@
 if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
 
 if not defined subRoutineN (
-	echo=BXF - Batch Expanded Functions ^| version 1.0.5
+	echo=BXF - Batch Expanded Functions ^| version 1.0.6
 	echo=Compiling started at !time!
 	set subRoutineN=0
 )
@@ -72,7 +72,7 @@ for /l %%# in (1 1 100) do for /l %%# in (1 1 100) do (
 						set "$=!$:~%%$!"
 					)
 					set "$=!$:~1!FEDCBA9876543210"
-					set /a "endLen+=0x!$:~15,1!, length=lineLen - endLen - 4"
+					set /a "endLen+=0x!$:~15,1!, length=lineLen - endLen - 5"
 					set "$=!line:*; =!"
 					for %%b in (!length!) do set "f$!prefix!%%a=!$:~,%%b!"
 				)
@@ -145,6 +145,7 @@ for /l %%# in (1 1 100) do for /l %%# in (1 1 100) do (
 )
 goto main.loop
 :expandFunction
+setlocal enableDelayedExpansion
 if not defined f@!expandFunction:~1! (
 	call :error "Undefined function: !expandFunction!"
 	exit /b 4
@@ -171,10 +172,19 @@ for /f "delims=" %%f in ("!expandFunction:~1!") do (
 	for /l %%# in (!fcl! 1 !f#%%f!) do (
 		set fcl=
 		set /p fcl=
-		if not defined fcl set "fcl=	"
-		echo(!whitespacePrefix!!fcl:~1!
+		if defined fcl if "!fcl!" neq "!fcl:@=!" (
+			set "line=!whitespacePrefix!!fcl:~1!"
+			for /f "tokens=1* delims=*^!	 " %%A in ("!line!") do (
+				set "expandFunction=%%A"
+				if "!expandFunction!" == "!expandFunction:.=!" set "expandFunction=@!prefix!!expandFunction:~1!"
+				if defined f!expandFunction! (
+					if "!expandFunction:~0,1!"=="@" call :expandFunction || exit /b
+				) else echo(!whitespacePrefix!!fcl:~1!
+			)
+		) else echo(!whitespacePrefix!!fcl:~1!
 	)
 ) < "!f\%%f!"
+endlocal
 exit /b 0
 :error
 (
