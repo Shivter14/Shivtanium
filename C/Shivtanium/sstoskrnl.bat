@@ -136,117 +136,115 @@ for /l %%# in () do (
 
 	set io=
 	set /p io=
-	if defined io for /f "tokens=1* delims=	" %%0 in ("!io!") do (
-		if "%%~0"=="registerWindow" (
-			for /f "tokens=1-7" %%a in ("%%~1") do (
-				set "temp.id=%%~b"
-				set "temp.id=!temp.id:,=!"
-				set "temp.id=!temp.id:+=!"
-				set "temp.id=!temp.id:-=!"
-				set "temp.id=!temp.id:/=!"
-				set "temp.id=!temp.id:(=!"
-				set "temp.id=!temp.id:)=!"
-				set "temp.id=!temp.id:>=!"
-				set "temp.id=!temp.id:<=!"
-				set "temp.id=!temp.id:^^=!"
-				if "%%~b" neq "!temp.id!" call :kernelPanic	"Invalid Window ID" "At function 'registerWindow':\n  Window ID contains illegal characters.\n  (For reference, these are listed on the Wiki.)\nA memory dump has been created at: ~:\Shivtanium\temp\KernelMemoryDump"
-				set "windows= "!temp.id!"!windows!"
-				set "pid[%%~a]windows=!pid[%%~a]windows!"!temp.id!" "
-				set "win[!temp.id!]=%%~a"
-				set "win[!temp.id!]X=%%~c"
-				set "win[!temp.id!]Y=%%~d"
-				set "win[!temp.id!]W=%%~e"
-				set "win[!temp.id!]H=%%~f"
-				set "win[!temp.id!]D=%%~g"
-				set /a "win[!temp.id!]X=win[!temp.id!]X, win[!temp.id!]Y=win[!temp.id!]Y, win[!temp.id!]W=win[!temp.id!]W, win[!temp.id!]H=win[!temp.id!]H, win[!temp.id!]BX=win[!temp.id!]X+win[!temp.id!]W-1, win[!temp.id!]BY=win[!temp.id!]Y+win[!temp.id!]H-1", ioTotal+=1
-				set "focusedWindow=!temp.id!"
-				echo=focusedWindow=!temp.id!
-				set temp.id=
-			)
-		) else if "%%~0"=="unRegisterWindow" (
-			set "windows=!windows: "%%~1"=!"
-			for /f "tokens=1* delims==" %%a in ('set "win[%%~1]" 2^>nul') do (
-				if "%%a"=="win[%%~1]" set "pid[%%b]windows=!pid[%%b]windows:"%%~1" =!"
-				set "%%a="
-			)
-			if "%%~1"=="!focusedWindow!" (
-				set /a ioTotal+=1
-				echo=focusedWindow=
+	if defined io for /f "tokens=1* delims=	" %%0 in ("!io!") do if "%%~0"=="registerWindow" (
+		for /f "tokens=1-7" %%a in ("%%~1") do (
+			set "temp.id=%%~b"
+			set "temp.id=!temp.id:,=!"
+			set "temp.id=!temp.id:+=!"
+			set "temp.id=!temp.id:-=!"
+			set "temp.id=!temp.id:/=!"
+			set "temp.id=!temp.id:(=!"
+			set "temp.id=!temp.id:)=!"
+			set "temp.id=!temp.id:>=!"
+			set "temp.id=!temp.id:<=!"
+			set "temp.id=!temp.id:^^=!"
+			if "%%~b" neq "!temp.id!" call :kernelPanic	"Invalid Window ID" "At function 'registerWindow':\n  Window ID contains illegal characters.\n  (For reference, these are listed on the Wiki.)\nA memory dump has been created at: ~:\Shivtanium\temp\KernelMemoryDump"
+			set "windows= "!temp.id!"!windows!"
+			set "pid[%%~a]windows=!pid[%%~a]windows!"!temp.id!" "
+			set "win[!temp.id!]=%%~a"
+			set "win[!temp.id!]X=%%~c"
+			set "win[!temp.id!]Y=%%~d"
+			set "win[!temp.id!]W=%%~e"
+			set "win[!temp.id!]H=%%~f"
+			set "win[!temp.id!]D=%%~g"
+			set /a "win[!temp.id!]X=win[!temp.id!]X, win[!temp.id!]Y=win[!temp.id!]Y, win[!temp.id!]W=win[!temp.id!]W, win[!temp.id!]H=win[!temp.id!]H, win[!temp.id!]BX=win[!temp.id!]X+win[!temp.id!]W-1, win[!temp.id!]BY=win[!temp.id!]Y+win[!temp.id!]H-1", ioTotal+=1
+			set "focusedWindow=!temp.id!"
+			echo=focusedWindow=!temp.id!
+			set temp.id=
+		)
+	) else if "%%~0"=="unRegisterWindow" (
+		set "windows=!windows: "%%~1"=!"
+		for /f "tokens=1* delims==" %%a in ('set "win[%%~1]" 2^>nul') do (
+			if "%%a"=="win[%%~1]" set "pid[%%b]windows=!pid[%%b]windows:"%%~1" =!"
+			set "%%a="
+		)
+		if "%%~1"=="!focusedWindow!" (
+			set /a ioTotal+=1
+			echo=focusedWindow=
+			set focusedWindow=
+		)
+		if "%%~1"=="!movingWindow!" set movingWindow=
+	) else if "%%~0"=="exitProcess" (
+		set "PID=%%~1"
+		set /a PID=PID
+		if "!PID!" neq "%%~1" call :kernelPanic "Invalid Process ID" "At function 'exitProcess':\n  Invalid Process ID: `%%~1` (NaN)\nThis is either a fatal error, or some program missbehaving.\nA memory dump has been created at: ~:\Shivtanium\temp\KernelMemoryDump"
+		if exist "temp\proc\PID-!PID!" del "temp\proc\PID-!PID!" >nul 2>&1 <nul
+		set "processes=!processes: %%1 = !"
+		if "!processes: =!"=="" (
+			echo=exit
+			echo=¤EXIT>&3
+			for /l %%# in (1 1 100000) do rem
+			echo=%\e%[48;2;0;0;0m%\e%[H%\e%[2J>con
+			copy nul "temp\bootStatus-!sst.localtemp!-exit" > nul 2>&1
+			call "!sst.dir!\boot\fadeout.bat">con
+			exit 0
+		) else for %%w in (!pid[%%~1]windows!) do (
+			>&3	echo=¤DW	%%~w
+			set "windows=!windows: "%%~w" = !"
+			if "%%~w"=="!focusedWindow!" (
 				set focusedWindow=
-			)
-			if "%%~1"=="!movingWindow!" set movingWindow=
-		) else if "%%~0"=="exitProcess" (
-			set "PID=%%~1"
-			set /a PID=PID
-			if "!PID!" neq "%%~1" call :kernelPanic "Invalid Process ID" "At function 'exitProcess':\n  Invalid Process ID: `%%~1` (NaN)\nThis is either a fatal error, or some program missbehaving.\nA memory dump has been created at: ~:\Shivtanium\temp\KernelMemoryDump"
-			if exist "temp\proc\PID-!PID!" del "temp\proc\PID-!PID!" >nul 2>&1 <nul
-			set "processes=!processes: %%1 = !"
-			if "!processes: =!"=="" (
-				echo=exit
-				echo=¤EXIT>&3
-				for /l %%# in (1 1 100000) do rem
-				echo=%\e%[48;2;0;0;0m%\e%[H%\e%[2J>con
-				copy nul "temp\bootStatus-!sst.localtemp!-exit" > nul 2>&1
-				call "!sst.dir!\boot\fadeout.bat">con
-				exit 0
-			) else for %%w in (!pid[%%~1]windows!) do (
-				>&3	echo=¤DW	%%~w
-				set "windows=!windows: "%%~w" = !"
-				if "%%~w"=="!focusedWindow!" (
-					set focusedWindow=
-					for %%w in (!windows!) do if not defined focusedWindow set "focusedWindow=%%~w"
-					set /a ioTotal+=1
-					echo=focusedWindow=!focusedWindow!
-				)
-				if "%%~w"=="!movingWindow!" set movingWindow=
-				for /f "tokens=1 delims==" %%a in ('set "win[%%~w]" 2^>nul') do set "%%a="
-			)
-			for /f %%a in ("!pid[%%~1]parent!") do set "pid[%%~a]subs=!pid[%%~a]subs: "%%~1"=!"
-			for /f "tokens=1 delims==" %%a in ('set pid[%%1] 2^>nul') do set "%%a="
-		) else if "%%~0"=="createProcess" (
-			call :createProcess %%1
-		) else if "%%~0"=="exitProcessTree" (
-			call :killProcessTree	%%1
-		) else if "%%~0"=="config" (
-			for /f "tokens=1* delims==^!" %%x in ("%%~1") do for %%s in (
-				lowPerformanceMode
-				reduceMotion
-			) do if "%%x"=="%%s" (
-				set "sys.%%x=%%y"
+				for %%w in (!windows!) do if not defined focusedWindow set "focusedWindow=%%~w"
 				set /a ioTotal+=1
-				echo=sys.%%x=%%y
-				if /I "%%x=%%y"=="lowPerformanceMode=True" (
-					for %%w in (!windows!) do (
-						echo=¤CW	%%~w	!win[%%~w]X!	!win[%%~w]Y!	!win[%%~w]W!	!win[%%~w]H!	^^!win[%%~w]title:~1^^!	classic
-					)
-				) >&3
+				echo=focusedWindow=!focusedWindow!
 			)
-		) else if "%%~0"=="powerState" (
-			if /I "%%~1"=="shutdown" (
-				cd "!sst.dir!"
-				call main.bat :loadResourcePack init
-				echo=exit
-				echo=¤EXIT>&3
-				for /l %%# in (1 1 100000) do rem
-				echo=%\e%[48;2;0;0;0m%\e%[H%\e%[2J>con
-				copy nul "temp\bootStatus-!sst.localtemp!-exit" > nul 2>&1
-				set "sst.boot.fadeout=255"
-				call "!sst.dir!\boot\fadeout.bat" Shivtanium is shutting down.%\e%[2;HRemaining processes: !processes! >con
-				exit 0
-			) else if /I "%%~1"=="reboot" (
-				echo=exit
-				echo=¤EXIT>&3
-				cmd /c ping -n 2 127.0.0.1 >nul 2>&1
-				echo=%\e%[48;2;0;0;0m%\e%[H%\e%[2J>con
-				exit 27
-			) else if /I "%%~1"=="fastReboot" (
-				echo=exit
-				echo=¤EXIT>&3
-				cmd /c ping -n 2 127.0.0.1 >nul 2>&1
-				set "sst.boot.fadeout=255"
-				call "!sst.dir!\boot\fadeout.bat" Shivtanium is shutting down.%\e%[2;HRemaining processes: !processes! >con
-				exit 13
-			)
+			if "%%~w"=="!movingWindow!" set movingWindow=
+			for /f "tokens=1 delims==" %%a in ('set "win[%%~w]" 2^>nul') do set "%%a="
+		)
+		for /f %%a in ("!pid[%%~1]parent!") do set "pid[%%~a]subs=!pid[%%~a]subs: "%%~1"=!"
+		for /f "tokens=1 delims==" %%a in ('set pid[%%1] 2^>nul') do set "%%a="
+	) else if "%%~0"=="createProcess" (
+		call :createProcess %%1
+	) else if "%%~0"=="exitProcessTree" (
+		call :killProcessTree	%%1
+	) else if "%%~0"=="config" (
+		for /f "tokens=1* delims==^!" %%x in ("%%~1") do for %%s in (
+			lowPerformanceMode
+			reduceMotion
+		) do if "%%x"=="%%s" (
+			set "sys.%%x=%%y"
+			set /a ioTotal+=1
+			echo=sys.%%x=%%y
+			if /I "%%x=%%y"=="lowPerformanceMode=True" (
+				for %%w in (!windows!) do (
+					echo=¤CW	%%~w	!win[%%~w]X!	!win[%%~w]Y!	!win[%%~w]W!	!win[%%~w]H!	^^!win[%%~w]title:~1^^!	classic
+				)
+			) >&3
+		)
+	) else if "%%~0"=="powerState" (
+		if /I "%%~1"=="shutdown" (
+			cd "!sst.dir!"
+			call main.bat :loadResourcePack init
+			echo=exit
+			echo=¤EXIT>&3
+			for /l %%# in (1 1 100000) do rem
+			echo=%\e%[48;2;0;0;0m%\e%[H%\e%[2J>con
+			copy nul "temp\bootStatus-!sst.localtemp!-exit" > nul 2>&1
+			set "sst.boot.fadeout=255"
+			call "!sst.dir!\boot\fadeout.bat" Shivtanium is shutting down.%\e%[2;HRemaining processes: !processes! >con
+			exit 0
+		) else if /I "%%~1"=="reboot" (
+			echo=exit
+			echo=¤EXIT>&3
+			cmd /c ping -n 2 127.0.0.1 >nul 2>&1
+			echo=%\e%[48;2;0;0;0m%\e%[H%\e%[2J>con
+			exit 27
+		) else if /I "%%~1"=="fastReboot" (
+			echo=exit
+			echo=¤EXIT>&3
+			cmd /c ping -n 2 127.0.0.1 >nul 2>&1
+			set "sst.boot.fadeout=255"
+			call "!sst.dir!\boot\fadeout.bat" Shivtanium is shutting down.%\e%[2;HRemaining processes: !processes! >con
+			exit 13
 		)
 	)
 )
