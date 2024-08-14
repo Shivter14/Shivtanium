@@ -1,4 +1,5 @@
-@echo off & setlocal enableDelayedExpansion
+#import sys.bxf
+#import dwmgfx.bxf
 #function reload
 	if !scrollpos! lss 0 set scrollpos=0
 	if !posY! lss 0 set /a scrollpos+=posY
@@ -65,16 +66,8 @@
 	set "o1=!o1!%\e%8 %\e%[7m ▲ %\e%[27m"
 	set "o!win[%PID%.explorer]RH!=%\e%[!win[%PID%.explorer]W!X"
 	set "pipe=¤MW	!PID!.explorer"
-	for /l %%y in (1 1 !win[%PID%.explorer]RH!) do (
-		if "!pipe:~500,1!" neq "" (
-			echo=!pipe!
-			set "pipe=¤MW	!PID!.explorer"
-		)
-		set "pipe=!pipe!	o%%y=!o%%y!"
-		set "pipe=!pipe!	l%%y=!l%%y!"
-	)
-	echo=!pipe!
-	set pipe=
+	@dwmgfx.preparePipe "targetWin=!PID!.explorer" "from=1" "to=!win[%PID%.explorer]RH!"
+	@dwmgfx.flushPipe
 #end
 
 for %%a in (%*) do (
@@ -214,11 +207,7 @@ for /l %%# in () do (
 			set /a scrollpos+=1
 			@reload
 		)
-	) else if "!kernelOut!"=="exitProcess=!PID!" (
-		exit 0
-	) else if "!kernelOut!"=="exit" (
-		exit 0
-	) else set "!kernelOut!" > nul 2>&1
+	@sys.handleStdEvents
 )
 
 :reload
