@@ -1,5 +1,5 @@
 #import sys.bxf
-#import dwmgfx.bxf
+#import dwm.bxf
 #function reload
 	if !scrollpos! lss 0 set scrollpos=0
 	if !posY! lss 0 set /a scrollpos+=posY
@@ -66,8 +66,8 @@
 	set "o1=!o1!%\e%8 %\e%[7m ▲ %\e%[27m"
 	set "o!win[%PID%.explorer]RH!=%\e%[!win[%PID%.explorer]W!X"
 	set "pipe=¤MW	!PID!.explorer"
-	@dwmgfx.preparePipe "targetWin=!PID!.explorer" "from=1" "to=!win[%PID%.explorer]RH!"
-	@dwmgfx.flushPipe
+	@dwm.preparePipe "targetWin=!PID!.explorer" "from=1" "to=!win[%PID%.explorer]RH!"
+	@dwm.flushPipe
 #end
 
 for %%a in (%*) do (
