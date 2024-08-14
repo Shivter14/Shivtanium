@@ -26,10 +26,13 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
   - Window position packets are no longer sent in realtime while the
     user is moving the window to improve performance This feature was
 	previously present in `lowPerformanceMode`.
+  - Fixed an annoying bug where if you hold your mouse button on a window's
+    title bar without moving it, it would send out an undefine request for
+	it's positions to all processes.
 - Updated some legacy themes to use RGB colors instead of built-in
   3bpc colors for stability reasons.
-- Optimized the file explorer. It has also been compiled by the new
-  BXF compiler.
+- Optimized the file explorer. It is also compiled by the new BXF compiler on first boot.
+- `systemb-dialog` is also compiled by the BXF compiler on first boot.
 
 ## Beta 1.3.0 [Milestone 3]
 - The Control Panel customization page is now almost finished.
