@@ -8,5 +8,7 @@
 	)
 	set "$=!$:~1!FEDCBA9876543210"
 	set /a $len+=0x!$:~15,1!
+	set "!$return!=!$len!"
+	set $len=
 	set $=
 #end
