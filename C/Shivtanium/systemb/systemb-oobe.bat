@@ -221,7 +221,7 @@ for %%a in (FG BG user) do (
 	set /a "btn[%%athemePrev]Y=btn[%%athemeNext]Y, btn[%%athemeNext]BX=(btn[%%athemeNext]X=(btn[%%athemePrev]BX=(btn[%%athemePrev]X=3)+2)+2)+2"
 )
 set theme[1]=lo-fi
-for /f "delims=" %%R in ('dir /b /a:D "!sst.dir!\resourcepacks"') do for /f "delims=" %%T in ('dir /b /a:-D "!sst.dir!\resourcepacks\%%~nxR\themes") do if "%%~nT" neq "lo-fi" if /I "%%~xT" neq ".themeMod" (
+for /f "delims=" %%R in ('dir /b /a:D "!sst.dir!\resourcepacks"') do for /f "delims=" %%T in ('dir /b /a:-D "!sst.dir!\resourcepacks\%%~nxR\themes"') do if "%%~nT" neq "lo-fi" if /I "%%~xT" neq ".themeMod" (
 	set /a themeCount+=1
 	set "theme[!themeCount!]=%%~nxT"
 )
@@ -280,7 +280,7 @@ echo=¤MW	!PID!.oobe	l2=  !l2:~0,26!	l4=  !l4!	l5=  !l5:~0,13!^
 	o6=%\e%[3C ◄ %\e%[C ► 	l6=%\e%[10C%\e%[7m %\e%[!themeSNW!X!theme[%selectedUserTheme%]!%\e%[27m
 
 set theme[1]=lo-fi
-for /f "delims=" %%R in ('dir /b /a:D "!sst.dir!\resourcepacks"') do for /f "delims=" %%T in ('dir /b /a:-D "!sst.dir!\resourcepacks\%%~nxR\themes") do if "%%~nT" neq "lo-fi" if /I "%%~xT" neq ".themeMod" (
+for /f "delims=" %%R in ('dir /b /a:D "!sst.dir!\resourcepacks"') do for /f "delims=" %%T in ('dir /b /a:-D "!sst.dir!\resourcepacks\%%~nxR\themes"') do if "%%~nT" neq "lo-fi" if /I "%%~xT" neq ".themeMod" (
 	set /a themeCount+=1
 	set "theme[!themeCount!]=%%~nxT"
 )
