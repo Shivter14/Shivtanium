@@ -12,6 +12,10 @@ for %%F in (
 	core\config.bat
 	core\getinput64.dll
 	core\playsound.vbs
+	core\bxf.bat
+	core\sys.bxf
+	core\dwm.bxf
+	core\str.bxf
 	resourcepacks\init\sprites\bootlogo.spr
 	resourcepacks\init\themes\aero
 	resourcepacks\init\themes\classic
