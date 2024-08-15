@@ -1,6 +1,11 @@
 # Shivtanium Changelog
 This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
+## Beta 1.3.2 [24w33b]
+- Bugfixes:
+  - BXF compiler issues with inline functions.
+  - `systemb-oobe` issues selecting themes.
+
 ## Beta 1.3.1 [24w33a]
 - Added the BXF compiler - Batch Expanded Functions.
   This compiler can be used as an alternative to macros.
