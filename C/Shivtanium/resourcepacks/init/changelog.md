@@ -2,6 +2,9 @@
 This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
 ## Beta 1.3.2 [24w33b]
+- The following programs have been converted to BXF applications:
+  `systemb-desktop`, `systemb-login`
+- Added new function to `sys.bxf`: `@sys.onEventRaw`
 - Bugfixes:
   - BXF compiler issues with inline functions.
   - `systemb-oobe` issues selecting themes.
