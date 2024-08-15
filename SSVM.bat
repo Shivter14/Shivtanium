@@ -12,7 +12,7 @@ start "SSVM Launcher" conhost.exe cmd.exe /c %0 :init %*
 exit
 :init
 set "ssvm.args=%~1"
-set ssvm.ver=3.0.3
+set ssvm.ver=3.0.4
 title SSVM !ssvm.ver!
 <nul set /p "=%\e%[1;1H%\e%[48;2;0;0;0m%\e%[38;2;255;255;255m%\e%[?25l%\e%[J"
 chcp 65001>nul 2>&1 || (
@@ -101,15 +101,13 @@ for /f "delims=" %%a in ('dir /b /a:d') do (
 for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t2=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000) %% 100"
 
 set /a "ssvm.boot.mpX=(ssvm.modeW-ssvm.boot.mpW)/2+1", "ssvm.boot.mpY=(ssvm.modeH-ssvm.boot.mpH)/2+1", "ssvm.boot.mpBX=ssvm.boot.mpX+ssvm.boot.mpW-1", "ssvm.boot.mpBY=ssvm.boot.mpY+ssvm.boot.mpH-1"
-set "ssvm.boot.buffer=                                                                                                                                                                                                                                                                "
-set "ssvm.boot.buffer=!ssvm.boot.buffer:~0,%ssvm.boot.mpW%!"
-for /l %%. in () do (
+(for /l %%# in () do (
 	set ssvm.boot.bg=%\e%[0m%\e%[H%\e%[38;5;231;48;2;;63;255m%\e%[2K SSVM !ssvm.ver! boot menu%\e%[38;5;231m
 	for /l %%y in (2 1 !ssvm.modeH!) do (
 		set /a "temp.color=%%y*160/!ssvm.modeH!+!counter!/2"
 		set "ssvm.boot.bg=!ssvm.boot.bg!%\e%[48;2;;;!temp.color!m%\e%[E%\e%[2K"
 	)
-	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000) %% 100", "deltaTime=(t1 - t2)", "counter!addorsub!=deltaTime", "t2=t1", "td=t1 %% 2"
+	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000) %% 100", "deltaTime=(t1 - t2)", "counter!addorsub!=deltaTime", "t2=t1"
 	if !counter! gtr 200 (
 		set "addorsub=-"
 		set counter=200
@@ -121,26 +119,28 @@ for /l %%. in () do (
 	set ssvm.boot.mouseX=!mouseXpos!
 	set ssvm.boot.mouseY=!mouseYpos!
 	
-	set "ssvm.boot.bg=!ssvm.boot.bg!%\e%[38;5;231;48;2;;63;255m%\e%[!ssvm.boot.mpY!;!ssvm.boot.mpX!H!ssvm.boot.buffer!"
+	set "ssvm.boot.bg=!ssvm.boot.bg!%\e%[38;5;231;48;2;;63;255m%\e%[!ssvm.boot.mpY!;!ssvm.boot.mpX!H%\e%[!ssvm.boot.mpW!X"
 	set ssvm.temp.counter=!ssvm.boot.mpY!
-	for %%a in (!ssvm.boot.entries!) do for /f "tokens=1-3 delims=¤" %%1 in ("%%~a") do (
-		set /a ssvm.temp.counter+=1
-		set temp.prefix=
-		if "%%~3"=="" set "temp.prefix=[legacy] "
-		if "!ssvm.boot.mouseY!"=="!ssvm.temp.counter!" (
-			set "ssvm.boot.bg=!ssvm.boot.bg!%\e%[38;5;231;48;2;63;127;255m%\e%[B%\e%[!ssvm.boot.mpX!G!ssvm.boot.buffer!%\e%[!ssvm.boot.mpX!G  !temp.prefix!%%~1: %%~2"
-			if "!click!"=="1" (
-				<nul set /p "=%\e%[38;2;255;255;255;48;2;;;m%\e%[2J%\e%[!ssvm.boot.logoY!;!ssvm.boot.logoX!H!spr.[SSVM]!%\e%[?25l"
-				call :boot "%%~1"
-				mode !ssvm.modeW!,!ssvm.modeH!
-				<nul set /p "=%\e%[0m%\e%[H%\e%[38;5;231;48;2;;63;255m%\e%[2K SSVM !ssvm.ver! boot menu%\e%[E%\e%[38;5;231;48;5;12m%\e%[0J%\e%[?25l"
+	if !deltaTime! geq 1 (
+		for %%a in (!ssvm.boot.entries!) do for /f "tokens=1-3 delims=¤" %%1 in ("%%~a") do (
+			set /a ssvm.temp.counter+=1
+			set temp.prefix=
+			if "%%~3"=="" set "temp.prefix=[legacy] "
+			if "!ssvm.boot.mouseY!"=="!ssvm.temp.counter!" (
+				set "ssvm.boot.bg=!ssvm.boot.bg!%\e%[38;5;231;48;2;63;127;255m%\e%[B%\e%[!ssvm.boot.mpX!G%\e%[!ssvm.boot.mpW!X  !temp.prefix!%%~1: %%~2"
+				if "!click!"=="1" (
+					<nul set /p "=%\e%[38;2;255;255;255;48;2;;;m%\e%[2J%\e%[!ssvm.boot.logoY!;!ssvm.boot.logoX!H!spr.[SSVM]!%\e%[?25l"
+					call :boot "%%~1"
+					mode !ssvm.modeW!,!ssvm.modeH!
+					<nul set /p "=%\e%[0m%\e%[H%\e%[38;5;231;48;2;;63;255m%\e%[2K SSVM !ssvm.ver! boot menu%\e%[E%\e%[38;5;231;48;5;12m%\e%[0J%\e%[?25l"
+				)
+			) else (
+				set "ssvm.boot.bg=!ssvm.boot.bg!%\e%[38;5;231;48;2;;63;255m%\e%[B%\e%[!ssvm.boot.mpX!G%\e%[!ssvm.boot.mpW!X  !temp.prefix!%%~1: %%~2"
 			)
-		) else (
-			set "ssvm.boot.bg=!ssvm.boot.bg!%\e%[38;5;231;48;2;;63;255m%\e%[B%\e%[!ssvm.boot.mpX!G!ssvm.boot.buffer!%\e%[!ssvm.boot.mpX!G  !temp.prefix!%%~1: %%~2"
 		)
+		set /p "=!ssvm.boot.bg!%\e%[38;5;231;48;2;;63;255m%\e%[B%\e%[!ssvm.boot.mpX!G%\e%[!ssvm.boot.mpW!X"
 	)
-	if "!td!"=="0" <nul set /p "=!ssvm.boot.bg!%\e%[38;5;231;48;2;;63;255m%\e%[B%\e%[!ssvm.boot.mpX!G!ssvm.boot.buffer!"
-)
+)) < nul
 exit /b
 :loadsprites
 if not exist "%~1" exit 31232
@@ -166,16 +166,17 @@ if "!ssvm.temp.check!" == "Failed" (
 	pause < con > nul
 	exit /b
 ) < nul
-
 if defined ssvm.BEFI (
 	setlocal enabledelayedexpansion
+	<nul set /p "=%\e%[48;2;0;0;0;38;2;255;255;255m"
 	call autorun "!ssvm.args!"
 	endlocal
 	set ssvm.exitcode=!errorlevel!
 ) else (
-	< nul set /p =%\e%[38;2;255;255;255m%\e%[48;2;0;0;0m%\e%[HBooting from "%~1"
+	< nul set /p =%\e%[38;2;255;255;255;48;2;0;0;0m%\e%[HBooting from "%~1"
 	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t2=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000)", ssvm.temp.fadein=255
 	call :bootanim.fadeout
+	<nul set /p "=%\e%[48;2;0;0;0;38;2;255;255;255m"
 	call cmd /V:ON /c autorun "!ssvm.args!"
 	set ssvm.exitcode=!errorlevel!
 )
