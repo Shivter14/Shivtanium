@@ -1,8 +1,9 @@
 @echo off & setlocal enableDelayedExpansion
 if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
+set bxf.ver=1.0.7
 
 if not defined subRoutineN (
-	echo=BXF - Batch Expanded Functions ^| version 1.0.6
+	echo=BXF - Batch Expanded Functions ^| version !bxf.ver!
 	echo=Compiling started at !time!
 	set subRoutineN=0
 )
@@ -65,14 +66,14 @@ for /l %%# in (1 1 100) do for /l %%# in (1 1 100) do (
 					set "$=!$:~1!FEDCBA9876543210"
 					set /a lineLen+=0x!$:~15,1!
 					
-					set "$=#!end!"
+					set "$=#!line:*$$=!"
 					set "endLen="
 					for %%$ in (4096 2048 1024 512 256 128 64 32 16) do if "!$:~%%$!" NEQ "" (
 						set /a "endLen+=%%$"
 						set "$=!$:~%%$!"
 					)
 					set "$=!$:~1!FEDCBA9876543210"
-					set /a "endLen+=0x!$:~15,1!, length=lineLen - endLen - 5"
+					set /a "endLen+=0x!$:~15,1!, length=lineLen - endLen - 2"
 					set "$=!line:*; =!"
 					for %%b in (!length!) do set "f$!prefix!%%a=!$:~,%%b!"
 				)
