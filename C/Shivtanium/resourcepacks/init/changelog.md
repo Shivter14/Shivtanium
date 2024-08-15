@@ -131,6 +131,7 @@ This also includes the updated Desktop Window Manager with better window moving.
 
 # Milestone 4 Plans
 - Unfocusing windows should change colors if theme supports it.
+- Finish up the compiler with non-called functions (BXF).
 [current progress]
 - Add a game.
 - Fully implement system updates.
@@ -141,7 +142,7 @@ This also includes the updated Desktop Window Manager with better window moving.
 # Milestone 5 Plans
 - Add multilanguism.
 - Sprite viewer.
-- Finish up the compiler with non-called functions.
+- Resource packs.
 
 # Full release plans
 - Trailer
