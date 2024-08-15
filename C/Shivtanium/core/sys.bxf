@@ -30,6 +30,8 @@ set /a PID=PID
 #end
 #function onEvent; ) else if "!kernelOut!"=="$$" (
 #end
+#function onEventRaw; ) else if $$ (
+#end
 #function handleStdEvents
 	) else if "!kernelOut!"=="exitProcess=!PID!" (
 		exit 0
