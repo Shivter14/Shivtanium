@@ -1,6 +1,6 @@
 tag=Beta
-ver=1.3.1
-subvinfo=[GitHub-Canary 24w33a]
+ver=1.3.3
+subvinfo=[GitHub-Canary 24w33b]
 loginBGTheme=lo-fi
 loginTheme=lo-fi
 lowPerformanceMode=False
