@@ -119,17 +119,18 @@ handles Mouse input, Keyboard input, Window management, and more.
 The interpreter is currently disabled since it needs a partial re-write.
 This also includes the updated Desktop Window Manager with better window moving.
 
+# Future plans
 
-# Milestoen 2 Plans
+## Milestone 2 Plans
 - Finish the new Kernel.
 
-# Milestone 3 Plans
+## Milestone 3 Plans
 - Give the Control Panel customization options.
 - Add an Out-of-Box experience.
 - Add a task manager.
 - Add user profiles.
 
-# Milestone 4 Plans
+## Milestone 4 Plans
 - Unfocusing windows should change colors if theme supports it.
 - Finish up the compiler with non-called functions (BXF).
 [current progress]
@@ -139,14 +140,17 @@ This also includes the updated Desktop Window Manager with better window moving.
 - Implement window resizing.
 - Create an installer.
 
-# Milestone 5 Plans
+## Milestone 5 Plans
 - Add multilanguism.
 - Sprite viewer.
 - Resource packs.
 
-# Full release plans
+## Full release plans
 - Trailer
 - Youtube videos
 - Finish up the Wiki
+
+## Post release plans
+- MetroTyper
 
 ### And that's the predictions for the future by Shivter.
