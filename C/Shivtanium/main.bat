@@ -171,7 +171,7 @@ if defined sys.boot.fadeout (
 set "sst.processes= "
 set "sst.processes.paused= "
 
-set dwm.scene=%\e%[H%\e%[0m%\e%[48;5;0;38;5;231m%\e%[2JShivtanium OS !sys.tag! !sys.ver! !sys.subvinfo!
+set dwm.scene=%\e%[H%\e%[0m%\e%[48;5;0;38;5;231m%\e%[2JShivtanium OS !sys.tag! !sys.ver! !sys.subvinfo! ^| No theme loaded.
 set dwm.sceneBGcolor=5;0
 set dwm.BGcolor=5;231
 set dwm.FGcolor=5;16
@@ -271,7 +271,7 @@ for /l %%. in () do (
 		if not defined new_services exit 0
 		set "services=!new_services!"
 		set new_services=
-		if "!services!" == "!services:bootanim=!" call :startup.submsg "Waiting for startup tasks:" "!services!" /nologo
+		if "!services!"=="!services:bootanim=!" call :startup.submsg "Waiting for startup tasks:" "!services!" /nologo
 	)
 )
 :checkCompat
