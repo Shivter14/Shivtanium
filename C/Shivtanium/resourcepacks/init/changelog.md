@@ -1,7 +1,7 @@
 # Shivtanium Changelog
 This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
-## Beta 1.3.2 [24w33b]
+## Beta 1.3.2 [24w34a]
 - The following programs have been converted to BXF applications:
   `systemb-desktop`, `systemb-login`
 - Added new function to `sys.bxf`: `@sys.onEventRaw`
@@ -141,9 +141,10 @@ This also includes the updated Desktop Window Manager with better window moving.
 - Create an installer.
 
 ## Milestone 5 Plans
-- Add multilanguism.
-- Sprite viewer.
-- Resource packs.
+- Notifications
+- Multilanguism
+- Sprite Viewer
+- Resource Packs
 
 ## Full release plans
 - Trailer
