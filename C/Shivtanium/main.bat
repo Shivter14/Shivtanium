@@ -247,6 +247,7 @@ for /f "tokens=2 delims=:" %%a in ('mode con') do (
 		set "modeH=!token: =!"
 	) else if not defined modeW set "modeW=!token: =!"
 )
+set /a "dwm.bottombuffer=!dwm.bottombuffer:~0,%modeW%!"
 
 copy nul "temp\DWM-!sst.localtemp!" > nul
 copy nul "temp\DWMResp-!sst.localtemp!" > nul
