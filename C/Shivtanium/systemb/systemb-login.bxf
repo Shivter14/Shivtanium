@@ -47,7 +47,7 @@ for /l %%# in () do (
 			set "usernameCheck=!userprofile! "
 			set err=
 			if not defined userprofile (
-				set "err=You must enter a username"
+				set "err=You must enter a username."
 			) else (
 				for %%a in (
 					- _ a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9
@@ -66,10 +66,10 @@ for /l %%# in () do (
 		)
 	@sys.onEvent click=1
 		set /a "relativeMouseX=mouseXpos - win[!PID!.systemb_login]X, relativeMouseY=mouseYpos - win[!PID!.systemb_login]Y"
-		if "!relativeMouseY!"=="0" if !relativeMouseX! geq !closeButtonX! ((
+		if "!relativeMouseY!"=="0" if !relativeMouseX! geq !closeButtonX! (
 			echo=exitProcessTree	!PID!
 			echo=exitProcess	!PID!
 			echo=powerState	shutdown
-		)) >> "!sst.dir!\temp\kernelPipe"
+		) >> "!sst.dir!\temp\kernelPipe"
 	@sys.handleStdEvents
 )
