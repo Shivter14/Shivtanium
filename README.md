@@ -116,7 +116,7 @@ Modifying the keyboard layout can be done in the following way:
 
 With help from the Shivtanium Kernel;
 
-Information about creating applications for Shivtanium can be found on the ![Kernel Wiki](https://github.com/Shivter14/Shivtanium/wiki/kernel). (In progress)
+Information about creating applications for Shivtanium can be found on the [Kernel Wiki](https://github.com/Shivter14/Shivtanium/wiki/kernel). (In progress)
 
 ## Screenshots
 
