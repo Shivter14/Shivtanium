@@ -1,4 +1,9 @@
 @echo off & setLocal enableDelayedExpansion
+if not defined PID (
+	echo=This program requires to be run in the Shivtanium Kernel with DWM enabled.
+	<nul set /p "=Press any key to exit. . ."
+	pause>nul
+)
 set /a PID=PID
 #function createWindow
 	set /a "$w=win[!PID!.!$winName!]W=!$w!, $h=win[!PID!.!$winName!]H=!$h!, $x=win[!PID!.!$winName!]X=!$x!, $y=win[!PID!.!$winName!]Y=!$y!, !$calc!"
