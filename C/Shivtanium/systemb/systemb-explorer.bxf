@@ -1,5 +1,4 @@
-#import sys.bxf
-#import dwm.bxf
+#import sys.bxf, dwm.bxf
 #function reload
 	if !scrollpos! lss 0 set scrollpos=0
 	if !posY! lss 0 set /a scrollpos+=posY
