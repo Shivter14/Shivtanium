@@ -188,19 +188,13 @@ echo=!pipe!
 set pipe=
 exit /b 0
 :page[2].cancel
-for /l %%y in (1 1 !inbH!) do (
-	set "o%%y=%\e%[!sidebarW!X"
-	set "l%%y="
-)
+@dwm.clearBuffers "from=1" "to=!inbH!" "o=%\e%[!sidebarW!X" "l="
 for /l %%y in (2 1 !pagesBY!) do set "o%%y=!o%%y!!page[%%y]!"
 set "o!currentPage!=%\e%[!sidebarW!X%\e%[7m!page[%currentPage%]!%\e%[27m"
 for /f "delims=" %%a in ('call "!sys.dir!\core\config.bat" --get lowPerformanceMode --get reduceMotion') do set "sys.%%a">nul 2>&1
 goto page[2]
 :page[2].apply
-for /l %%y in (1 1 !inbH!) do (
-	set "o%%y=%\e%[!sidebarW!X"
-	set "l%%y="
-)
+@dwm.clearBuffers "from=1" "to=!inbH!" "o=%\e%[!sidebarW!X" "l="
 for /l %%y in (2 1 !pagesBY!) do set "o%%y=!o%%y!!page[%%y]!"
 set "o!currentPage!=%\e%[!sidebarW!X%\e%[7m!page[%currentPage%]!%\e%[27m"
 call "!sys.dir!\core\config.bat" --set lowPerformanceMode !sys.lowPerformanceMode! --set reduceMotion !sys.reduceMotion!
