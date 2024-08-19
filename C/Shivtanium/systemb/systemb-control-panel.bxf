@@ -4,8 +4,7 @@
 	for /l %%y in (2 1 !pagesBY!) do set "o%%y=!o%%y!!page[%%y]!"
 	set "pipe=¤MW	!PID!.control"
 	for /l %%y in (1 1 !inbH!) do set "pipe=!pipe!	o%%y=!o%%y!	l%%y="
-	echo=!pipe!
-	set pipe=
+	@dwm.flushPipe
 	for %%p in (!currentPage!) do (
 		if /I "!sys.reduceMotion!" neq "True" for /l %%w in (1 2 !sidebarW!) do echo=¤MW	!PID!.control	o!currentPage!=!o%%p!%\e%8%\e%[7m!page[%%p]:~0,%%w!%\e%[27m
 		set "o!currentPage!=%\e%[!sidebarW!X%\e%[7m!page[%%p]!%\e%[27m"
@@ -55,7 +54,7 @@ if "!sys.reduceMotion!"=="True" (
 		set "pipe=!pipe!	o%%y=%\e%[%%wX!tempstr!"
 		set tempstr=
 	)
-	echo=!pipe!
+	@dwm.flushPipe
 )
 @loadPage
 
@@ -107,8 +106,7 @@ for %%y in (!btn[%~1]Y!) do (
 )
 set "pipe=¤MW	!PID!.control"
 for /l %%y in (1 1 !inbH!) do set "pipe=!pipe!	o%%y=!o%%y!"
-echo=!pipe!
-set pipe=
+@dwm.flushPipe
 exit /b 0
 :page[3].prev
 set /a selectedTheme-=1
@@ -184,8 +182,7 @@ for %%b in (
 
 set "pipe=¤MW	!PID!.control"
 for /l %%y in (1 1 !inbH!) do set "pipe=!pipe!	l%%y=!l%%y!	o%%y=!o%%y!"
-echo=!pipe!
-set pipe=
+@dwm.flushPipe
 exit /b 0
 :page[2].cancel
 @dwm.clearBuffers "from=1" "to=!inbH!" "o=%\e%[!sidebarW!X" "l="
