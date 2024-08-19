@@ -143,10 +143,7 @@ for /f "delims=" %%R in ('dir /b /a:D "!sst.dir!\resourcepacks"') do for /f "del
 	if "!user.globalTheme!"=="%%~nxT" set selectedTheme=!themeCount!
 )
 :page[3].quickreload
-for /l %%y in (1 1 !inbH!) do (
-	set "o%%y=%\e%[!sidebarW!X"
-	set "l%%y="
-)
+@dwm.clearBuffers "from=1" "to=!inbH!" "o=%\e%[!sidebarW!X" "l="
 for /l %%y in (2 1 !pagesBY!) do set "o%%y=!o%%y!!page[%%y]!"
 set "o!currentPage!=%\e%[!sidebarW!X%\e%[7m!page[%currentPage%]!%\e%[27m"
 
