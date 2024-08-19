@@ -136,8 +136,8 @@ goto exit
 :about
 set "sys.username=!sys.username!."
 >>"!sst.dir!\temp\kernelPipe" echo=createProcess	!sys.UPID!	systemb-dialog.bat (sys.modeW-w)/2+1 3 60 15 "About Shivtanium"^
- "l1=%\e%[7m▓▓▓▒▒░░%\e%[45X%\e%[45C░░▒▒▓▓%\e%[27m	l2=%\e%[7m▓▓▒▒░░   ▄▄▄ ▄    ▄      ▄%\e%[12X%\e%[12C▄%\e%[12X%\e%[12C░░▒▒▓▓▓%\e%[27m	l3=%\e%[7m▓▓▓▒▒░░ █    █          ▄█▄%\e%[25X%\e%[25C░░▒▒▓▓%\e%[27m	l4=%\e%[7m▓▓▒▒░░   ▀▀▄ █▀▀▄ █ █ █  █  ▄▀▀▄ █▀▀▄ █ █  █ █▀▄▀▄ ░░▒▒▓▓▓%\e%[27m	l5=%\e%[7m▓▓▓▒▒░░ ▄▄▄▀ █  █ █ ▀█▀  █  ▀▄▄█ █  █ █ ▀▄▄█ █ █ █  ░░▒▒▓▓%\e%[27m	l6=%\e%[7m▓▓▒▒░░%\e%[45X%\e%[10C▀%\e%[9C▀%\e%[9C▀%\e%[8C▀     ░░▒▒▓▓▓%\e%[27m	l7=%\e%[7m▓▓▓▒▒░░%\e%[45X%\e%[45C░░▒▒▓▓%\e%[27m	l9=  Shivtanium version !sys.tag! !sys.ver! !sys.subvinfo!	l10=  Copyright © Shivter 2021 - 2024	l12=  Logged in as !sys.username:~0,43!" w-buttonW-2 h-2 7 " Close "
- 
+ "l1=%\e%[48;5;15;38;5;16m▓▓▓▒▒░░%\e%[45X%\e%[45C░░▒▒▓▓	l2=%\e%[48;5;15;38;5;16m▓▓▒▒░░   ▄▄▄ ▄    ▄      ▄%\e%[12X%\e%[12C▄%\e%[12X%\e%[12C░░▒▒▓▓▓	l3=%\e%[48;5;15;38;5;16m▓▓▓▒▒░░ █    █          ▄█▄%\e%[25X%\e%[25C░░▒▒▓▓	l4=%\e%[48;5;15;38;5;16m▓▓▒▒░░   ▀▀▄ █▀▀▄ █ █ █  █  ▄▀▀▄ █▀▀▄ █ █  █ █▀▄▀▄ ░░▒▒▓▓▓	l5=%\e%[48;5;15;38;5;16m▓▓▓▒▒░░ ▄▄▄▀ █  █ █ ▀█▀  █  ▀▄▄█ █  █ █ ▀▄▄█ █ █ █  ░░▒▒▓▓	l6=%\e%[48;5;15;38;5;16m▓▓▒▒░░%\e%[45X%\e%[10C▀%\e%[9C▀%\e%[9C▀%\e%[8C▀     ░░▒▒▓▓▓	l7=%\e%[48;5;15;38;5;16m▓▓▓▒▒░░%\e%[45X%\e%[45C░░▒▒▓▓	l9=  Shivtanium version !sys.tag! !sys.ver! !sys.subvinfo!	l10=  Copyright © Shivter 2021 - 2024	l12=  Logged in as !sys.username:~0,43!" w-buttonW-2 h-2 7 " Close "
+set "sys.username=!sys.username:~0,-1!"
 goto exit
 :launchProgram
 set "arg=%~1"
