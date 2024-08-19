@@ -5,16 +5,17 @@
 	)
 #end
 #function preparePipe
-	set pipe=¤MW	!PID!.!$targetWin!
+	set pipe=¤MW	!$targetWin!
 	for /l %%$ in (!$from! 1 !$to!) do (
 		set "pipe=!pipe!	l%%$=!l%%$!	o%%$=!o%%$!"
-	if "!pipe:~500,1!" neq "" (
-		echo=!pipe!
-		set "pipe=¤MW	!PID!.!$targetWin!"
-	)
-	set "pipe=!pipe!	o%%$=!o%%$!	l%%$=!l%%$!"
+		if "!pipe:~500,1!" neq "" (
+			echo=!pipe!
+			set "pipe=¤MW	!$targetWin!"
+		)
+		set "pipe=!pipe!	o%%$=!o%%$!	l%%$=!l%%$!"
 	)
 #end
+#function appendPipe; for /l %%Y in (1 1 $$) do set "pipe=!pipe!	o%%Y=!o%%Y!	l%%Y=!l%%Y!"
 #function flushPipe
 	echo=!pipe!
 	set pipe=
