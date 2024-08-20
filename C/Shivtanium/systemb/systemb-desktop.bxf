@@ -18,18 +18,21 @@ for /l %%# in () do (
 :launcher
 setlocal
 echo=¤OV	%\e%[999;1H%\e%[48;2;63;127;192;38;2;255;255;255m Shivtanium %\e%[48;2;0;31;63m%\e%[0K%\e%[999C%\e%[24D!date! !expTime!
-set /a "win[systemb_launcher]X=1, tempY=sys.modeH-1, win[systemb_launcher]W=38, win[systemb_launcher]H=12, win[systemb_launcher]Y=sys.modeH-win[systemb_launcher]H, tempH=win[systemb_launcher]H+1"
+set /a "win[systemb_launcher]X=1, tempY=sys.modeH-1, win[systemb_launcher]W=38, win[systemb_launcher]H=11, win[systemb_launcher]Y=sys.modeH-win[systemb_launcher]H, tempZ=win[systemb_launcher]Y+1"
 if "!sys.lowPerformanceMode!"=="True" (
 	set "tempY=!win[systemb_launcher]Y!"
 	set theme=classic
 	set sys.reduceMotion=True
 ) else set theme=plex
 echo=¤CW	systemb_launcher	!win[systemb_launcher]X!	!tempY!	!win[systemb_launcher]W!	!win[systemb_launcher]H!	Application Launcher	!theme! noCBUI
->>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	systemb_launcher	!win[systemb_launcher]X!	!win[systemb_launcher]Y!	!win[systemb_launcher]W!	!tempH!	1
+set "pipe=	pt=	l1=%\e%[38;^!win[systemb_launcher]TIcolor^!m▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀"
+>>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	systemb_launcher	!win[systemb_launcher]X!	!tempZ!	!win[systemb_launcher]W!	!win[systemb_launcher]H!	1
 if "!sys.reduceMotion!" neq "True" for /l %%y in (!tempY! -1 !win[systemb_launcher]Y!) do (
-	echo=¤MW	systemb_launcher	Y=%%y
+	echo=¤MW	systemb_launcher	Y=%%y!pipe!
+	set pipe=
 )
-echo=¤MW	systemb_launcher	Y=!win[systemb_launcher]Y!
+echo=¤MW	systemb_launcher	Y=!win[systemb_launcher]Y!!pipe!
+set pipe=
 
 set "math=win[systemb_launcher]BY=win[systemb_launcher]Y+win[systemb_launcher]H-1, sidebarW=12, itemW=(sidebarX=win[systemb_launcher]W-sidebarW-2)-2"
 set "buttons= "
