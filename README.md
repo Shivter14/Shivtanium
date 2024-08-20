@@ -130,6 +130,8 @@ Information about creating applications for Shivtanium can be found on the [Kern
   ![image](https://github.com/user-attachments/assets/8aa95fe2-74a8-4655-9a0e-966e88f54b22)
   ![image](https://github.com/user-attachments/assets/816ca08b-a275-4f0e-b7ed-c29ba9e4aa31)
   ![image](https://github.com/user-attachments/assets/38911f7a-f5df-4831-b542-385976374cc8)
+  ![image](https://github.com/user-attachments/assets/fb0cd5cf-a361-459b-ac15-063907d25e53)
+
 
 
     == Credits ==
