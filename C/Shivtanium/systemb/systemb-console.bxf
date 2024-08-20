@@ -23,7 +23,7 @@ set "focusedWindow=!PID!.conhost"
 set "input= "
 for /l %%# in () do (
 	@sys.pullEvents
-	@sys.onEventRaw "!kernelOut:~0,14!"=="keysPressedRN=" (
+	@sys.onEventRaw "!kernelOut:~0,14!"=="keysPressedRN="
 		set "!kernelOut!" > nul 2>&1
 		if "!focusedWindow!"=="!PID!.conhost" for %%k in (!keysPressedRN!) do (
 			set "char=!charset_L:~%%k,1!"
