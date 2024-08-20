@@ -122,15 +122,7 @@ Information about creating applications for Shivtanium can be found on the [Kern
 
 <div align="center">
 
-  ![image](https://github.com/Shivter14/Shivtanium/assets/98386496/dd131add-ed0a-4b8a-b11d-51ef5c7239ab)
-  ![image](https://github.com/Shivter14/Shivtanium/assets/98386496/983b1fc7-c198-4bfc-8a7d-94462d6b9dfb)
-  ![image](https://github.com/user-attachments/assets/d417a5e4-452b-4e58-9eb5-8fad47d6b199)
-  ![image](https://github.com/user-attachments/assets/737af2a2-d617-4ead-95cf-7d7acc818c9c)
-  ![image](https://github.com/user-attachments/assets/9dde2564-e682-4895-98a9-4840cd61ba49)
-  ![image](https://github.com/user-attachments/assets/8aa95fe2-74a8-4655-9a0e-966e88f54b22)
-  ![image](https://github.com/user-attachments/assets/816ca08b-a275-4f0e-b7ed-c29ba9e4aa31)
-  ![image](https://github.com/user-attachments/assets/38911f7a-f5df-4831-b542-385976374cc8)
-  ![image](https://github.com/user-attachments/assets/fb0cd5cf-a361-459b-ac15-063907d25e53)
+  ![image](https://github.com/Shivter14/Shivtanium/assets/98386496/dd131add-ed0a-4b8a-b11d-51ef5c7239ab) ![image](https://github.com/Shivter14/Shivtanium/assets/98386496/983b1fc7-c198-4bfc-8a7d-94462d6b9dfb) ![image](https://github.com/user-attachments/assets/d417a5e4-452b-4e58-9eb5-8fad47d6b199) ![image](https://github.com/user-attachments/assets/737af2a2-d617-4ead-95cf-7d7acc818c9c) ![image](https://github.com/user-attachments/assets/9dde2564-e682-4895-98a9-4840cd61ba49) ![image](https://github.com/user-attachments/assets/8aa95fe2-74a8-4655-9a0e-966e88f54b22) ![image](https://github.com/user-attachments/assets/816ca08b-a275-4f0e-b7ed-c29ba9e4aa31) ![image](https://github.com/user-attachments/assets/38911f7a-f5df-4831-b542-385976374cc8) ![image](https://github.com/user-attachments/assets/fb0cd5cf-a361-459b-ac15-063907d25e53)
 
 
 
