@@ -28,7 +28,7 @@ for /l %%# in () do (
 		if "!_processes!" neq "!processes!" (
 			set buffer=¤MW	!PID!.taskmgr	l1=┌[Processes]!glb:~11!┐	l!contentH!=└[%\e%[21C!glb:~22!┘%\e%[!contentW!DRunning processes: !procCount!]
 			for /l %%p in (2 1 !procListH!) do if defined pid[%%p] (
-				for /f "usebackq" %%P in ("!sst.dir!\temp\proc\PID-!pid[%%p]!") do set "process=%%~P"
+				for /f "usebackq" %%P in ("!sst.dir!\temp\proc\PID-!pid[%%p]!") do set "process=%%~nP"
 				set "buffer=!buffer!	l%%p=│%\e%[!contentW!C│%\e%[!contentW!D!process:~0,%closeButtonX%!%\e%8%\e%[!tab2!C!pid[%%p]!"
 			) else set "buffer=!buffer!	l%%p=│%\e%[!contentW!C│"
 			echo=!buffer!
