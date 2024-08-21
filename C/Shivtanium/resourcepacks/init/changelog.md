@@ -156,5 +156,6 @@ This also includes the updated Desktop Window Manager with better window moving.
 
 ## Post release plans
 - MetroTyper
+- DOOM
 
 ### And that's the predictions for the future by Shivter.
