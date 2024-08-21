@@ -2,8 +2,9 @@
 This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
 ## Beta 1.3.2 [24w34a]
-- All `systemb` applications are now compiled with BXF
+- All `systemb` applications are now compiled with BXF.
 - Added new function to `sys.bxf`: `@sys.onEventRaw`
+- Task manager now only displays file names of running processes to reduce text length.
 - Bugfixes:
   - BXF compiler issues with inline functions.
   - `systemb-oobe` issues selecting themes.
