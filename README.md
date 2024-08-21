@@ -7,7 +7,7 @@
 [![Last Commit](https://img.shields.io/github/last-commit/Shivter14/Shivtanium/main?label=Latest%20commit&style=for-the-badge&display_timestamp=committer)](https://github.com/Shivter14/Shivtanium/pulse/monthly "Last activity")
 
 ## Shivtanium is a Batch OS Kernel, along with `systemb` and `bxf` making it the most advanced Batch OS ever created.
-
+(Screenshots are avaliable at the bottom of this document.)
 </div>
 
 The Shivtanium Kernel handles:
