@@ -196,6 +196,7 @@ for /l %%# in () do (
 				for %%w in (!windows!) do if not defined focusedWindow set "focusedWindow=%%~w"
 				set /a ioTotal+=1
 				echo=focusedWindow=!focusedWindow!
+				>&3 echo=¤FOCUS	!focusedWindow!
 			)
 			if "%%~w"=="!movingWindow!" set movingWindow=
 			for /f "tokens=1 delims==" %%a in ('set "win[%%~w]" 2^>nul') do set "%%a="
@@ -294,6 +295,7 @@ if "!processes: =!"=="" (
 		for %%w in (!windows!) do if not defined focusedWindow set "focusedWindow=%%~w"
 		set /a ioTotal+=1
 		echo=focusedWindow=!focusedWindow!
+		>&3 echo=¤FOCUS	!focusedWindow!
 	)
 	if "%%~w"=="!movingWindow!" set movingWindow=
 	for /f "tokens=1 delims==" %%a in ('set "win[%%~w]" 2^>nul') do set "%%a="
