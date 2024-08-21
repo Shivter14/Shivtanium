@@ -2,12 +2,15 @@
 This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
 ## Beta 1.3.2 [24w34a]
-- The following programs have been converted to BXF applications:
-  `systemb-desktop`, `systemb-login`
+- All `systemb` applications are now compiled with BXF
 - Added new function to `sys.bxf`: `@sys.onEventRaw`
 - Bugfixes:
   - BXF compiler issues with inline functions.
   - `systemb-oobe` issues selecting themes.
+  - Focused window's color not changing on automatic focusing after closing a window.
+- The DWM buffer splitting has been optimized.
+- The application launcher doesn't have a window title bar
+  (Experimental DWM functionality)
 
 ## Beta 1.3.1 [24w33a]
 - Added the BXF compiler - Batch Expanded Functions.
