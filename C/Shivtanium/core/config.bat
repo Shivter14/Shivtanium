@@ -23,16 +23,16 @@ if "!mode!"=="get" (
 	)
 	set "cfg.!variable!=!value!"
 	(
-		echo=tag=!sys.tag!
-		echo=ver=!sys.ver!
-		echo=subvinfo=!sys.subvinfo!
-		for /f "tokens=1* delims=." %%a in ('set cfg. 2^>nul') do echo=%%b
+		echo(tag=!sys.tag!
+		echo(ver=!sys.ver!
+		echo(subvinfo=!sys.subvinfo!
+		for /f "tokens=1* delims=." %%a in ('set cfg. 2^>nul') do echo(%%b
 	) > "!sst.dir!\settings.dat"
 	for /f %%a in ('set cfg 2^>nul') do set "%%a="
 )
-
 
 if "%~2" neq "" (
 	shift /1
 	goto main
 )
+exit /b
