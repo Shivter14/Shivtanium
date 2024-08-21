@@ -13,7 +13,6 @@ for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t2=((((1%%a-1000
 
 set @chanceMethod=if "^!random:~-1^!"=="1"
 if /I "!sys.lowPerformanceMode!"=="True" set "@chanceMethod=if 1==1"
-
 for /l %%# in () do (
 	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000), deltaTime=(t1 - t2), timer.100cs+=deltaTime, t2=t1, fpsFrames+=1"
 	if !timer.100cs! geq 100 (
@@ -208,17 +207,20 @@ for /l %%# in () do (
 		
 		if defined mainbuffer (
 			for %%w in (!windows.redraw!) do (
-				if "!mainbuffer:~5000,1!" neq "" (
-					echo=!mainbuffer!%\e%[H
-					set mainbuffer=
-				)
+				set "_mainbuffer=!mainbuffer!"
 				set "mainbuffer=!mainbuffer!%\e%[!win[%%~w]Y!;!win[%%~w]X!H%\e%7!win[%%~w]pt!%\e%8%\e%[B%\e%7!win[%%~w]p1!!win[%%~w]l1!%\e%8%\e%[48;!win[%%~w]TIcolor!;38;!win[%%~w]TTcolor!m!win[%%~w]o1!%\e%8%\e%[B%\e%7!win[%%~w]p2!!win[%%~w]l2!%\e%8%\e%[48;!win[%%~w]TIcolor!;38;!win[%%~w]TTcolor!m!win[%%~w]o2!%\e%8%\e%[B%\e%7!win[%%~w]p3!!win[%%~w]l3!%\e%8%\e%[48;!win[%%~w]TIcolor!;38;!win[%%~w]TTcolor!m!win[%%~w]o3!!win[%%~w]r!"
+				if not defined mainbuffer (
+					echo=!_mainbuffer!%\e%[H
+					set "mainbuffer=%\e%[!win[%%~w]Y!;!win[%%~w]X!H%\e%7!win[%%~w]pt!%\e%8%\e%[B%\e%7!win[%%~w]p1!!win[%%~w]l1!%\e%8%\e%[48;!win[%%~w]TIcolor!;38;!win[%%~w]TTcolor!m!win[%%~w]o1!%\e%8%\e%[B%\e%7!win[%%~w]p2!!win[%%~w]l2!%\e%8%\e%[48;!win[%%~w]TIcolor!;38;!win[%%~w]TTcolor!m!win[%%~w]o2!%\e%8%\e%[B%\e%7!win[%%~w]p3!!win[%%~w]l3!%\e%8%\e%[48;!win[%%~w]TIcolor!;38;!win[%%~w]TTcolor!m!win[%%~w]o3!!win[%%~w]r!"
+				)
 			)
-			if "!mainbuffer:~6400,1!" neq "" (
-				echo=!mainbuffer!%\e%[H
-				set mainbuffer=
+			set "_mainbuffer=!mainbuffer!"
+			set "mainbuffer=!mainbuffer!!overlay!!extbuffer!"
+			if not defined mainbuffer (
+				echo=!_mainbuffer!%\e%[H
+				set "mainbuffer=!overlay!!extbuffer!"
 			)
-			echo=!mainbuffer!!overlay!!extbuffer!%\e%[H
+			echo=!mainbuffer!%\e%[H
 		)
 		set mainbuffer=
 		set extbuffer=
@@ -279,7 +281,7 @@ for %%a in (!halt.finalmsg!) do (
 )
 <nul set /p "=%\e%[2B%\e%[!halt.promptX!G%\e%[7m Press any key to exit. %\e%[27m"
 set > "!sst.dir!\temp\DWM-!sst.localtemp!-memoryDump" 2>nul
-exit %3
+exit 0
 :sleep
 set exit=
 for /l %%A in (1 1 10000) do if not defined exit (
