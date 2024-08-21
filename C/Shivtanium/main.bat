@@ -69,7 +69,9 @@ call sstoskrnl.bat %* < "temp\kernelPipe" > "temp\kernelOut" 2>"temp\kernelErr" 
 :startup.submsg
 set "sst.boot.msg=%~1"
 set "sst.boot.submsg=%~2"
->>"temp\bootStatus-!sst.localtemp!" echo(!sst.boot.msg!;!sst.boot.submsg!
+set "sst.boot.barMax=%~3"
+set "sst.boot.barVal=%~4"
+>>"temp\bootStatus-!sst.localtemp!" echo(!sst.boot.msg!;!sst.boot.submsg!;!sst.boot.barMax!;!sst.boot.barVal!
 exit /b
 
 # This will never execute
@@ -239,7 +241,6 @@ set dwm.char.L=█
 set dwm.char.B=▄
 set dwm.char.R=█
 set dwm.char.S=█
-set "dwm.bottombuffer=▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄"
 
 for /f "tokens=2 delims=:" %%a in ('mode con') do (
 	set "token=%%~a"
@@ -247,7 +248,6 @@ for /f "tokens=2 delims=:" %%a in ('mode con') do (
 		set "modeH=!token: =!"
 	) else if not defined modeW set "modeW=!token: =!"
 )
-set /a "dwm.bottombuffer=!dwm.bottombuffer:~0,%modeW%!"
 
 copy nul "temp\DWM-!sst.localtemp!" > nul
 copy nul "temp\DWMResp-!sst.localtemp!" > nul
@@ -282,8 +282,14 @@ exit /b
 set bxf.failed=
 > "!sst.dir!\temp\BXFstartup.log" echo=Something went wrong while compiling BXF applications. This log has been saved to "temp\BXFstartup.log"
 cd "!sst.dir!" || exit /b
+
+set BXF_toCompile=0
+set BXF_compiled=0
+for %%F in ("systemb\*.bxf") do if not exist "%%~dpnF.bat" set /a BXF_toCompile+=1
+
 (for %%F in ("systemb\*.bxf") do if not exist "%%~dpnF.bat" (
-	call :startup.submsg "!sst.boot.msg!" "File: %%F"
+	set /a BXF_compiled+=1
+	call :startup.submsg "!sst.boot.msg!" "File: %%F" !BXF_toCompile! !BXF_compiled!
 	<nul set /p "=%\e%[48;2;0;0;0;38;2;255;255;255m"
 	if not exist "%%~dpn.bat" call bxf.bat "%%~fF" || set bxf.failed=True
 )) >> "!sst.dir!\temp\BXFstartup.log" 2>&1
@@ -295,6 +301,7 @@ if not defined bxf.failed (
 call :waitForAnimations
 echo=%\e%[48;2;0;0;0;38;2;255;255;255m%\e%[H%\e%[2J
 call :compileBXF.failed < "!sst.dir!\temp\BXFstartup.log"
+set BXF_toCompile=
 exit /b 0
 :compileBXF.failed
 set lineDef=
