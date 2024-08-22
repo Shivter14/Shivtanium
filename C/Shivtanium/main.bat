@@ -222,10 +222,14 @@ exit /b
 rem if exist "!asset[\sounds\boot.mp3]!" start "<Shivtanium startup sound handeler> (ignore this)" /min cscript.exe //b core\playsound.vbs "!asset[\sounds\boot.mp3]!"
 setlocal enabledelayedexpansion
 
+set "sys.logoX=!sst.boot.logoX!"
 for %%a in (
 	"ssvm"
 	"temp"
 	"pid"
+	"asset"
+	"charset"
+	"sst.boot"
 ) do for /f "tokens=1 delims==" %%b in ('set %%a 2^>nul') do set "%%b="
 for /f "delims=" %%A in ('dir /b /a:-D "!sys.dir!\resourcepacks\init\themes\*"') do (
 	set "theme[%%~nA]= "
