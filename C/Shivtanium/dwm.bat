@@ -19,7 +19,7 @@ for /l %%# in () do (
 		set /a "timer.100cs%%=100, fps=fpsFrames, fpsFrames=0"
 		title Shivtanium !sys.tag! !sys.ver! !sys.subvinfo! ^| DWM: {FPS: !fps! Frametime: !deltaTime!}
 	)
-	if "!input:~0,1!"=="¤" for /f "tokens=1-8* delims=	" %%0 in ("!input:~1!") do (
+	set /p input= && if "!input:~0,1!"=="¤" for /f "tokens=1-8* delims=	" %%0 in ("!input:~1!") do (
 		set windows.redraw=!win.order!
 		if "%%~0"=="MW" (
 			set "oldX=!win[%%~1]X!"
@@ -91,11 +91,7 @@ for /l %%# in () do (
 			set "win[%%~1]aero=!dwm.aero!"
 			set "win[%%~1]winAero=!dwm.winAero!"
 			
-			for %%a in (!win[%%~1]theme!) do (
-				for %%b in (!theme[%%~a]!) do (
-					set "win[%%~1]%%~b"
-				)
-			)
+			for %%a in (!win[%%~1]theme!) do for %%b in (!theme[%%~a]!) do set "win[%%~1]%%~b"
 			if "!win[%%~1]winAero!" neq "" (
 				set win[%%~1]aero=!win[%%~1]winAero!
 				set "win[%%~1]winAero="
@@ -108,8 +104,9 @@ for /l %%# in () do (
 				set "win[%%~1]pt=%\e%[48;!win[%%~1]TIcolor!m%\e%[38;!win[%%~1]TTcolor!m%\e%[!temp.bl!X!win[%%~1]title:~0,%%~b!%\e%8%\e%[!temp.bl!C!win[%%~1]CBUI!"
 				
 				if "!win[%%~1]aero!" neq "" (
+					set "gvo=%%~8"
 					for /l %%y in (1 1 !temp.H!) do (
-						set /a "x=(%%y+!win[%%~1]Y!-1)", "!win[%%~1]aero:×=*!"
+						set /a "x=(%%y+!win[%%~1]Y!-1+gvo)", "!win[%%~1]aero:×=*!"
 						set "win[%%~1]p%%y=%\e%[48;2;!r!;!g!;!b!;38;!win[%%~1]TIcolor!m %\e%[%%~aX%\e%[%%~aC%dwm.char.R%%\e%8%dwm.char.L%%\e%[48;2;!r!;!g!;!b!;38;!win[%%~1]FGcolor!m"
 					)
 					set "win[%%~1]p!win[%%~1]RH!=%\e%[48;2;!r!;!g!;!b!;38;!win[%%~1]TIcolor!m !dwm.bottombuffer:~0,%%~a!%dwm.char.S%%\e%8%dwm.char.L%%\e%[48;2;!r!;!g!;!b!;38;!win[%%~1]FGcolor!m"
@@ -117,6 +114,7 @@ for /l %%# in () do (
 					set g=
 					set b=
 					set x=
+					set gvo=
 				) else (
 					for /l %%y in (1 1 !temp.H!) do (
 						set "win[%%~1]p%%y=%\e%[48;!win[%%~1]BGcolor!;38;!win[%%~1]TIcolor!m %\e%[%%~aX%\e%[%%~aC%dwm.char.R%%\e%8%dwm.char.L%%\e%[38;!win[%%~1]FGcolor!m"
@@ -192,16 +190,24 @@ for /l %%# in () do (
 				call :sleep
 			) else if "%%~1"=="BSOD" (
 				call :bsod "%%~2" "%%~3"
-			)
-		) else if "%%~0"=="DUMP" (
-			if "%%~1"=="WIN" (
-				set win%%~2 >&3
-			) else if "%%~1"=="ORDER" (
-				set win.order >&3
-			) else if "%%~1"=="MODE" (
-				set mode >&3
-			) else if "%%~1"=="LOAD" (
-				for /f "usebackq tokens=1* delims==" %%x in ("%%~2") do set "%%x=%%y"
+			) else if "%%~1"=="DUMP" (
+				if "%%~2"=="WIN" (
+					set win%%~3 >&3
+				) else if "%%~2"=="ORDER" (
+					set win.order >&3
+				) else if "%%~2"=="MODE" (
+					set mode >&3
+				) else set >&3
+			) else if "%%~2"=="LOAD" (
+				set loadLines=0
+				for /f "usebackq tokens=1* delims==" %%x in ("%%~2") do set /a loadLines+=1
+				(for /l %%l in (1 1 !loadLines!) do (
+					set line=
+					set /p line= || set /p line=
+					set "!line!"
+				))<"%%~2">nul 2>&1
+				set line=
+				set loadLines=
 			)
 		) else if "%%~0"=="EXIT" exit 0
 		
@@ -215,18 +221,16 @@ for /l %%# in () do (
 				)
 			)
 			set "_mainbuffer=!mainbuffer!"
-			set "mainbuffer=!mainbuffer!!overlay!!extbuffer!"
+			set "mainbuffer=!mainbuffer!!overlay!"
 			if not defined mainbuffer (
 				echo=!_mainbuffer!%\e%[H
-				set "mainbuffer=!overlay!!extbuffer!"
+				set "mainbuffer=!overlay!"
 			)
 			echo=!mainbuffer!%\e%[H
 		)
 		set mainbuffer=
 		set extbuffer=
 	)
-	set input=
-	set /p input=
 )
 :bsod
 setlocal enabledelayedexpansion
@@ -236,6 +240,7 @@ for /f "tokens=2 delims=:" %%a in ('mode con') do (
 	if "!counter!"=="1" set /a "modeH=!token: =!"
 	if "!counter!"=="2" set /a "modeW=!token: =!"
 )
+set token=
 set "halt.cause=#%~1"
 set halt.causeLen=0
 for /l %%y in (9,-1,0) do (
@@ -273,7 +278,7 @@ for %%l in ("!halt.message!") do (
 	set "halt.templine=!halt.templine! !halt.tempmsg:~1!"
 )
 set halt.finalmsg=!halt.finalmsg! "!halt.templine!"
-set /a "halt.posX=!sst.boot.logoX!", "halt.posY=(!modeH!-!halt.lines!)/2"
+set /a "halt.posX=sys.logoX", "halt.posY=(!modeH!-!halt.lines!)/2"
 
 <nul set /p "=%\e%[48;2;;;255;38;5;231m%\e%[2J%\e%[!halt.posY!;!halt.posX!H!spr.[bootlogo.spr]!%\e%[B%\e%[!halt.causeX!G!halt.cause!%\e%[B%\e%[48;2;63;63;255m"
 for %%a in (!halt.finalmsg!) do (
