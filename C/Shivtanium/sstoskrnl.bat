@@ -114,7 +114,8 @@ for /l %%# in () do (
 	
 	if "!sys.keys:~0,8!"==" -17-18-" (
 		if "!sys.keysRN!"=="  82 " (
-			call :kernelPanic "User triggered crash" "Shivtanium OS !sys.tag! !sys.ver! !sys.subvinfo!\nTotal IO transfers: !ioTotal!\nA memory dump has been created at: ~:\Shivtanium\temp\KernelMemoryDump"
+			echo=¤CTRL	DUMP
+			call :kernelPanic "User triggered crash" "Shivtanium OS !sys.tag! !sys.ver! !sys.subvinfo!\nTotal IO transfers: !ioTotal!\nA memory dump has been created at: ~:\Shivtanium\temp\KernelMemoryDump\nA window manager dump has been created at: ~:\Shivtanium\temp\DWM-!sst.localtemp!-memoryDump"
 		) else if "!sys.keysRN!"=="  84 " (
 			echo=exit
 			set /a ioTotal+=1
