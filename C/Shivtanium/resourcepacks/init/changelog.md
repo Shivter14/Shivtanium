@@ -1,7 +1,7 @@
 # Shivtanium Changelog
 This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
-## Beta 1.3.2 [24w34a]
+## Beta 1.3.2 [build 26.3222]
 - All `systemb` applications are now compiled with BXF.
 - Added a new function to `sys.bxf`: `@sys.onEventRaw`
 - Task manager now only displays file names of running processes to reduce text length.
@@ -9,14 +9,16 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
   - BXF compiler issues with inline functions.
   - `systemb-oobe` issues selecting themes.
   - Focused window's color not changing on automatic focusing after closing a window.
-- The DWM buffer splitting has been optimized.
-- The application launcher doesn't have a window title bar
+- Optimized DWM:
+  - Buffer splitting has been optimized.
+  - Memory usage / environment size has been optimized.
+- The application launcher doesn't have a window title bar.
   (Experimental DWM functionality)
 
 ## Beta 1.3.1 [24w33a]
 - Added the BXF compiler - Batch Expanded Functions.
   This compiler can be used as an alternative to macros.
-  Full documentation is at: ![BXF Wiki](https://github.com/Shivter14/Shivtanium/wiki/BXF)
+  Full documentation is at: [BXF Wiki](https://github.com/Shivter14/Shivtanium/wiki/BXF)
 - BXF applications are automatically compiled on boot if they aren't compiled already.
 - Added bootscreen modding support along with a new bootscreen.
   This bootscreen does a fade-in into the login BG theme.
@@ -33,8 +35,8 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
 - Merged `systemb-launcher` into `systemb-desktop`.
 - Changes to the kernel:
   - Added new switch: `/autorun <program> <parameters>`
-    This switch can be used to run a process as an initial process
-	The process' PID will be 0
+    This switch can be used to run a process as an initial process.
+	The process' PID will be 0.
   - Window position packets are no longer sent in realtime while the
     user is moving the window to improve performance This feature was
 	previously present in `lowPerformanceMode`.
