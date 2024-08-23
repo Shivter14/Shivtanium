@@ -16,6 +16,7 @@
 	)
 #end
 #function appendPipe; for /l %%Y in (1 1 $$) do set "pipe=!pipe!	o%%Y=!o%%Y!	l%%Y=!l%%Y!"
+#end
 #function flushPipe
 	echo=!pipe!
 	set pipe=
