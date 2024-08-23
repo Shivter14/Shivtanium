@@ -3,14 +3,14 @@ for /l %%# in () do (
 	set _expTime=!expTime!
 	set expTime=!time:~0,-6!
 	if "!_expTime!" neq "!expTime!" (
-		echo=¤OV	%\e%[999;1H%\e%[48;^^!dwm.NIcolor^^!;38;^^!dwm.TTcolor^^!m Shivtanium %\e%[48;^^!dwm.BGcolor^^!;38;^^!dwm.FGcolor^^!m%\e%[0K !focusedWindow!%\e%[999C%\e%[24D!date! !expTime!
+		echo=¤OV	%\e%[999;1H%\e%[48;^^!dwm.NIcolor^^!;38;^^!dwm.TTcolor^^!m Shivtanium %\e%[48;^^!dwm.BGcolor^^!;38;^^!dwm.FGcolor^^!m%\e%[0K ^^!win[!focusedWindow!]title^^!%\e%[999C%\e%[24D!date! !expTime!
 	)
 	@sys.pullEvents
 	@sys.onEvent click=1
 		if not defined focusedWindow if "!mouseYpos!"=="!sys.modeH!" if !mouseXpos! leq 12 call :launcher
 	@sys.onEventRaw "!kernelOut:~0,14!"=="focusedWindow="
 		set "!kernelOut!" >nul 2>&1
-		if "!focusedWindow!" neq "systemb_launcher" echo=¤OV	%\e%[999;1H%\e%[48;^^!dwm.NIcolor^^!;38;^^!dwm.TTcolor^^!m Shivtanium %\e%[48;^^!dwm.BGcolor^^!;38;^^!dwm.FGcolor^^!m%\e%[0K !focusedWindow!%\e%[999C%\e%[24D!date! !expTime!
+		if "!focusedWindow!" neq "systemb_launcher" echo=¤OV	%\e%[999;1H%\e%[48;^^!dwm.NIcolor^^!;38;^^!dwm.TTcolor^^!m Shivtanium %\e%[48;^^!dwm.BGcolor^^!;38;^^!dwm.FGcolor^^!m%\e%[0K ^^!win[!focusedWindow!]title^^!%\e%[999C%\e%[24D!date! !expTime!
 	@sys.handleStdEvents
 )
 
@@ -23,7 +23,7 @@ if "!sys.lowPerformanceMode!"=="True" (
 	set theme=classic
 	set sys.reduceMotion=True
 ) else set theme=
-echo=¤CW	systemb_launcher	!win[systemb_launcher]X!	!tempY!	!win[systemb_launcher]W!	!win[systemb_launcher]H!	Application Launcher	!theme! noCBUI noWinAero
+echo=¤CW	systemb_launcher	!win[systemb_launcher]X!	!tempY!	!win[systemb_launcher]W!	!win[systemb_launcher]H!	!sys.username!	!theme! noCBUI noWinAero
 set "pipe=	pt=	l1=%\e%[38;^!win[systemb_launcher]TIcolor^!m▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀"
 >>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	systemb_launcher	!win[systemb_launcher]X!	!tempZ!	!win[systemb_launcher]W!	!win[systemb_launcher]H!	1
 if "!sys.reduceMotion!" neq "True" for /l %%y in (!tempY! -1 !win[systemb_launcher]Y!) do (
