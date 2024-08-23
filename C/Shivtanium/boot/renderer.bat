@@ -79,9 +79,19 @@ for /l %%. in () do (
 		call :exitAnim
 	)
 	if defined input (
-		for /f "tokens=1* delims=^!;" %%a in ("!input!") do (
+		for /f "tokens=1-4 delims=^!;" %%a in ("!input!") do (
 			set "sst.boot.msg=#%%a"
 			set "sst.boot.submsg=#%%b"
+			if "%%c" neq "" (
+				set /a "bar.width=sys.modeW*7/8, bar.fill=%%d*bar.width/%%c, bar.X=(sys.modeW-bar.width)/2, bar.Y=sys.modeH*7/8"
+				if !sys.modeH! lss 30 (
+					set /a "bar.width=sys.modeW, bar.fill=%%d*bar.width/%%c, bar.X=1, bar.Y=sys.modeH"
+				)
+				if !sys.modeH! lss 80 (
+					set /a "bar.width=sys.modeW, bar.fill=%%d*bar.width/%%c, bar.X=1, bar.Y=sys.modeH"
+				)
+				set "barbuffer=%\e%[!bar.Y!;!bar.X!H%\e%[48;2;127;127;127m%\e%[!bar.width!X%\e%[48;2;255;255;255m%\e%[!bar.fill!X"
+			)
 		)
 		set sst.boot.msglen=0
 		for /l %%b in (9,-1,0) do (
@@ -96,7 +106,7 @@ for /l %%. in () do (
 		set /a "sst.boot.msgX=(sys.modeW-sst.boot.msglen)/2, sst.boot.submsgX=(sys.modeW-sst.boot.submsglen)/2"
 	)
 	set /a "%buildstring%"
-	echo=%echostring%%\e%[48;2;;;;38;2;255;255;255m%\e%[!sst.boot.msgY!;!sst.boot.msgX!H%\e%[2K!sst.boot.msg:~1!%\e%[2E%\e%[!sst.boot.submsgX!G%\e%[2K!sst.boot.submsg:~1!
+	echo=%echostring%%\e%[48;2;;;;38;2;255;255;255m%\e%[!sst.boot.msgY!;!sst.boot.msgX!H%\e%[2K!sst.boot.msg:~1!%\e%[2E%\e%[!sst.boot.submsgX!G%\e%[2K!sst.boot.submsg:~1!!barbuffer!%\e%[H
 )
 :exitAnim
 for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100,t2=t1, sst.boot.fadeout=255"
