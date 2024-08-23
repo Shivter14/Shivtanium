@@ -1,6 +1,9 @@
 aero=r=((modeH-x+1)×127/modeH)+128, g=(modeH-x)×127/modeH, b=x×255/modeH
 winAero=r=(x×127/modeH)+128, g=x×127/modeH, b=(modeH-x)×255/modeH
+BGcolor=2;144;31;220
 FGcolor=5;15
 TIcolor=2;255;96;
 TTcolor=5;15
+NIcolor=2;127;;255
+NTcolor=5;255
 CBUI= -  □  × 
