@@ -1,7 +1,7 @@
 # Shivtanium Changelog
 This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
-## Beta 1.3.2 [build 29.3223]
+## Beta 1.3.2 [build 29.3224]
 - All `systemb` applications are now compiled with BXF.
 - Added a new function to `sys.bxf`: `@sys.onEventRaw`
 - Task manager now only displays file names of running processes to reduce text length.
@@ -10,6 +10,7 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
   - `systemb-oobe` issues selecting themes.
   - Focused window's color not changing on automatic focusing after closing a window.
 - Changes to DWM:
+  - Fixed many graphical issues on Windows 11 hosts.
   - Several themes have been updated to include unfocused colors.
   - Buffer splitting has been optimized.
   - Memory usage / environment size has been optimized.
@@ -129,16 +130,17 @@ handles Mouse input, Keyboard input, Window management, and more.
 The interpreter is currently disabled since it needs a partial re-write.
 This also includes the updated Desktop Window Manager with better window moving.
 
-# Future plans
 
-## Milestone 2 Plans
+## Milestone 2 Plans (finished)
 - Finish the new Kernel.
 
-## Milestone 3 Plans
+## Milestone 3 Plans (finished)
 - Give the Control Panel customization options.
 - Add an Out-of-Box experience.
 - Add a task manager.
 - Add user profiles.
+
+# Future plans
 
 ## Milestone 4 Plans
 - Unfocusing windows should change colors if theme supports it.
