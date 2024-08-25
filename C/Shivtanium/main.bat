@@ -215,11 +215,10 @@ call :waitForAnimations
 cd "!sst.dir!"
 set "noResize=1"
 if not exist core\getInput64.dll call :halt "%~nx0:injectDLLs" "Missing File: core\getInput64.dll"
-rundll32.exe core\getInput64.dll,inject|| call :halt "%~nx0:injectDLLs" "Failed to inject getInput64.dll\nErrorlevel: !errorlevel!"
+rundll32.exe core\getInput64.dll,inject || call :halt "%~nx0:injectDLLs" "Failed to inject getInput64.dll\nErrorlevel: !errorlevel!"
 if not defined getInputInitialized call :halt "%~nx0:injectDLLs" "Failed to inject getInput64.dll: Unknown error.\nErrorlevel: !errorlevel!"
 exit /b
 :startServices
-rem if exist "!asset[\sounds\boot.mp3]!" start "<Shivtanium startup sound handeler> (ignore this)" /min cscript.exe //b core\playsound.vbs "!asset[\sounds\boot.mp3]!"
 setlocal enabledelayedexpansion
 
 set "sys.logoX=!sst.boot.logoX!"
