@@ -111,11 +111,7 @@ for /l %%# in () do (
 						set "win[%%~1]p%%y=%\e%[38;!win[%%~1]TIcolor!m %\e%[%%~aC%\e%[7m %\e%8 %\e%[0;48;2;!r!;!g!;!b!;38;!win[%%~1]FGcolor!m%\e%[%%~aX"
 					)
 					set "win[%%~1]p!win[%%~1]RH!=%\e%[48;2;!r!;!g!;!b!;38;!win[%%~1]TIcolor!m !dwm.bottombuffer:~0,%%~a!%dwm.char.S%%\e%8%dwm.char.L%%\e%[48;2;!r!;!g!;!b!;38;!win[%%~1]FGcolor!m"
-					set r=
-					set g=
-					set b=
-					set x=
-					set gvo=
+					set r= & set g= & set b= & set x= & set gvo=
 				) else (
 					for /l %%y in (1 1 !temp.H!) do (
 						set "win[%%~1]p%%y=%\e%[48;!win[%%~1]BGcolor!;38;!win[%%~1]TIcolor!m %\e%[%%~aX%\e%[%%~aC%dwm.char.R%%\e%8%dwm.char.L%%\e%[38;!win[%%~1]FGcolor!m"
@@ -124,13 +120,9 @@ for /l %%# in () do (
 				)
 			)
 			
-			set temp.H=
-			set temp.tl=
-			set temp.tlb=
+			set temp.H= & set temp.tl= & set temp.tlb= & set "win[%%~1]r="
 			set "mainbuffer=!mainbuffer!%\e%[H"
 			set "win.focused=%%~1"
-			
-			set "win[%%~1]r="
 			for /l %%l in (1 1 !win[%%~1]RH!) do set "win[%%~1]r=!win[%%~1]r!%\e%8%\e%[B%\e%7!win[%%~1]p%%l!!win[%%~1]l%%l!%\e%8%\e%[48;!win[%%~1]TIcolor!;38;!win[%%~1]TTcolor!m!win[%%~1]o%%l!"
 		) else if "%%~0"=="FOCUS" (
 			if defined win.focused set win.focused="!win.focused!"
