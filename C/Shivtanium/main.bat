@@ -163,6 +163,7 @@ exit /b 0
 if not exist "!sst.dir!\settings.dat" call :halt "%~nx0:loadSettings" "Failed to load 'settings.dat':\n  File not found."
 
 set "sys.loginTheme=metroTyper"
+set "sys.windowManager=dwm.bat"
 set "sst.boot.fadeout=255"
 for /f "usebackq tokens=1* delims==" %%a in ("!sst.dir!\settings.dat") do set "sys.%%~a=%%~b"
 if defined sys.boot.fadeout (
@@ -222,6 +223,7 @@ exit /b
 setlocal enabledelayedexpansion
 
 set "sys.logoX=!sst.boot.logoX!"
+set "sys.logoY=!sst.boot.logoY!"
 for %%a in (
 	"ssvm"
 	"temp"
@@ -254,7 +256,7 @@ for /f "tokens=2 delims=:" %%a in ('mode con') do (
 
 copy nul "temp\DWM-!sst.localtemp!" > nul
 copy nul "temp\DWMResp-!sst.localtemp!" > nul
-start /b cmd /c dwm.bat < "temp\DWM-!sst.localtemp!" 3> "temp\DWMResp-!sst.localtemp!"
+start /b cmd /c !sys.windowManager! < "temp\DWM-!sst.localtemp!" 3> "temp\DWMResp-!sst.localtemp!"
 endlocal
 exit /b 0
 :waitForBootServices
