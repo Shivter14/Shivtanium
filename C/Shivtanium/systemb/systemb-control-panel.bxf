@@ -13,6 +13,9 @@
 	call :page[!currentPage!]
 #end
 
+(set \n=^^^
+%= Newline definition. Do not modify. =%
+)
 cd "!sst.dir!" || exit /b
 for %%a in (%*) do (
 	if defined next (
@@ -111,12 +114,18 @@ exit /b 0
 :page[3].prev
 set /a selectedTheme-=1
 if !selectedTheme! lss 1 set selectedTheme=!themeCount!
+@sys.call ^
+unRegisterWindow	!PID!.control%\n%
+registerWindow	!PID!	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!
 echo=¤CTRL	APPLYTHEME	!theme[%selectedTheme%]!
 echo=¤DW	!PID!.control
 echo=¤CW	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!	Control Panel
 goto page[3].quickreload
 :page[3].next
 set /a "selectedTheme=selectedTheme %% themeCount + 1"
+@sys.call ^
+unRegisterWindow	!PID!.control%\n%
+registerWindow	!PID!	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!
 echo=¤CTRL	APPLYTHEME	!theme[%selectedTheme%]!
 echo=¤DW	!PID!.control
 echo=¤CW	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!	Control Panel
