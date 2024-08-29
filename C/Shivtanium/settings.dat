@@ -5,3 +5,4 @@ loginBGTheme=lo-fi
 loginTheme=aero
 lowPerformanceMode=False
 reduceMotion=False
+windowManager=dwm.bat
