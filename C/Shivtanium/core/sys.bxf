@@ -14,9 +14,9 @@ set /a PID=PID
 	set "focusedWindow=!PID!.!$winName!"
 #end
 #function deleteWindow
-	echo=¤DW	!PID!.!$winName!
-	>>"!sst.dir!\temp\kernelPipe" echo=unRegisterWindow	!PID!	!PID!.!$winName!
-	for /f "delims==" %%$ in ('set $ 2^>nul ^&^& set win[!PID!.!$winName!] 2^>nul') do set "%%$="
+	echo=¤DW	!$winName!
+	>>"!sst.dir!\temp\kernelPipe" echo=unRegisterWindow	!PID!	!$winName!
+	for /f "delims==" %%$ in ('set $ 2^>nul ^&^& set win[!$winName!] 2^>nul') do set "%%$="
 #end
 #function exit
 	>>"!sst.dir!\temp\kernelPipe" echo=exitProcessTree	!PID!
@@ -43,4 +43,6 @@ set /a PID=PID
 	) else if "!kernelOut!"=="exit" (
 		exit 0
 	) else set "!kernelOut!">nul 2>&1
+#end
+#function call; >>"!sst.dir!\temp\kernelPipe" echo=$$
 #end
