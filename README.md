@@ -10,6 +10,8 @@
 (Screenshots are avaliable at the bottom of this document.)
 </div>
 
+Shivtanium has a Kernel which allows it to do true multi tasking (aka. having multiple windows open), with a process system. A process is a running asynchronous batch file. Communication is done via _file pipe streams_, and an API made with BXF (Batch Expanded Functions Compiler).
+
 The Shivtanium Kernel handles:
 
 - Process management
