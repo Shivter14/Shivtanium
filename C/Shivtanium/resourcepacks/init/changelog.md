@@ -1,10 +1,11 @@
 # Shivtanium Changelog
 This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
-## Beta 1.3.2 [build 29.3224]
+## Beta 1.3.2 [build 30.3229]
 - All `systemb` applications are now compiled with BXF.
 - Added a new function to `sys.bxf`: `@sys.onEventRaw`
-- Task manager now only displays file names of running processes to reduce text length.
+- Task manager now only displays file names of running processes.
+  (to reduce text length)
 - Bugfixes:
   - BXF compiler issues with inline functions.
   - `systemb-oobe` issues selecting themes.
@@ -16,9 +17,14 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
   - Memory usage / environment size has been optimized.
 - The desktop environment (`systemb-desktop`) has been updated:
   - The taskbar's color is now affected by the global theme.
-  - The current focused window's title is now displayed on the task bar instead of the window's ID.
+  - The current focused window's title is now displayed on the taskbar
+    instead of the window's ID.
 - The application launcher doesn't have a window title bar.
   (Experimental DWM functionality)
+- Added a new system variable: `windowManager` (Default value: `dwm.bat`)
+  This variable contains the path to the window manager, which also means that
+  custom window managers can be used. If you're experiencing issues with the new
+  window manager, set this to: `dwm_fallback.bat`
 
 ## Beta 1.3.1 [24w33a]
 - Added the BXF compiler - Batch Expanded Functions.
