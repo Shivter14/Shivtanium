@@ -1,15 +1,31 @@
 # Shivtanium Changelog
 This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
+## Beta 1.3.3 [build 31.3302]
+- Added new system variable: `textMode` (Default value: `default` or undefined)
+  This variable can force a custom text mode on startup, by an identifier.
+  Text mode identifiers can be set with resource packs in file `textmodes.dat`.
+- The boot screen now has a mode change instruction.
+- Shivtanium can now change the font on startup. (if running with administrator privileges)
+- Added a new function to `sys.bxf`: `@sys.call`
+- Changes to DWM:
+  - The `Shivtanium` theme now has a gray background, making this a fully gray theme.
+  - Fixed more issues with Windows 11.
+  - It is now compiled with BXF.
+- Bugfixes:
+  - `systemb-desktop` - logging off wouldn't close user's programs
+- The `systemb-desktop` task bar can be undocked. (recompiling required)
+
 ## Beta 1.3.2 [build 30.3229]
 - All `systemb` applications are now compiled with BXF.
 - Added a new function to `sys.bxf`: `@sys.onEventRaw`
 - Task manager now only displays file names of running processes.
   (to reduce text length)
 - Bugfixes:
-  - BXF compiler issues with inline functions.
-  - `systemb-oobe` issues selecting themes.
-  - Focused window's color not changing on automatic focusing after closing a window.
+  - BXF compiler issues with inline functions
+  - `systemb-oobe` - issues selecting themes
+  - Focused window's color not changing on automatic focusing after closing a window
+  - `systemb-dialog` - not responding
 - Changes to DWM:
   - Fixed many graphical issues on Windows 11 hosts.
   - Several themes have been updated to include unfocused colors.
