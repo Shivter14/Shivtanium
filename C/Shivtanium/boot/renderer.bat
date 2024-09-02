@@ -21,7 +21,7 @@ set "s7=▓▓▒▒░░          ▀         ▀         ▀        ▀     �
 set "s8=▓▓▓▒▒░░                                             ░░▒▒▓▓"
 
 set "buildstring=MA+=deltaTime"
-set "echostring=%\e%[!sst.boot.logoY!;!sst.boot.logoX!H%\e%7%\e%[38;2;;;m"
+set "echostring=%\e%7%\e%[38;2;;;m"
 for /l %%a in (0 2 57) do (
 	set "echostring=!echostring!%\e%[48;2;^!c%%a^!;^!c%%a^!;^!c%%a^!m%\e%8%\e%[B!s2:~%%a,2!%\e%8%\e%[2B!s3:~%%a,2!%\e%8%\e%[3B!s4:~%%a,2!%\e%8%\e%[4B!s5:~%%a,2!%\e%8%\e%[5B!s6:~%%a,2!%\e%8%\e%[6B!s7:~%%a,2!%\e%8%\e%[7B!s8:~%%a,2!%\e%8%\e%[2C%\e%7"
 	set "buildstring=!buildstring!,c%%a=l*^!sinr:x=((MA+%%a)*420)^!+j"
@@ -62,14 +62,17 @@ if defined dwm.sceneBGcolor (
 	)
 ) else if defined dwm.aero set "dwm.aero=!dwm.aero:×=*!"
 
+call :initial_animation
+goto main
 :initial_animation
 	set /a "%buildstring%"
-	echo=%echostring%
+	echo=%\e%[!sst.boot.logoY!;!sst.boot.logoX!H%echostring%
 	for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "j=(l+=(deltaTime=(t1 - t2))*2)+1", "t2=t1"
 if !l! lss 127 goto initial_animation
 set l=127
 set j=128
-
+exit /b
+:main
 for /l %%. in () do (
 	for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "deltaTime=(t1 - t2)", "t2=t1", "offsetX=t1 %% 3 - 1, offsetY=(t1 - 1) %% 3 - 1"
 	
@@ -77,6 +80,13 @@ for /l %%. in () do (
 	set /p input=
 	if "!input:~-9!"=="¤EXITANIM" (
 		call :exitAnim
+	)
+	if "!input:~0,6!"=="¤MODE " (
+		set "sys.textMode=!input:~6!"
+		set /a "sys.modeW=!sys.textMode:,=,sys.modeH=!, sst.boot.logoX=(sys.modeW-58)/2+1, sst.boot.logoY=(sys.modeH-9)/2+1, l=1, j=2"
+		cmd /c mode !sys.modeW!,!sys.modeH!
+		echo=%\e%[H%\e%[48;2;;;;38;2;255;255;255m%\e%[2J%\e%[?25l
+		call :initial_animation
 	)
 	if defined input (
 		for /f "tokens=1-4 delims=^!;" %%a in ("!input!") do (
@@ -103,10 +113,10 @@ for /l %%. in () do (
 			set /a "sst.boot.submsglen|=1<<%%b"
 			for %%c in (!sst.boot.submsglen!) do if "!sst.boot.submsg:~%%c,1!" equ "" set /a "sst.boot.submsglen&=~1<<%%b"
 		)
-		set /a "sst.boot.msgX=(sys.modeW-sst.boot.msglen)/2, sst.boot.submsgX=(sys.modeW-sst.boot.submsglen)/2"
+		set /a "sst.boot.msgY=!sys.modeH!/2+7, sst.boot.msgX=(sys.modeW-sst.boot.msglen)/2, sst.boot.submsgX=(sys.modeW-sst.boot.submsglen)/2"
 	)
 	set /a "%buildstring%"
-	echo=%echostring%%\e%[48;2;;;;38;2;255;255;255m%\e%[!sst.boot.msgY!;!sst.boot.msgX!H%\e%[2K!sst.boot.msg:~1!%\e%[2E%\e%[!sst.boot.submsgX!G%\e%[2K!sst.boot.submsg:~1!!barbuffer!%\e%[H
+	echo=%\e%[!sst.boot.logoY!;!sst.boot.logoX!H%echostring%%\e%[48;2;;;;38;2;255;255;255m%\e%[!sst.boot.msgY!;!sst.boot.msgX!H%\e%[2K!sst.boot.msg:~1!%\e%[2E%\e%[!sst.boot.submsgX!G%\e%[2K!sst.boot.submsg:~1!!barbuffer!%\e%[H
 )
 :exitAnim
 for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100,t2=t1, sst.boot.fadeout=255"
@@ -114,7 +124,7 @@ for /l %%. in () do (
 	for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "DeltaTime=(t1-t2)", "t2=t1", "j=(l=(sst.boot.fadeout-=deltaTime*4)/2)+1"
 	if "!deltaTime!" neq "0" (
 		set /a "%buildstring%, textFadeout=127 * %sinr:x=(sst.boot.fadeout*PI/255+PI32)% + 128"
-		echo=%echostring%%\e%[48;2;;;;38;2;!textFadeout!;!textFadeout!;!textFadeout!m%\e%[!sst.boot.msgY!;!sst.boot.msgX!H%\e%[2K!sst.boot.msg:~1!
+		echo=%\e%[!sst.boot.logoY!;!sst.boot.logoX!H%echostring%%\e%[48;2;;;;38;2;!textFadeout!;!textFadeout!;!textFadeout!m%\e%[!sst.boot.msgY!;!sst.boot.msgX!H%\e%[2K!sst.boot.msg:~1!
 	) < nul
 	if !sst.boot.fadeout! lss 1 call :fadein
 )
