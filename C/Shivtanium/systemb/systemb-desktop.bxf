@@ -1,4 +1,9 @@
 #import sys.bxf
+if "%~1"=="--dialog" (
+	shift /1 & shift /1
+	goto :dialog.%2
+)
+
 set /a "launcherY=sys.modeH-1, launcherW=sys.modeW-(launcherBX=(launcherX=3)+11)-2"
 for /l %%# in () do (
 	set _expTime=!expTime!
@@ -141,10 +146,7 @@ goto exit
 >>"!sst.dir!\temp\kernelPipe" echo=createProcess	!sys.UPID!	systemb-taskmgr.bat --username "!sys.username!" --UPID !sys.UPID!
 goto exit
 :about
-set "sys.username=!sys.username!."
->>"!sst.dir!\temp\kernelPipe" echo=createProcess	!sys.UPID!	systemb-dialog.bat (sys.modeW-w)/2+1 3 60 15 "About Shivtanium"^
- "l1=%\e%[48;5;15;38;5;16m▓▓▓▒▒░░%\e%[45X%\e%[45C░░▒▒▓▓	l2=%\e%[48;5;15;38;5;16m▓▓▒▒░░   ▄▄▄ ▄    ▄      ▄%\e%[12X%\e%[12C▄%\e%[12X%\e%[12C░░▒▒▓▓▓	l3=%\e%[48;5;15;38;5;16m▓▓▓▒▒░░ █    █          ▄█▄%\e%[25X%\e%[25C░░▒▒▓▓	l4=%\e%[48;5;15;38;5;16m▓▓▒▒░░   ▀▀▄ █▀▀▄ █ █ █  █  ▄▀▀▄ █▀▀▄ █ █  █ █▀▄▀▄ ░░▒▒▓▓▓	l5=%\e%[48;5;15;38;5;16m▓▓▓▒▒░░ ▄▄▄▀ █  █ █ ▀█▀  █  ▀▄▄█ █  █ █ ▀▄▄█ █ █ █  ░░▒▒▓▓	l6=%\e%[48;5;15;38;5;16m▓▓▒▒░░%\e%[45X%\e%[10C▀%\e%[9C▀%\e%[9C▀%\e%[8C▀     ░░▒▒▓▓▓	l7=%\e%[48;5;15;38;5;16m▓▓▓▒▒░░%\e%[45X%\e%[45C░░▒▒▓▓	l9=  Shivtanium version !sys.tag! !sys.ver! !sys.subvinfo!	l10=  Copyright © Shivter 2021 - 2024	l12=  Logged in as !sys.username:~0,43!" w-buttonW-2 h-2 7 " Close "
-set "sys.username=!sys.username:~0,-1!"
+@sys.call createProcess	!sys.UPID!	systemb-desktop.bat --dialog about !sys.username!
 goto exit
 :launchProgram
 set "arg=%~1"
@@ -159,3 +161,11 @@ echo=¤DW	systemb_launcher
 echo=¤OV	%\e%[!launcherY!;!launcherX!H%\e%[48;^^!dwm.NIcolor^^!;38;^^!dwm.TTcolor^^!m Shivtanium %\e%[48;^^!dwm.BGcolor^^!;38;^^!dwm.FGcolor^^!m%\e%[!launcherW!X !focusedWindow!%\e%[999C%\e%[24D!date! !expTime!
 set exit=True
 exit /b
+:dialog.about
+set "sys.username=%~1."
+set "sys.hostOS="
+for /f "delims=" %%a in ('ver') do set "sys.hostOS=!sys.hostOS!%%a "
+set sys.hostOS=!sys.hostOS!
+set "secondary_window_params=l9=  Shivtanium version !sys.tag! !sys.ver! !sys.subvinfo!	l10=  Copyright © Shivter 2021 - 2024	l12=  Host OS: !sys.hostOS:~0,47!	l13=  Logged in as !sys.username:~0,43!"
+set "extended_window_params=l1=%\e%[48;5;15;38;5;16m▓▓▓▒▒░░%\e%[45X%\e%[45C░░▒▒▓▓	l2=%\e%[48;5;15;38;5;16m▓▓▒▒░░   ▄▄▄ ▄    ▄      ▄%\e%[12X%\e%[12C▄%\e%[12X%\e%[12C░░▒▒▓▓▓	l3=%\e%[48;5;15;38;5;16m▓▓▓▒▒░░ █    █          ▄█▄%\e%[25X%\e%[25C░░▒▒▓▓	l4=%\e%[48;5;15;38;5;16m▓▓▒▒░░   ▀▀▄ █▀▀▄ █ █ █  █  ▄▀▀▄ █▀▀▄ █ █  █ █▀▄▀▄ ░░▒▒▓▓▓	l5=%\e%[48;5;15;38;5;16m▓▓▓▒▒░░ ▄▄▄▀ █  █ █ ▀█▀  █  ▀▄▄█ █  █ █ ▀▄▄█ █ █ █  ░░▒▒▓▓	l6=%\e%[48;5;15;38;5;16m▓▓▒▒░░%\e%[45X%\e%[10C▀%\e%[9C▀%\e%[9C▀%\e%[8C▀     ░░▒▒▓▓▓	l7=%\e%[48;5;15;38;5;16m▓▓▓▒▒░░%\e%[45X%\e%[45C░░▒▒▓▓"
+call systemb-dialog.bat (sys.modeW-w)/2+1 3 60 16 "About Shivtanium" "" w-buttonW-2 h-2 7 " Close "
