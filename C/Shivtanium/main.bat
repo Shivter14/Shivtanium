@@ -32,27 +32,25 @@ for /f "tokens=2 delims=:" %%a in ('mode con') do (
 	if "!counter!"=="1" set "sys.modeH=!token: =!"
 	if "!counter!"=="2" set "sys.modeW=!token: =!"
 )
-set /a "sst.boot.msgY=!sys.modeH!/2+7"
+set counter=
 <nul set /p "=%\e%[H%\e%[48;2;0;0;0m%\e%[38;2;255;255;255m"
-copy nul temp\kernelPipe > nul 2>&1 || call :halt "preparePipe" "Failed to prepare pipe:\n'temp\kernelPipe'"
-copy nul temp\kernelOut  > nul 2>&1 || call :halt "preparePipe" "Failed to prepare pipe:\n'temp\kernelOut'"
+for %%a in (kernelPipe kernelOut kernelErr) do copy nul temp\%%a > nul 2>&1 || call :halt "preparePipe" "Failed to prepare pipe:\n'temp\%%a'"
 if not exist "temp\bootStatus-!sst.localtemp!" copy nul "temp\bootStatus-!sst.localtemp!" > nul || call :halt "preparePipe" "Failed to prepare pipe:\n'temp\bootStatus-!sst.localtemp!'"
 if /I "!sst.noguiboot!" neq "True" (
 	start /b "" cmd /c boot\renderer.bat "temp\bootStatus-!sst.localtemp!" < "temp\bootStatus-!sst.localtemp!"
 )
-set "processes= "
 
-for %%a in (
+(for %%a in (
 	":clearEnv|Clearing environment"
 	":loadresourcepack init|Loading resources"
 	":loadSettings|Loading settings"
 	":checkCompat|Checking compatibility"
+	":setFont|Applying font"
 	":compileBXF|Compiling BXF applications"
 	":startServices|Starting services"
 	"boot\cfmsf.bat|Checking for missing files"
 	"boot\updateCheckSvc.bat|Checking for updates"
 	":injectDLLs|Injecting DLLs"
-	":waitForBootServices|If you see this, the bootscreen is broken."
 ) do for /f "tokens=1-2* delims=|" %%b in (%%a) do (
 	set "sst.boot.command=%%~b"
 	set sst.boot.command=!sst.boot.command:'="!
@@ -60,12 +58,13 @@ for %%a in (
 		set "sst.boot.msg=%%~c"
 		echo=!sst.boot.msg!>> "temp\bootStatus-!sst.localtemp!"
 	)
-	call !sst.boot.command! || call :halt "Boot" "Something went wrong.\nCommand: %%~b\nText: %%~c\nErrorlevel: !errorlevel!"
+	call !sst.boot.command! || call :halt "Boot" "Something went wrong.\nCommand: %%~b\nText: %%~c\nErrorlevel: !errorlevel!\nError logs are located in: ~\temp\kernelErr"
 )
+set "processes= "
 for /f "tokens=1 delims==" %%a in ('set sst.boot') do if /I "%%~a" neq "sst.boot.logoX" if /I "%%~a" neq "sst.boot.logoY" set "%%a="
 cd "%~dp0"
-call sstoskrnl.bat %* < "temp\kernelPipe" > "temp\kernelOut" 2>"temp\kernelErr" 3> "temp\DWM-!sst.localtemp!"
-
+call sstoskrnl.bat %* < "temp\kernelPipe" > "temp\kernelOut" 3> "temp\DWM-!sst.localtemp!"
+) 2>> "temp\kernelErr"
 :startup.submsg
 set "sst.boot.msg=%~1"
 set "sst.boot.submsg=%~2"
@@ -91,6 +90,7 @@ REM == Modules ==
 if not exist "!sst.dir!\resourcepacks\%~1" exit /b 1
 for /f "delims=" %%a in ('dir /b /a:-D "!sst.dir!\resourcepacks\%~1\sprites\*.spr" 2^>nul') do call :loadsprites "!sst.dir!\resourcepacks\%~1\sprites\%%~a" %%~a
 for /f "delims=" %%a in ('dir /b /a:-D "!sst.dir!\resourcepacks\%~1\sounds\*.*" 2^>nul') do set "asset[\sounds\%%~a]=!sst.dir!\resourcepacks\%~1\sounds\%%~a"
+if exist "!sst.dir!\resourcepacks\%~1\textmodes.dat" for /f "usebackq tokens=1* delims=:" %%a in ("!sst.dir!\resourcepacks\%~1\textmodes.dat") do set "sst.boot.textmode[%%~a]=%%~b"
 set /a "sst.boot.logoX=(sys.modeW-spr.[bootlogo.spr].W)/2+1", "sst.boot.logoY=(sys.modeH-spr.[bootlogo.spr].H)/2+1"
 echo=%\e%[H%\e%[48;2;0;0;0m%\e%[38;2;255;255;255m%\e%[2J
 if exist "!sst.dir!\resourcepacks\%~1\keyboard_init.bat" call "!sst.dir!\resourcepacks\%~1\keyboard_init.bat"
@@ -143,11 +143,12 @@ call :memorydump
 pause>nul<con
 exit 0
 :clearEnv
+set "sys.SESSIONNAME=!SESSIONNAME!"
 for /f "tokens=1 delims==" %%a in ('set') do for /f "tokens=1 delims=._" %%c in ("%%~a") do (
 	set "unload=True"
 	for %%b in (
 		ComSpec SystemRoot SystemDrive temp windir
-		ssvm sst sstfs sys
+		ssvm sst sys
 		\n \e
 		PROCESSOR
 		NUMBER
@@ -156,7 +157,7 @@ for /f "tokens=1 delims==" %%a in ('set') do for /f "tokens=1 delims=._" %%c in 
 	if "!unload!"=="True" set "%%a="
 )
 set PATHEXT=.COM;.EXE;.BAT
-set "PATH=!windir!\system32;!windir!;!sst.dir!\systemb;!sst.dir!\core"
+set "PATH=!sst.dir!\systemb;!sst.dir!\core;!windir!\System32;!windir!;!windir!\System32\WindowsPowerShell\v1.0\"
 set unload=
 exit /b 0
 :loadSettings
@@ -165,10 +166,26 @@ if not exist "!sst.dir!\settings.dat" call :halt "%~nx0:loadSettings" "Failed to
 set "sys.loginTheme=metroTyper"
 set "sys.windowManager=dwm.bat"
 set "sst.boot.fadeout=255"
+set "sys.noResize=True"
+
+set "sys.fontW=8"
+set "sys.fontH=16"
+set "sys.font=MxPlus IBM VGA 8x16"
+
 for /f "usebackq tokens=1* delims==" %%a in ("!sst.dir!\settings.dat") do set "sys.%%~a=%%~b"
 if defined sys.boot.fadeout (
 	set sst.boot.fadeout=!sys.boot.fadeout!
 	set sys.boot.fadeout=
+)
+if defined sys.textMode if /I "!sys.textMode!" neq "default" (
+	for /f "delims=" %%a in ("!sys.textMode!") do set "sys.textMode=!sst.boot.textmode[%%~a]!"
+) else set sys.textMode=
+if defined sys.textMode (
+	set /a "sys.modeW=!sys.textMode:,=,sys.modeH=!"
+	if !sys.modeW! lss 64 set sys.modeW=64
+	if !sys.modeH! lss 16 set sys.modeW=16
+	>>"temp\bootStatus-!sst.localtemp!" echo=¤MODE !sys.modeW!,!sys.modeH!
+	set sys.textMode=
 )
 
 set "sst.processes= "
@@ -212,12 +229,18 @@ exit /b 0
 	echo=¤EXITANIM
 )
 call :waitForAnimations
-
-cd "!sst.dir!"
-set "noResize=1"
+if /I "!sys.noResize!"=="True" set sys.noResize=1
+set noResize=!sys.noResize!
+cd "!sst.dir!" || exit /b
 if not exist core\getInput64.dll call :halt "%~nx0:injectDLLs" "Missing File: core\getInput64.dll"
 rundll32.exe core\getInput64.dll,inject || call :halt "%~nx0:injectDLLs" "Failed to inject getInput64.dll\nErrorlevel: !errorlevel!"
 if not defined getInputInitialized call :halt "%~nx0:injectDLLs" "Failed to inject getInput64.dll: Unknown error.\nErrorlevel: !errorlevel!"
+
+set sys.noResize=
+set noResize=
+set getInputInitialized=
+set getInput_builtOn=
+set sys.SESSIONNAME=
 exit /b
 :startServices
 setlocal enabledelayedexpansion
@@ -290,9 +313,9 @@ cd "!sst.dir!" || exit /b
 
 set BXF_toCompile=0
 set BXF_compiled=0
-for %%F in ("systemb\*.bxf") do if not exist "%%~dpnF.bat" set /a BXF_toCompile+=1
+for %%F in ("dwm.bxf" "systemb\*.bxf") do if not exist "%%~dpnF.bat" set /a BXF_toCompile+=1
 
-(for %%F in ("systemb\*.bxf") do if not exist "%%~dpnF.bat" (
+(for %%F in ("dwm.bxf" "systemb\*.bxf") do if not exist "%%~dpnF.bat" (
 	set /a BXF_compiled+=1
 	call :startup.submsg "!sst.boot.msg!" "File: %%F" !BXF_toCompile! !BXF_compiled!
 	<nul set /p "=%\e%[48;2;0;0;0;38;2;255;255;255m"
@@ -326,3 +349,42 @@ goto compileBXF.failed
 :waitForAnimations
 if not exist "!sst.dir!\temp\pf-bootanim" goto waitForAnimations
 exit /b
+:setfont
+if /I "!sys.SESSIONNAME!" == "CONSOLE" exit /b 0
+setlocal DisableDelayedExpansion
+set setfont=for %%# in (1 2) do if %%#==2 (^
+%=% for /f "tokens=1-3*" %%- in ("? ^^!arg^^!") do endlocal^&powershell.exe -nop -ep Bypass -c ^"Add-Type '^
+%===% using System;^
+%===% using System.Runtime.InteropServices;^
+%===% [StructLayout(LayoutKind.Sequential,CharSet=CharSet.Unicode)] public struct FontInfo{^
+%=====% public int objSize;^
+%=====% public int nFont;^
+%=====% public short fontSizeX;^
+%=====% public short fontSizeY;^
+%=====% public int fontFamily;^
+%=====% public int fontWeight;^
+%=====% [MarshalAs(UnmanagedType.ByValTStr,SizeConst=32)] public string faceName;}^
+%===% public class WApi{^
+%=====% [DllImport(\"kernel32.dll\")] public static extern IntPtr CreateFile(string name,int acc,int share,IntPtr sec,int how,int flags,IntPtr tmplt);^
+%=====% [DllImport(\"kernel32.dll\")] public static extern void GetCurrentConsoleFontEx(IntPtr hOut,int maxWnd,ref FontInfo info);^
+%=====% [DllImport(\"kernel32.dll\")] public static extern void SetCurrentConsoleFontEx(IntPtr hOut,int maxWnd,ref FontInfo info);^
+%=====% [DllImport(\"kernel32.dll\")] public static extern void CloseHandle(IntPtr handle);}';^
+%=% $hOut=[WApi]::CreateFile('CONOUT$',-1073741824,2,[IntPtr]::Zero,3,0,[IntPtr]::Zero);^
+%=% $fInf=New-Object FontInfo;^
+%=% $fInf.objSize=84;^
+%=% [WApi]::GetCurrentConsoleFontEx($hOut,0,[ref]$fInf);^
+%=% If('%%~.'){^
+%===% $fInf.nFont=0; $fInf.fontSizeX=0; $fInf.fontFamily=0; $fInf.fontWeight=0;^
+%===% If([Int16]'%%~.' -gt 0){$fInf.fontSizeX=[Int16]'%%~.'}^
+%===% If([Int16]'%%~/' -gt 0){$fInf.fontSizeY=[Int16]'%%~/'}^
+%===% If('%%~0'){$fInf.faceName='%%~0'}^
+%===% [WApi]::SetCurrentConsoleFontEx($hOut,0,[ref]$fInf);}^
+%=% Else{(''+$fInf.fontSizeY+' '+$fInf.faceName)}^
+%=% [WApi]::CloseHandle($hOut);^") else setlocal EnableDelayedExpansion^&set arg=
+endlocal &set "setfont=%setfont%"
+if !!# neq # set "setfont=%setfont:^^!=!%"
+(
+	set setFont=
+	%setFont% !sys.fontW! !sys.fontH! "!sys.font!"
+) >&2
+exit /b 0
