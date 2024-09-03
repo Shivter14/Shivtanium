@@ -42,7 +42,7 @@ if "!sys.reduceMotion!" neq "True" for /l %%y in (!tempY! -1 !win[systemb_launch
 echo=¤MW	systemb_launcher	Y=!win[systemb_launcher]Y!!pipe!
 set pipe=
 
-set "math=win[systemb_launcher]BY=win[systemb_launcher]Y+win[systemb_launcher]H-1, sidebarW=12, itemW=(sidebarX=win[systemb_launcher]W-sidebarW-2)-2"
+set "math=programCount=0, win[systemb_launcher]BY=win[systemb_launcher]Y+win[systemb_launcher]H-1, sidebarW=12, itemW=(sidebarX=win[systemb_launcher]W-sidebarW-2)-2"
 set "buttons= "
 
 for %%b in (
@@ -56,34 +56,49 @@ for %%b in (
 	
 	"calculator	win[systemb_launcher]W-sidebarW-6	2	2	:calculator	Calculator"
 	"taskmgr	win[systemb_launcher]W-sidebarW-6	2	3	:taskmgr	Task Manager"
-	"NEL		win[systemb_launcher]W-sidebarW-6	2	4	:launchProgram NewEngine-Launcher\Shivtanium-NewEngine-Launcher.bat	NewEngine Launcher"
 ) do for /f "tokens=1-5* delims=	" %%0 in ("%%~b") do (
-	set "buttons="%%~0" !buttons!"
+	set buttons="%%~0" !buttons!
 	set "button[%%~0]=%%~4"
 	set "button[%%~0]title= %%~5"
-	set math=!math!, "button[%%~0]W=%%~1, button[%%~0]X=%%~2, button[%%~0]Y=%%~3, button[%%~0]BX=button[%%~0]X+button[%%~0]W-1"
+	set "math=!math!, button[%%~0]W=%%~1, button[%%~0]X=%%~2, button[%%~0]Y=%%~3, button[%%~0]BX=button[%%~0]X+button[%%~0]W-1"
 )
 
 set /a !math!
-set math=
+set "math=pnw=win[systemb_launcher]W-sidebarW-6"
 for %%b in (!buttons!) do for /f "tokens=1* delims=;" %%y in ("!button[%%~b]Y!;!button[%%~b]W!") do (
 	set "o%%y=!o%%y!%\e%8%\e%[!button[%%~b]X!C%\e%[!button[%%~b]W!X!button[%%~b]title:~0,%%~z!"
 )
-set pipe=
-if "!sys.reduceMotion!"=="True" (
-	set pipe=¤MW	systemb_launcher
-	set "add=set pipe=^!pipe^!"
-) else (
-	set "add=echo=¤MW	systemb_launcher"
-)
 
+set pipe=¤MW	systemb_launcher
 for /l %%y in (!win[systemb_launcher]H! -1 1) do (
-	if defined o%%y %add%	o%%y=!o%%y:~2!
+	if defined o%%y set "pipe=!pipe!	o%%y=!o%%y:~2!"
 )
-if defined pipe (
-	echo=!pipe!
-	set pipe=
+echo=!pipe!
+set pipe=¤MW	systemb_launcher
+for /d %%A in ("!sst.dir!\programs\*") do if exist "%%~fA\shivtanium.dat" (
+	set /a programCount+=1
+	for /f "usebackq tokens=1* delims==^!*" %%a in ("%%~fA\shivtanium.dat") do (
+		set "program[!programCount!]%%a=%%b"
+	)
+	set "program[!programCount!]=%%~nxA"
 )
+set /a "visiblePrograms=win[systemb_launcher]H-4"
+if !visiblePrograms! gtr !programCount! set visiblePrograms=!programCount!
+for /l %%a in (1 1 !visiblePrograms!) do (
+	set buttons=!buttons! %%a
+	set "button[%%a]=:launchProgram %%a"
+	set "button[%%a]title= !program[%%a]name!"
+	set "math=!math!, button[%%a]W=pnw, button[%%a]X=2, button[%%a]Y=%%a+3, button[%%a]BX=button[%%a]X+button[%%a]W-1"
+)
+set /a !math!
+for %%b in (!buttons!) do for /f "tokens=1* delims=;" %%y in ("!button[%%~b]Y!;!button[%%~b]W!") do (
+	set "o%%y=!o%%y!%\e%8%\e%[!button[%%~b]X!C%\e%[!button[%%~b]W!X!button[%%~b]title:~0,%%~z!"
+)
+for /l %%y in (!win[systemb_launcher]H! -1 1) do (
+	if defined o%%y set "pipe=!pipe!	o%%y=!o%%y:~2!"
+)
+echo=!pipe!
+set pipe=
 set exit=
 :launcher.loop
 for /l %%# in (1 1 1000) do if not defined exit for /l %%# in (1 1 1000) do if not defined exit (
@@ -131,33 +146,36 @@ exit 0
 ) >> "!sst.dir!\temp\kernelPipe"
 exit 0
 :calculator
->>"!sst.dir!\temp\kernelPipe" echo=createProcess	!sys.UPID!	systemb-calculator.bat
+@sys.call createProcess	!sys.UPID!	systemb-calculator.bat
 goto exit
 :explorer
->>"!sst.dir!\temp\kernelPipe" echo=createProcess	!sys.UPID!	systemb-explorer.bat --username "!sys.username!" --UPID !sys.UPID!
+@sys.call createProcess	!sys.UPID!	systemb-explorer.bat --username "!sys.username!" --UPID !sys.UPID!
 goto exit
 :terminal
->>"!sst.dir!\temp\kernelPipe" echo=createProcess	!sys.UPID!	systemb-console.bat --username "!sys.username!" --UPID !sys.UPID!
+@sys.call createProcess	!sys.UPID!	systemb-console.bat --username "!sys.username!" --UPID !sys.UPID!
 goto exit
 :settings
->>"!sst.dir!\temp\kernelPipe" echo=createProcess	!sys.UPID!	systemb-control-panel.bat --username "!sys.username!" --UPID !sys.UPID!
+@sys.call createProcess	!sys.UPID!	systemb-control-panel.bat --username "!sys.username!" --UPID !sys.UPID!
 goto exit
 :taskmgr
->>"!sst.dir!\temp\kernelPipe" echo=createProcess	!sys.UPID!	systemb-taskmgr.bat --username "!sys.username!" --UPID !sys.UPID!
+@sys.call createProcess	!sys.UPID!	systemb-taskmgr.bat --username "!sys.username!" --UPID !sys.UPID!
 goto exit
 :about
 @sys.call createProcess	!sys.UPID!	systemb-desktop.bat --dialog about !sys.username!
 goto exit
 :launchProgram
-set "arg=%~1"
->>"!sst.dir!\temp\kernelPipe" echo=createProcess	!sys.UPID!	programs\!arg! --username "!sys.username!" --UPID !sys.UPID!
+if "!program[%~1]path:~-4!"==".bxf" (
+	@sys.call createProcess	!sys.UPID!	systemb-desktop.bat --dialog compile-run "programs\!program[%~1]!\!program[%~1]path!" "!sys.username!" !sys.UPID!
+)
+
+@sys.call createProcess	!sys.UPID!	"programs\!program[%~1]!\!program[%~1]path!" --username "!sys.username!" --UPID !sys.UPID!
 :exit
 if "!sys.reduceMotion!" neq "True" (
 	for /l %%y in (!win[systemb_launcher]Y! 1 !sys.modeH!) do echo=¤MW	systemb_launcher	Y=%%y
 	echo=¤MW	systemb_launcher	Y=!sys.modeH!
 )
 echo=¤DW	systemb_launcher
->>"!sst.dir!\temp\kernelPipe" echo=unRegisterWindow	systemb_launcher
+@sys.call unRegisterWindow	systemb_launcher
 echo=¤OV	%\e%[!launcherY!;!launcherX!H%\e%[48;^^!dwm.NIcolor^^!;38;^^!dwm.TTcolor^^!m Shivtanium %\e%[48;^^!dwm.BGcolor^^!;38;^^!dwm.FGcolor^^!m%\e%[!launcherW!X !focusedWindow!%\e%[999C%\e%[24D!date! !expTime!
 set exit=True
 exit /b
@@ -169,3 +187,24 @@ set sys.hostOS=!sys.hostOS!
 set "secondary_window_params=l9=  Shivtanium version !sys.tag! !sys.ver! !sys.subvinfo!	l10=  Copyright © Shivter 2021 - 2024	l12=  Host OS: !sys.hostOS:~0,47!	l13=  Logged in as !sys.username:~0,43!"
 set "extended_window_params=l1=%\e%[48;5;15;38;5;16m▓▓▓▒▒░░%\e%[45X%\e%[45C░░▒▒▓▓	l2=%\e%[48;5;15;38;5;16m▓▓▒▒░░   ▄▄▄ ▄    ▄      ▄%\e%[12X%\e%[12C▄%\e%[12X%\e%[12C░░▒▒▓▓▓	l3=%\e%[48;5;15;38;5;16m▓▓▓▒▒░░ █    █          ▄█▄%\e%[25X%\e%[25C░░▒▒▓▓	l4=%\e%[48;5;15;38;5;16m▓▓▒▒░░   ▀▀▄ █▀▀▄ █ █ █  █  ▄▀▀▄ █▀▀▄ █ █  █ █▀▄▀▄ ░░▒▒▓▓▓	l5=%\e%[48;5;15;38;5;16m▓▓▓▒▒░░ ▄▄▄▀ █  █ █ ▀█▀  █  ▀▄▄█ █  █ █ ▀▄▄█ █ █ █  ░░▒▒▓▓	l6=%\e%[48;5;15;38;5;16m▓▓▒▒░░%\e%[45X%\e%[10C▀%\e%[9C▀%\e%[9C▀%\e%[8C▀     ░░▒▒▓▓▓	l7=%\e%[48;5;15;38;5;16m▓▓▓▒▒░░%\e%[45X%\e%[45C░░▒▒▓▓"
 call systemb-dialog.bat (sys.modeW-w)/2+1 3 60 16 "About Shivtanium" "" w-buttonW-2 h-2 7 " Close "
+exit /b
+:dialog.compile-run
+#import str.bxf
+set "name=%~n1"
+@str.getLen "str=    !name!    " "return=win[!PID!.bxf]W"
+if !win[%PID%.bxf]W! lss 24 set "win[!PID!.bxf]W=24"
+set /a "textW=win[!PID!.bxf]W-4"
+
+echo=¤CW	!PID!.bxf	5	3	!win[%PID%.bxf]W!	7	BXF Compiler
+echo=¤MW	!PID!.bxf	l2=  BXF is setting up:	l3=  %\e%[7m%\e%[!textW!X !name!%\e%[27m
+@sys.call registerWindow	!PID!	!PID!.bxf	5	3	!win[%PID%.bxf]W!	6
+
+pushd "%~dp1"
+set "ext=>&3 echo(^!input^!"
+call "!sst.dir!\core\bxf.bat" "%~nx1" | call "!sst.dir!\core\streamIntoWindow"
+if errorlevel 1 (
+	@sys.exit
+)
+@sys.call unRegisterWindow	!PID!.bxf
+endlocal
+call "%~n1.bat" --username "%~2" --UPID %3
