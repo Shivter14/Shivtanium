@@ -87,7 +87,6 @@ if defined getInputInitialized (
 		if "!sst.boot.keys!" neq "!sst.boot.keys:-16-=!" if "!time:~-1!"=="0" set "sst.boot.keysRN=!sst.boot.keys:-= !"
 		set "keysPressedOld=!sst.boot.keys:-= !"
 		set "sst.boot.mouseXpos=!mouseXpos!" & set "sst.boot.mouseYpos=!mouseYpos!"
-		set "sst.boot.click=!click!"
 		if "!wheelDelta!" neq "0" if !mouseXpos! gtr 0 if !mouseYpos! gtr 0 if !mouseXpos! leq !modeW! if !mouseYpos! leq !modeH! (
 			set /a "selection-=wheelDelta, wheelDelta=0"
 			if !selection! lss 1 (set selection=!sst.boot.entrycount!
@@ -103,6 +102,12 @@ if defined getInputInitialized (
 			if !selection! gtr !sst.boot.entrycount! set selection=1
 			call :bootmenu.main
 		) else if "!sst.boot.keysRN!" neq "!sst.boot.keysRN: 13 =!" (
+			set input=3
+			<nul set /p "=%\e%[48;2;0;0;0;38;2;255;255;255m%\e%[H%\e%[2J"
+		) else if "!sst.boot.keysRN!" neq "!sst.boot.keysRN: 88 =!" (
+			set input=3
+			<nul set /p "=%\e%[48;2;0;0;0;38;2;255;255;255m%\e%[H%\e%[2J"
+		) else if "!click!" neq "0" (
 			set input=3
 			<nul set /p "=%\e%[48;2;0;0;0;38;2;255;255;255m%\e%[H%\e%[2J"
 		)
