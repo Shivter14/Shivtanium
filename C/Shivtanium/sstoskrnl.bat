@@ -1,5 +1,5 @@
 @if not defined sst.dir (
-	echo off & setlocal enableDelayedExpansion & for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a" & call :kernelPanic "Invalid environment" "The Shivtanium kernel requires to be run in main.bat"
+	@echo off & setlocal enableDelayedExpansion & for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a" & call :kernelPanic "Invalid environment" "The Shivtanium kernel requires to be run in main.bat"
 )
 for /f "tokens=1 delims==" %%a in ('set dwm. 2^>nul ^& set spr. 2^>nul ^& set ssvm. 2^>nul') do set "%%a="
 cd "!sst.dir!" || call :kernelPanic "Unable to locate system directory" "The system failed to start:\nValue sst.dir: '!sst.dir!'\n ^^^^^^  Invalid directory."
@@ -16,7 +16,10 @@ if /I "%~1"=="/forceoobe" (
 	call :createProcess 0	%2 %3 %4 %5 %6 %7 %8 %9
 ) else if not exist "!sst.root!\users" (
 	call :createProcess 0	systemb-oobe.bat
-) else call :createProcess 0	systemb-login.bat
+) else (
+	if exist "!asset[\sounds\boot.mp3]!" start "<Shivtanium startup sound handeler> (ignore this)" /min cscript.exe //b core\playsound.vbs "!asset[\sounds\boot.mp3]!"
+	call :createProcess 0	systemb-login.bat
+)
 set sys.keys=
 set keysPressedOld=
 set "windows= "
@@ -222,6 +225,18 @@ for /l %%# in () do (
 				)
 			) >&3
 		)
+	) else if "%%~0"=="minimizeWindow" (
+		if not defined win[%%2] call :kernelPanic "Function minimizeWindow failed" "Tried to minimize a non-existent window.\nProcess: %%~1\nWindow: %%~2"
+		if "!focusedWindow!"=="%%~2" (
+			set /a ioTotal+=1
+			echo=focusedWindow=
+		)
+		if not exist "!sst.dir!\temp\DWM-offload" md "!sst.dir!\temp\DWM-offload" || call :kernelPanic "Function minimizeWindow failed" "Failed to create directory: ~\temp\DWM-offload\nProcess: %%~1\nWindow: %%~2"
+		if exist "!sst.dir!\temp\DWM-offload\snapshot.%%~1.%%~2" call :kernelPanic "Function minimizeWindow failed" "Window is already minimized"
+		(
+			echo=¤CTRL	DUMP	win[%%~2]	"!sst.dir!\temp\DWM-offload\snapshot.%%~1.%%~2"
+			echo=¤DW	%%~2
+		) >&3
 	) else if "%%~0"=="powerState" (
 		if /I "%%~1"=="shutdown" (
 			cd "!sst.dir!"
@@ -258,7 +273,7 @@ set args=%*
 for /f "tokens=1* delims=	" %%a in ("!args!") do (
 	set "pid[!PID!]parent=%%~a"
 	set "pid[%%~a]subs=!pid[%%~a]subs! "!PID!""
-	set "args=%%~b"
+	set "args=%%b"
 )
 (
 	echo=!args!
@@ -269,6 +284,7 @@ set "pid[!pid!]subs= "
 set "pid[!pid!]=%~2"
 set "processes=!processes!!PID! "
 if not defined processes call :kernelPanic "Process list overflow" "The system has started too many processes,\nand it seems like the list has overflown.\nThe system cannot continue."
+set "startTime=!time!"
 start /b cmd /c preparePipe.bat !args! <"temp\kernelOut" >&3
 exit /b 0
 :killProcessTree
