@@ -1,10 +1,8 @@
 #function window_switchColors
 	set /a "temp.bl=win[%%~1]W-9, temp.h=win[%%~1]H-2"
 	if "!win[%%~1]NIcolor!!win[%%~1]NTcolor!" neq "" for /f "tokens=1-5* delims=¤" %%a in ("!win[%%~1]NIcolor!¤!win[%%~1]TIcolor!¤!win[%%~1]NTcolor!¤!win[%%~1]TTcolor!¤!win[%%~1]W!¤!win[%%~1]RH!") do (
-		set "win[%%~1]TIcolor=%%a"
-		set "win[%%~1]NIcolor=%%b"
-		set "win[%%~1]TTcolor=%%c"
-		set "win[%%~1]NTcolor=%%d"
+		set "win[%%~1]TIcolor=%%a" & set "win[%%~1]NIcolor=%%b"
+		set "win[%%~1]TTcolor=%%c" & set "win[%%~1]NTcolor=%%d"
 		set "win[%%~1]r="
 		set "win[%%~1]pt=%\e%[48;!win[%%~1]TIcolor!;38;!win[%%~1]TTcolor!m%\e%[!win[%%~1]W!X!win[%%~1]title:~0,%%~e!%\e%8%\e%[!temp.bl!C!win[%%~1]CBUI!"
 		for %%l in (1 2 3) do set "win[%%~1]p%%l=!win[%%~1]p%%l:;48;%%bm=;48;%%am!"
@@ -13,7 +11,7 @@
 			set "win[%%~1]p%%l=!win[%%~1]p%%l:[48;%%bm=[48;%%am!"
 			set "win[%%~1]r=!win[%%~1]r!%\e%8%\e%[B%\e%7!win[%%~1]p%%l!!win[%%~1]l%%l!%\e%8%\e%[0;48;!win[%%~1]TIcolor!;38;!win[%%~1]TTcolor!m!win[%%~1]o%%l!"
 		)
-		set "win[%%~1]p%%~f=!win[%%~1]p%%~f:;38;%%bm=;38;%%am!"
+		set "win[%%~1]p%%~f=!win[%%~1]p%%~f:;48;%%bm=;48;%%am!"
 		set "win[%%~1]r=!win[%%~1]r!%\e%8%\e%[B%\e%7!win[%%~1]p%%~f!!win[%%~1]l%%~f!%\e%8%\e%[0;48;!win[%%~1]TIcolor!;38;!win[%%~1]TTcolor!m!win[%%~1]o%%~f!"
 	)
 	set temp.bl= & set temp.h=
@@ -24,7 +22,7 @@ if not defined sys.dir set "sys.dir=!cd!"
 set theme[disable_aero]="aero=" "winAero="
 
 set "dwm.barbuffer=                                                                                                                                                                                                                                                                "
-set "dwm.bottombuffer=▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄"
+set "dwm.bottombuffer=▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀"
 set mainbuffer=!dwm.scene!
 set "win.order= "
 set win.focused=
@@ -113,13 +111,13 @@ for /l %%# in () do (
 						set /a "x=(%%y+!win[%%~1]Y!-1+gvo)", "!win[%%~1]aero:×=*!"
 						set "win[%%~1]p%%y=%\e%[48;!win[%%~1]TIcolor!m %\e%[%%~aC %\e%8 %\e%[0;48;2;!r!;!g!;!b!;38;!win[%%~1]FGcolor!m%\e%[%%~aX"
 					)
-					set "win[%%~1]p!win[%%~1]RH!=%\e%[48;2;!r!;!g!;!b!;38;!win[%%~1]TIcolor!m !dwm.bottombuffer:~0,%%~a!%dwm.char.S%%\e%8%dwm.char.L%%\e%[38;!win[%%~1]FGcolor!;48;2;!r!;!g!;!b!m"
+					set "win[%%~1]p!win[%%~1]RH!=%\e%[38;2;!r!;!g!;!b!;48;!win[%%~1]TIcolor!m !dwm.bottombuffer:~0,%%~a! "
 					set r= & set g= & set b= & set x= & set gvo=
 				) else (
 					for /l %%y in (1 1 !temp.H!) do (
 						set "win[%%~1]p%%y=%\e%[48;!win[%%~1]TIcolor!m %\e%[%%~aC %\e%8 %\e%[27;48;!win[%%~1]BGcolor!;38;!win[%%~1]FGcolor!m%\e%[%%~aX"
 					)
-					set "win[%%~1]p!win[%%~1]RH!=%\e%[48;!win[%%~1]BGcolor!;38;!win[%%~1]TIcolor!m !dwm.bottombuffer:~0,%%~a!%dwm.char.S%%\e%8%dwm.char.L%%\e%[38;!win[%%~1]FGcolor!;48;!win[%%~1]BGcolor!m"
+					set "win[%%~1]p!win[%%~1]RH!=%\e%[38;!win[%%~1]BGcolor!;48;!win[%%~1]TIcolor!m !dwm.bottombuffer:~0,%%~a! "
 				)
 			)
 			
@@ -174,11 +172,9 @@ for /l %%# in () do (
 			) else if "%%~1"=="BSOD" (
 				call :bsod "%%~2" "%%~3"
 			) else if "%%~1"=="DUMP" (
-				if "%%~2"=="WIN" (
-					set win%%~3 >&3
-				) else if "%%~2"=="MODE" (
-					set mode >&3
-				) else set >&3
+				if "%%~4"=="/append" (
+					set %%2 >> "%%~3" 2>nul
+				) else set %%2 > "%%~3" 2>nul
 			) else if "%%~2"=="LOAD" (
 				set loadLines=0
 				for /f "usebackq tokens=1* delims==" %%x in ("%%~2") do set /a loadLines+=1
@@ -198,7 +194,7 @@ for /l %%# in () do (
 				set "mainbuffer=!mainbuffer!%\e%[!win[%%~w]Y!;!win[%%~w]X!H%\e%7!win[%%~w]pt!!win[%%~w]r!"
 				if not defined mainbuffer (
 					echo=!_mainbuffer!%\e%[H
-					set "mainbuffer=%\e%[!win[%%~w]Y!;!win[%%~w]X!H%\e%7!win[%%~w]pt!%\e%8%\e%[B%\e%7!win[%%~w]p1!!win[%%~w]l1!%\e%8%\e%[48;!win[%%~w]TIcolor!;38;!win[%%~w]TTcolor!m!win[%%~w]o1!%\e%8%\e%[B%\e%7!win[%%~w]p2!!win[%%~w]l2!%\e%8%\e%[48;!win[%%~w]TIcolor!;38;!win[%%~w]TTcolor!m!win[%%~w]o2!%\e%8%\e%[B%\e%7!win[%%~w]p3!!win[%%~w]l3!%\e%8%\e%[48;!win[%%~w]TIcolor!;38;!win[%%~w]TTcolor!m!win[%%~w]o3!!win[%%~w]r!"
+					set "mainbuffer=%\e%[!win[%%~w]Y!;!win[%%~w]X!H%\e%7!win[%%~w]pt!!win[%%~w]r!"
 				)
 			)
 			set "_mainbuffer=!mainbuffer!"
