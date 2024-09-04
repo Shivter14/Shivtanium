@@ -107,7 +107,7 @@ if defined getInputInitialized (
 		) else if "!sst.boot.keysRN!" neq "!sst.boot.keysRN: 88 =!" (
 			set input=3
 			<nul set /p "=%\e%[48;2;0;0;0;38;2;255;255;255m%\e%[H%\e%[2J"
-		) else if "!click!" neq "0" (
+		) else if "!click!"=="4" (
 			set input=3
 			<nul set /p "=%\e%[48;2;0;0;0;38;2;255;255;255m%\e%[H%\e%[2J"
 		)
