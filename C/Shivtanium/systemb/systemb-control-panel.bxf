@@ -1,5 +1,6 @@
 #import sys.bxf, dwm.bxf
 #function loadPage
+	if defined unsavedChanges call :page[!unsavedChanges!].cancel
 	@dwm.clearBuffers "from=1" "to=!inbH!" "o=%\e%[!sidebarW!X" "l="
 	for /l %%y in (2 1 !pagesBY!) do set "o%%y=!o%%y!!page[%%y]!"
 	set "pipe=¤MW	!PID!.control"
@@ -86,7 +87,7 @@ for /l %%# in () do (
 	@sys.handleStdEvents
 )
 :spg
-
+set unsavedChanges=!currentPage!
 set "buttons=Cancel Apply !buttons:Cancel Apply=!"
 set "btn[Cancel]title= Cancel "
 set "btn[Cancel]=:page[!currentPage!].cancel"
@@ -111,24 +112,24 @@ set "pipe=¤MW	!PID!.control"
 for /l %%y in (1 1 !inbH!) do set "pipe=!pipe!	o%%y=!o%%y!"
 @dwm.flushPipe
 exit /b 0
-:page[3].prev
-set /a selectedTheme-=1
+:page[3].switch
+if "!buttons!" neq "!buttons:Cancel Apply=!" (
+	set "buttons=Cancel Apply !buttons!"
+	set "btn[Cancel]title= Cancel "
+	set "btn[Cancel]=:page[!currentPage!].cancel"
+	set "btn[Apply]title= Apply "
+	set "btn[Apply]=:page[!currentPage!].apply"
+	set /a "btn[Apply]X=win[!PID!.control]W-9, btn[Apply]Y=contentH, btn[Apply]BX=btn[Apply]X+7, btn[Cancel]X=btn[Apply]X-10, btn[Cancel]Y=contentH, btn[Cancel]BX=btn[Cancel]X+8"
+	set "o!contentH!=!o%contentH%!%\e%8%\e%[!btn[Cancel]X!C!btn[Cancel]title!%\e%[2C!btn[Apply]title!"
+)
+set /a "selectedTheme=(selectedTheme %~1 1) %% themeCount"
 if !selectedTheme! lss 1 set selectedTheme=!themeCount!
-@sys.call ^
-unRegisterWindow	!PID!.control%\n%
-registerWindow	!PID!	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!
 echo=¤CTRL	APPLYTHEME	!theme[%selectedTheme%]!
 echo=¤DW	!PID!.control
 echo=¤CW	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!	Control Panel
-goto page[3].quickreload
-:page[3].next
-set /a "selectedTheme=selectedTheme %% themeCount + 1"
-@sys.call ^
-unRegisterWindow	!PID!.control%\n%
-registerWindow	!PID!	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!
-echo=¤CTRL	APPLYTHEME	!theme[%selectedTheme%]!
-echo=¤DW	!PID!.control
-echo=¤CW	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!	Control Panel
+set "pipe=¤MW	!PID!.control"
+for /l %%y in (1 1 !inbH!) do set "pipe=!pipe!	o%%y=!o%%y!"
+@dwm.flushPipe
 goto page[3].quickreload
 :page[3] Appearance
 for /f "tokens=1 delims==" %%a in ('set btn[ 2^>nul') do set "%%a="
@@ -139,8 +140,8 @@ for /f "usebackq tokens=1* delims==" %%a in ("!sst.root!\Users\!sys.username!\us
 )
 set buttons=prev next
 set /a "btn[prev]Y=btn[next]Y=5, btn[prev]X=(btn[prev]BX=(btn[next]X=(btn[next]BX=win[!PID!.control]W-4)-2)-1)-2, themeCount=0, selectedTheme=1"
-set btn[prev]=:page[3].prev
-set btn[next]=:page[3].next
+set btn[prev]=:page[3].switch -
+set btn[next]=:page[3].switch +
 set "btn[prev]title= ◄ "
 set "btn[next]title= ► "
 
@@ -198,6 +199,7 @@ exit /b 0
 for /l %%y in (2 1 !pagesBY!) do set "o%%y=!o%%y!!page[%%y]!"
 set "o!currentPage!=%\e%[!sidebarW!X%\e%[7m!page[%currentPage%]!%\e%[27m"
 for /f "delims=" %%a in ('call "!sys.dir!\core\config.bat" --get lowPerformanceMode --get reduceMotion') do set "sys.%%a">nul 2>&1
+set unsavedChanges=
 goto page[2]
 :page[2].apply
 @dwm.clearBuffers "from=1" "to=!inbH!" "o=%\e%[!sidebarW!X" "l="
@@ -210,6 +212,7 @@ if "!sys.lowPerformanceMode!"=="True" echo=¤CTRL	APPLYTHEME	classic
 	echo=config	reduceMotion=!sys.reduceMotion!
 ) >> "!sst.dir!\temp\kernelPipe"
 >>"!sst.dir!\temp\kernelPipe" echo=createProcess	!PID!	systemb-dialog (sys.modeW-w)/2 (sys.modeH-h)/2 50 8 "Reboot recommended" "l2=  In order to apply your changes to the system	l3=  settings, It's recommended to log out from	l4=  for them to fully apply."	w-buttonW-2 h-2 12 " Understood "
+set unsavedChanges
 goto page[2]
 :page[4]
 @dwm.clearBuffers "from=1" "to=!inbH!" "o=%\e%[!sidebarW!X" "l="
@@ -253,7 +256,7 @@ for %%w in (
 	ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis
 	doloribus asperiores repellat. Phasellus et lorem id felis nonummy placerat.
 	Mauris metus. Proin in tellus sit amet nibh dignissim sagittis.
-	Pellentesque arcu. Etiam bibendum elit eget erat. 
+	Pellentesque arcu. Etiam bibendum elit eget erat.
 ) do (
 	set "word=#%%w"
 	set "wordLen=0"
