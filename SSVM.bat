@@ -1,7 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
 for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
-goto init
 
 set "ssvm.args=%~1"
 if "!ssvm.args:~0,1!" neq ":" goto start
@@ -12,7 +11,7 @@ start "SSVM Launcher" conhost.exe cmd.exe /c %0 :init %*
 exit
 :init
 set "ssvm.args=%~1"
-set ssvm.ver=3.0.4
+set ssvm.ver=3.0.5
 title SSVM !ssvm.ver!
 <nul set /p "=%\e%[1;1H%\e%[48;2;0;0;0m%\e%[38;2;255;255;255m%\e%[?25l%\e%[J"
 chcp 65001>nul 2>&1 || (
@@ -177,7 +176,7 @@ if defined ssvm.BEFI (
 	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t2=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000)", ssvm.temp.fadein=255
 	call :bootanim.fadeout
 	<nul set /p "=%\e%[48;2;0;0;0;38;2;255;255;255m"
-	call cmd /V:ON /c autorun "!ssvm.args!"
+	call cmd /c autorun "!ssvm.args!"
 	set ssvm.exitcode=!errorlevel!
 )
 cd "%~dp0"
