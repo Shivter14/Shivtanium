@@ -1,20 +1,28 @@
 # Shivtanium Changelog
 This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
-## Beta 1.3.3 [build 31.3302]
+## Beta 1.3.3 [build 31.3304]
+- The application launcher can now display installed programs in the left list.
+  These programs can be BXF applications that will be compiled on first launch.
 - Added new system variable: `textMode` (Default value: `default` or undefined)
   This variable can force a custom text mode on startup, by an identifier.
   Text mode identifiers can be set with resource packs in file `textmodes.dat`.
 - The boot screen now has a mode change instruction.
-- Shivtanium can now change the font on startup. (if running with administrator privileges)
+- Shivtanium can now change the font on startup.
+  (if running with administrator privileges)
 - Added a new function to `sys.bxf`: `@sys.call`
+- Added `conhost.exe` from Windows 10 to SSVM, and enabled forcing conhost as
+  the terminal application. This has been done to completely eliminate problems
+  on Windows 11 aswell as disabling all other incompatible terminals.
 - Changes to DWM:
-  - The `Shivtanium` theme now has a gray background, making this a fully gray theme.
+  - The `Shivtanium` theme now has a gray background, making this a fully gray
+    theme. The centering has also been fixed.
   - Fixed more issues with Windows 11.
   - It is now compiled with BXF.
 - Bugfixes:
   - `systemb-desktop` - logging off wouldn't close user's programs
 - The `systemb-desktop` task bar can be undocked. (recompiling required)
+- BEFI boot menu rev4: Enhanced with `getInput64.dll` (Arrow keys & scrolling)
 
 ## Beta 1.3.2 [build 30.3229]
 - All `systemb` applications are now compiled with BXF.
