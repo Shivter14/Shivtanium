@@ -111,13 +111,13 @@ for /l %%# in () do (
 						set /a "x=(%%y+!win[%%~1]Y!-1+gvo)", "!win[%%~1]aero:×=*!"
 						set "win[%%~1]p%%y=%\e%[48;!win[%%~1]TIcolor!m %\e%[%%~aC %\e%8 %\e%[0;48;2;!r!;!g!;!b!;38;!win[%%~1]FGcolor!m%\e%[%%~aX"
 					)
-					set "win[%%~1]p!win[%%~1]RH!=%\e%[38;2;!r!;!g!;!b!;48;!win[%%~1]TIcolor!m !dwm.bottombuffer:~0,%%~a! "
+					set "win[%%~1]p!win[%%~1]RH!=%\e%[38;2;!r!;!g!;!b!;48;!win[%%~1]TIcolor!m !dwm.bottombuffer:~0,%%~a! %\e%8 "
 					set r= & set g= & set b= & set x= & set gvo=
 				) else (
 					for /l %%y in (1 1 !temp.H!) do (
 						set "win[%%~1]p%%y=%\e%[48;!win[%%~1]TIcolor!m %\e%[%%~aC %\e%8 %\e%[27;48;!win[%%~1]BGcolor!;38;!win[%%~1]FGcolor!m%\e%[%%~aX"
 					)
-					set "win[%%~1]p!win[%%~1]RH!=%\e%[38;!win[%%~1]BGcolor!;48;!win[%%~1]TIcolor!m !dwm.bottombuffer:~0,%%~a! "
+					set "win[%%~1]p!win[%%~1]RH!=%\e%[38;!win[%%~1]BGcolor!;48;!win[%%~1]TIcolor!m !dwm.bottombuffer:~0,%%~a! %\e%8 "
 				)
 			)
 			
