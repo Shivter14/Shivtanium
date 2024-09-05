@@ -1,7 +1,7 @@
 # Shivtanium Changelog
 This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
-## Beta 1.3.3 [build 31.3304]
+## Beta 1.3.3 [build 31.3302]
 - The application launcher can now display installed programs in the left list.
   These programs can be BXF applications that will be compiled on first launch.
 - Added new system variable: `textMode` (Default value: `default` or undefined)
@@ -20,7 +20,9 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
   - Fixed more issues with Windows 11.
   - It is now compiled with BXF.
 - Bugfixes:
-  - `systemb-desktop` - logging off wouldn't close user's programs
+  - *No GUI boot* causing an infinite black screen.
+  - `systemb-control-panel` - Changing the user theme not saving changes.
+  - `systemb-desktop` - Logging off not closing user's programs.
 - The `systemb-desktop` task bar can be undocked. (recompiling required)
 - BEFI boot menu rev4: Enhanced with `getInput64.dll` (Arrow keys & scrolling)
 
