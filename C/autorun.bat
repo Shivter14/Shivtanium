@@ -11,7 +11,7 @@ if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
 	set sst.boot.entries=
 	set sst.boot.entrycount=0
 	for /f "delims=" %%a in ('dir /b /a:D') do if exist "%%~a\befi.dat" (
-		for /f "tokens=1,2* delims=:" %%b in (%%a\befi.dat) do (
+		for /f "usebackq tokens=1,2* delims=:" %%b in ("%%~a\befi.dat") do (
 			set sst.boot.entries=!sst.boot.entries! "%%~a\%%~b:%%~c"
 			set /a sst.boot.entrycount+=1
 		)
