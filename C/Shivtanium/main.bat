@@ -1,16 +1,18 @@
 @echo off
 if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
-
+set args=%*
 setlocal enabledelayedexpansion
-if "%~1"==":waitForBootServices" goto waitForBootServices.service
-set "arg1=%~1"
-if "!arg1:~0,1!"==":" (
+if "!args:~0,1!"==":" (
 	call %*
 	exit /b
 )
-
+if "!args!" neq "!args:--=!" set args="!args:--=" "!"
+for %%A in (
+	!args!
+) do set sst.%%~A >nul 2>&1
 if not exist "%~dp0" exit /b 404
-chcp.com 65001>nul
+
+if "!ssvm.ver:~0,1!" neq "3" chcp.com 65001>nul
 
 cd "%~dp0" || exit /b 404
 set "sst.dir=!cd!"
@@ -38,7 +40,7 @@ for %%a in (kernelPipe kernelOut kernelErr) do copy nul temp\%%a > nul 2>&1 || c
 if not exist "temp\bootStatus-!sst.localtemp!" copy nul "temp\bootStatus-!sst.localtemp!" > nul || call :halt "preparePipe" "Failed to prepare pipe:\n'temp\bootStatus-!sst.localtemp!'"
 if /I "!sst.noguiboot!" neq "True" (
 	start /b "" cmd /c boot\renderer.bat "temp\bootStatus-!sst.localtemp!" < "temp\bootStatus-!sst.localtemp!"
-)
+) else copy nul "!sst.dir!\temp\pf-bootanim" > nul
 
 (for %%a in (
 	":clearEnv|Clearing environment"
@@ -63,6 +65,7 @@ if /I "!sst.noguiboot!" neq "True" (
 set "processes= "
 for /f "tokens=1 delims==" %%a in ('set sst.boot') do if /I "%%~a" neq "sst.boot.logoX" if /I "%%~a" neq "sst.boot.logoY" set "%%a="
 cd "%~dp0"
+for %%a in (!sys.bootVars!) do set "sys.%%~a="
 call sstoskrnl.bat %* < "temp\kernelPipe" > "temp\kernelOut" 3> "temp\DWM-!sst.localtemp!"
 ) 2>> "temp\kernelErr"
 :startup.submsg
@@ -94,11 +97,6 @@ if exist "!sst.dir!\resourcepacks\%~1\textmodes.dat" for /f "usebackq tokens=1* 
 set /a "sst.boot.logoX=(sys.modeW-spr.[bootlogo.spr].W)/2+1", "sst.boot.logoY=(sys.modeH-spr.[bootlogo.spr].H)/2+1"
 echo=%\e%[H%\e%[48;2;0;0;0m%\e%[38;2;255;255;255m%\e%[2J
 if exist "!sst.dir!\resourcepacks\%~1\keyboard_init.bat" call "!sst.dir!\resourcepacks\%~1\keyboard_init.bat"
-if /I "!sst.noguiboot!"=="True" (
-	set spr.[bootlogo.spr]=
-	set spr.[bootlogo.spr]W=
-	set spr.[bootlogo.spr]H=
-)
 exit /b 0
 :loadSprites
 if not exist "%~1" call :halt "%~nx0:loadSprites" "File not found: %~1"
@@ -162,6 +160,8 @@ set unload=
 exit /b 0
 :loadSettings
 if not exist "!sst.dir!\settings.dat" call :halt "%~nx0:loadSettings" "Failed to load 'settings.dat':\n  File not found."
+
+set "sys.bootVars=bootVars noResize font textMode"
 
 set "sys.loginTheme=metroTyper"
 set "sys.windowManager=dwm.bat"
@@ -255,6 +255,7 @@ for %%a in (
 	"charset"
 	"sst.boot"
 ) do for /f "tokens=1 delims==" %%b in ('set %%a 2^>nul') do set "%%b="
+for %%a in (!sys.bootVars!) do set "sys.%%~a="
 for /f "delims=" %%A in ('dir /b /a:-D "!sys.dir!\resourcepacks\init\themes\*"') do (
 	set "theme[%%~nA]= "
 	for /f "usebackq tokens=1* delims==" %%x in ("!sys.dir!\resourcepacks\init\themes\%%~A") do (
@@ -281,6 +282,7 @@ copy nul "temp\DWM-!sst.localtemp!" > nul
 copy nul "temp\DWMResp-!sst.localtemp!" > nul
 start /b cmd /c !sys.windowManager! < "temp\DWM-!sst.localtemp!" 3> "temp\DWMResp-!sst.localtemp!"
 endlocal
+set sys.windowManager=
 exit /b 0
 :waitForBootServices
 cmd /c "%~f0" :waitForBootServices
