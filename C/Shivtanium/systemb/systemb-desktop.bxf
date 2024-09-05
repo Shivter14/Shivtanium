@@ -205,6 +205,7 @@ call "!sst.dir!\core\bxf.bat" "%~nx1" | call "!sst.dir!\core\streamIntoWindow"
 if errorlevel 1 (
 	@sys.exit
 )
+echo=¤DW	!PID!.bxf
 @sys.call unRegisterWindow	!PID!.bxf
 endlocal
 call "%~n1.bat" --username "%~2" --UPID %3
