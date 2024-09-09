@@ -1,7 +1,12 @@
 commodore64:64,24
 linux_standard:80,24
+newengine:88,28
 sysshivt_tools:96,24
 quarter_fullHD:120,30
 default:128,32
+wide:192,32
 enhanced:160,40
-extreme:192,48
+enhanced_wide:256,48
+large:192,48
+large_wide:384,60
+extreme:256,64
