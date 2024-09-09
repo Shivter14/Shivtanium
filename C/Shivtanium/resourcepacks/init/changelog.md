@@ -1,9 +1,12 @@
 # Shivtanium Changelog
 This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
-## Beta 1.3.3 [build 31.3302]
+## Beta 1.3.3 [build 31.3309]
 - The application launcher can now display installed programs in the left list.
   These programs can be BXF applications that will be compiled on first launch.
+  Programs are located in `~\Shivtanium\Programs` as folders. A program folder
+  must contain a `shivtanium.dat` file with metadata. More information:
+  [Shivtanium Programs](https://github.com/Shivter14/Shivtanium/wiki/Programs)
 - Added new system variable: `textMode` (Default value: `default` or undefined)
   This variable can force a custom text mode on startup, by an identifier.
   Text mode identifiers can be set with resource packs in file `textmodes.dat`.
@@ -15,6 +18,7 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
   the terminal application. This has been done to completely eliminate problems
   on Windows 11 aswell as disabling all other incompatible terminals.
 - Changes to DWM:
+  - Fixed issues with non-aero themes having issues with background filling.
   - The `Shivtanium` theme now has a gray background, making this a fully gray
     theme. The centering has also been fixed.
   - Fixed more issues with Windows 11.
