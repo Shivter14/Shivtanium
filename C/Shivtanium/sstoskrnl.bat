@@ -252,7 +252,7 @@ for /l %%# in () do (
 		) else if /I "%%~1"=="reboot" (
 			echo=exit
 			echo=¤EXIT>&3
-			cmd /c ping -n 2 127.0.0.1 >nul 2>&1
+			for /l %%# in (1 1 100000) do rem
 			echo=%\e%[48;2;0;0;0m%\e%[H%\e%[2J>con
 			exit 27
 		) else if /I "%%~1"=="fastReboot" (
@@ -286,7 +286,7 @@ set "processes=!processes!!PID! "
 if not defined processes call :kernelPanic "Process list overflow" "The system has started too many processes,\nand it seems like the list has overflown.\nThe system cannot continue."
 set "startTime=!time!"
 start /b cmd /c preparePipe.bat !args! <"temp\kernelOut" >&3
-exit /b 0
+exit /b
 :killProcessTree
 set "PID=%~1"
 set /a PID=PID, ioTotal+=1
