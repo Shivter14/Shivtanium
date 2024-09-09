@@ -200,12 +200,12 @@ echo=¤MW	!PID!.bxf	l2=  BXF is setting up:	l3=  %\e%[7m%\e%[!textW!X !name!%\e%
 @sys.call registerWindow	!PID!	!PID!.bxf	5	3	!win[%PID%.bxf]W!	6
 
 pushd "%~dp1"
-set "ext=>&3 echo(^!input^!"
-call "!sst.dir!\core\bxf.bat" "%~nx1" | call "!sst.dir!\core\streamIntoWindow"
+call "!sst.dir!\core\bxf.bat" "%~nx1" > bxf.log 2>&1
 if errorlevel 1 (
 	@sys.exit
 )
 echo=¤DW	!PID!.bxf
 @sys.call unRegisterWindow	!PID!.bxf
 endlocal
+pushd "%~dp1"
 call "%~n1.bat" --username "%~2" --UPID %3
