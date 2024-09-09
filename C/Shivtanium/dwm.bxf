@@ -53,11 +53,11 @@ for /l %%# in () do (
 			) else (
 				set /a "oldBX=oldX+oldW-1, oldBY=oldY+oldH-1, win[%%~1]BX=win[%%~1]X+win[%%~1]W, win[%%~1]BY=win[%%~1]Y+win[%%~1]H-1, win[%%~1]DX=win[%%~1]X-oldX, unfY=win[%%~1]Y-1, unfB=win[%%~1]BY+1"
 				set "mainbuffer=%\e%[0m%\e%[48;!dwm.sceneBGcolor!m"
-				if !win[%%~1]Y! gtr !oldY! for /l %%y in (!unfY! -1 !oldY!) do set "mainbuffer=!mainbuffer!%\e%[%%y;!oldX!H%\e%[48;2;!dwm.aero[%%y]!m%\e%[!oldW!X"
-				if !win[%%~1]BY! lss !oldBY! for /l %%y in (!unfB! 1 !oldBY!) do set "mainbuffer=!mainbuffer!%\e%[%%y;!oldX!H%\e%[48;2;!dwm.aero[%%y]!m%\e%[!oldW!X"
+				if !win[%%~1]Y! gtr !oldY! for /l %%y in (!unfY! -1 !oldY!) do set "mainbuffer=!mainbuffer!%\e%[%%y;!oldX!H%\e%[48;!dwm.aero[%%y]!m%\e%[!oldW!X"
+				if !win[%%~1]BY! lss !oldBY! for /l %%y in (!unfB! 1 !oldBY!) do set "mainbuffer=!mainbuffer!%\e%[%%y;!oldX!H%\e%[48;!dwm.aero[%%y]!m%\e%[!oldW!X"
 				if !win[%%~1]X! gtr !oldX! (
-					for /l %%y in (!oldY! 1 !oldBY!) do set "mainbuffer=!mainbuffer!%\e%[%%y;!oldX!H%\e%[48;2;!dwm.aero[%%y]!m%\e%[!win[%%~1]DX!X"
-				) else if !win[%%~1]X! lss !oldX! for /l %%y in (!oldY! 1 !oldBY!) do set "mainbuffer=!mainbuffer!%\e%[%%y;!win[%%~1]BX!H%\e%[48;2;!dwm.aero[%%y]!m%\e%[!win[%%~1]DX:~1!X"
+					for /l %%y in (!oldY! 1 !oldBY!) do set "mainbuffer=!mainbuffer!%\e%[%%y;!oldX!H%\e%[48;!dwm.aero[%%y]!m%\e%[!win[%%~1]DX!X"
+				) else if !win[%%~1]X! lss !oldX! for /l %%y in (!oldY! 1 !oldBY!) do set "mainbuffer=!mainbuffer!%\e%[%%y;!win[%%~1]BX!H%\e%[48;!dwm.aero[%%y]!m%\e%[!win[%%~1]DX:~1!X"
 			)) else (
 				if "%%~1"=="!win.focused!" set win.redraw="%%~1"
 				set "win[%%~1]r="
@@ -159,13 +159,13 @@ for /l %%# in () do (
 					set /a temp=modeH-1
 					for /l %%x in (1 1 !modeH!) do (
 						set /a "x=%%x", "!dwm.aero:×=*!"
-						set "dwm.aero[%%x]=!r!;!g!;!b!"
+						set "dwm.aero[%%x]=2;!r!;!g!;!b!"
 						set dwm.scene=!dwm.scene!%\e%[48;2;!r!;!g!;!b!m!dwm.aeroLine!
 					)
 					set /a "x=modeH", "!dwm.aero:×=*!"
 					set "dwm.aero[!modeH!]=!r!;!g!;!b!"
 					set temp=
-				) else if "!dwm.sceneBGcolor:~0,2!"=="2;" for /l %%x in (1 1 !modeH!) do set "dwm.aero[%%x]=!dwm.sceneBGcolor:~2!"
+				) else for /l %%x in (1 1 !modeH!) do set "dwm.aero[%%x]=!dwm.sceneBGcolor!"
 				set "mainbuffer=!dwm.scene!"
 			) else if "%%~1"=="PAUSE" (
 				call :sleep
