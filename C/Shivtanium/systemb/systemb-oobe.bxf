@@ -26,7 +26,7 @@ for %%a in (
 
 
 if exist "!asset[\sounds\windows-xp-welcome-music-remix.mp3]!" (	
-	start /b "Shivtanium sound handeler (ignore this)" cscript.exe //b core\playsound.vbs "!asset[\sounds\windows-xp-welcome-music-remix.mp3]!"
+	start /b "Shivtanium sound handeler (ignore this)" cscript.exe //b core\soundEngine\1.1.vbs "!asset[\sounds\windows-xp-welcome-music-remix.mp3]!"
 	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "musicStart=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100",^
 	"win[!PID!.player]X=(sys.modeW - (win[!PID!.player]W=50)) / 2 + 1, win[!PID!.player]Y=sys.modeH - (win[!PID!.player]H=5) - 1, musicDurationX=(playBarW=(pauseButtonX=win[!PID!.player]W-3)-1)-4"
 	For /F "tokens=1 delims=" %%a in (
@@ -70,7 +70,7 @@ for /l %%a in (3 4 51) do (
 )
 set last=!contentH!
 for /l %%a in (!contentH! -1 10) do (
-	echo=¤MW	!PID!.oobe	l!last!=	l%%a=%\e%[20CWelcome to Shivtanium‼
+	echo=¤MW	!PID!.oobe	l!last!=	l%%a=%\e%[20CWelcome to Shivtanium^^!\x^^!
 	set last=%%a
 )
 echo=¤MW	!PID!.oobe	l12=%\e%[8CBefore we put you on the desktop, we have some	l13=%\e%[17Ccustomization to go through.	o!contentH!=%\e%[!nextButtonX!C Next 
