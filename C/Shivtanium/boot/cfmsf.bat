@@ -11,7 +11,8 @@ for %%F in (
 	sstoskrnl.bat
 	core\config.bat
 	core\getinput64.dll
-	core\playsound.vbs
+	core\soundEngine\1.1.vbs
+	core\soundEngine\1.2.vbs
 	core\bxf.bat
 	core\sys.bxf
 	core\dwm.bxf
