@@ -31,37 +31,40 @@ for /l %%a in (0 2 57) do (
 for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "t2=t1", "MA=0"
 echo=%\e%[48;2;;;;38;2;255;255;255m%\e%[2J
 for /f "usebackq tokens=1* delims==" %%a in ("!sst.dir!\settings.dat") do set "sys.%%~a=%%~b"
-for /f "usebackq tokens=1* delims==" %%x in ("!sst.dir!\resourcepacks\init\themes\!sys.loginBGtheme!") do set "dwm.%%x=%%y"
-if defined dwm.sceneBGcolor (
-	if "!dwm.sceneBGcolor:~0,2!"=="2;" (
-		for /f "tokens=2-4 delims=;" %%a in ("!dwm.sceneBGcolor!") do set "dwm.aero=r=%%a, g=%%b, b=%%c"
-	) else if "!dwm.sceneBGcolor:~0,2!"=="5;" for /f "tokens=2 delims=;" %%a in ("!dwm.sceneBGcolor!") do (
-		if %%a lss 16 (
-			set "xth.dcp[0]=r=12, g=12, b=12"
-			set "xth.dcp[1]=r=0, g=55, b=218"
-			set "xth.dcp[2]=r=19, g=161, b=14"
-			set "xth.dcp[3]=r=58, g=150, b=221"
-			set "xth.dcp[4]=r=197, g=15, b=31"
-			set "xth.dcp[5]=r=136, g=23, b=152"
-			set "xth.dcp[6]=r=193, g=156, b=0"
-			set "xth.dcp[7]=r=204, g=204, b=204"
-			set "xth.dcp[8]=r=118, g=118, b=118"
-			set "xth.dcp[9]=r=59, g=120, b=255"
-			set "xth.dcp[10]=r=22, g=198, b=12"
-			set "xth.dcp[11]=r=97, g=214, b=214"
-			set "xth.dcp[12]=r=231, g=72, b=86"
-			set "xth.dcp[13]=r=180, g=0, b=158"
-			set "xth.dcp[14]=r=249, g=241, b=165"
-			set "xth.dcp[15]=r=242, g=242, b=242"
-			if defined xth.dcp[%%a] set /a "dwm.aero=!xth.dcp[%%a]!"
-		) else if %%a lss 232 (
-			set /a "r=(%%a - 16) / 36 * 95, g=(%%a - 16) / 6 %% 6 * 36, b=(%%a - 16) %% 6 * 36"
-			set "dwm.aero=r=!r!, g=!g!, b=!b!"
-			start
-		) else set "dwm.aero=r=g=b=(%%a - 232) * 226 / 24 + 12"
-	)
-) else if defined dwm.aero set "dwm.aero=!dwm.aero:×=*!"
 
+for /d %%A in ("!sst.dir!\resourcepacks\*") do if exist "%%~fA\themes\!sys.loginBGtheme!" set "fadeinTheme=%%~fA\themes\!sys.loginBGtheme!"
+if exist "!fadeinTheme!" (
+	for /f "usebackq tokens=1* delims==" %%x in ("!fadeinTheme!") do set "dwm.%%x=%%y"
+	if defined dwm.sceneBGcolor (
+		if "!dwm.sceneBGcolor:~0,2!"=="2;" (
+			for /f "tokens=2-4 delims=;" %%a in ("!dwm.sceneBGcolor!") do set "dwm.aero=r=%%a, g=%%b, b=%%c"
+		) else if "!dwm.sceneBGcolor:~0,2!"=="5;" for /f "tokens=2 delims=;" %%a in ("!dwm.sceneBGcolor!") do (
+			if %%a lss 16 (
+				set "xth.dcp[0]=r=12, g=12, b=12"
+				set "xth.dcp[1]=r=0, g=55, b=218"
+				set "xth.dcp[2]=r=19, g=161, b=14"
+				set "xth.dcp[3]=r=58, g=150, b=221"
+				set "xth.dcp[4]=r=197, g=15, b=31"
+				set "xth.dcp[5]=r=136, g=23, b=152"
+				set "xth.dcp[6]=r=193, g=156, b=0"
+				set "xth.dcp[7]=r=204, g=204, b=204"
+				set "xth.dcp[8]=r=118, g=118, b=118"
+				set "xth.dcp[9]=r=59, g=120, b=255"
+				set "xth.dcp[10]=r=22, g=198, b=12"
+				set "xth.dcp[11]=r=97, g=214, b=214"
+				set "xth.dcp[12]=r=231, g=72, b=86"
+				set "xth.dcp[13]=r=180, g=0, b=158"
+				set "xth.dcp[14]=r=249, g=241, b=165"
+				set "xth.dcp[15]=r=242, g=242, b=242"
+				if defined xth.dcp[%%a] set /a "dwm.aero=!xth.dcp[%%a]!"
+			) else if %%a lss 232 (
+				set /a "r=(%%a - 16) / 36 * 95, g=(%%a - 16) / 6 %% 6 * 36, b=(%%a - 16) %% 6 * 36"
+				set "dwm.aero=r=!r!, g=!g!, b=!b!"
+				start
+			) else set "dwm.aero=r=g=b=(%%a - 232) * 226 / 24 + 12"
+		)
+	) else if defined dwm.aero set "dwm.aero=!dwm.aero:×=*!"
+)
 call :initial_animation
 goto main
 :initial_animation
@@ -129,6 +132,10 @@ for /l %%. in () do (
 	if !sst.boot.fadeout! lss 1 call :fadein
 )
 :fadein
+if not defined fadeinTheme (
+	copy nul "!sst.dir!\temp\pf-bootanim" > nul
+	exit 0
+)
 set sst.boot.fadeout=0
 for /l %%# in () do (
 	for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "sst.boot.fadeout+=(DeltaTime=(t1-t2))*4", "t2=t1"
