@@ -18,11 +18,15 @@
 #end
 @echo off & setlocal enabledelayedexpansion
 if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
+set "\x=^^!"
+set "\q=?"
+set \c=^^
+set "\a=*"
 if not defined sys.dir set "sys.dir=!cd!"
 set theme[disable_aero]="aero=" "winAero="
 
-set "dwm.barbuffer=                                                                                                                                                                                                                                                                "
 set "dwm.bottombuffer=▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀"
+set "dwm.bottombuffer=!dwm.bottombuffer:~0,%modeW%!"
 set mainbuffer=!dwm.scene!
 set "win.order= "
 set win.focused=
