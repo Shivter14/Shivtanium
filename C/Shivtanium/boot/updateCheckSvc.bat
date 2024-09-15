@@ -20,7 +20,7 @@ if /I "!sys.boot.disableUpdateChecks!" neq "True" (
 )
 
 copy nul "!sst.dir!\temp\pf-%~n0" > nul
-exit 0
+exit /b 0
 :updateFound
 (
 	echo=!latest.tag!
@@ -29,4 +29,4 @@ exit 0
 ) > "!sst.dir!\temp\update.dat"
 >>"!sst.dir!\temp\kernelPipe" echo=createProcess	0	boot\update.bat
 copy nul "!sst.dir!\temp\pf-%~n0" > nul
-exit 0
+exit /b 0
