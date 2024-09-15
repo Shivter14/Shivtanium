@@ -4,7 +4,7 @@ if "%~1"=="--dialog" (
 	goto :dialog.%2
 )
 
-set /a "launcherY=sys.modeH-1, launcherW=sys.modeW-(launcherBX=(launcherX=3)+11)-2"
+set /a "launcherY=sys.modeH, launcherW=sys.modeW-(launcherBX=(launcherX=1)+11)+1"
 for /l %%# in () do (
 	set _expTime=!expTime!
 	set expTime=!time:~0,-6!
@@ -201,9 +201,6 @@ echo=¤MW	!PID!.bxf	l2=  BXF is setting up:	l3=  %\e%[7m%\e%[!textW!X !name!%\e%
 
 pushd "%~dp1"
 call "!sst.dir!\core\bxf.bat" "%~nx1" > bxf.log 2>&1
-if errorlevel 1 (
-	@sys.exit
-)
 echo=¤DW	!PID!.bxf
 @sys.call unRegisterWindow	!PID!.bxf
 endlocal
