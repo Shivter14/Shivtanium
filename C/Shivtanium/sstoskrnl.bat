@@ -13,7 +13,8 @@ if !sys.CPU.count! lss 4 (
 if /I "%~1"=="/forceoobe" (
 	call :createProcess 0	systemb-oobe.bat
 ) else if "%~1"=="/autorun" (
-	call :createProcess 0	%2 %3 %4 %5 %6 %7 %8 %9
+	set args=%*
+	call :createProcess 0	!args:*/autorun=!
 ) else if not exist "!sst.root!\users" (
 	call :createProcess 0	systemb-oobe.bat
 ) else (
@@ -126,6 +127,7 @@ for /l %%# in () do (
 				echo=¤DW	%%~w
 			))>&3
 			for /f %%a in ('set pid 2^>nul ^& set win 2^>nul') do set "%%a="
+			del /q "!sst.dir!\temp\proc\PID-*" > nul
 			set "processes= "
 			set "windows= "
 			set focusedWindow=
@@ -138,9 +140,7 @@ for /l %%# in () do (
 		)
 	)
 
-	set io=
-	set /p io=
-	if defined io for /f "tokens=1* delims=	" %%0 in ("!io!") do if "%%~0"=="registerWindow" (
+	set /p io=&&for /f "tokens=1* delims=	" %%0 in ("!io!") do if "%%~0"=="registerWindow" (
 		for /f "tokens=1-7" %%a in ("%%~1") do (
 			set "temp.id=%%~b"
 			set "temp.id=!temp.id:,=!"
@@ -292,7 +292,7 @@ set "PID=%~1"
 set /a PID=PID, ioTotal+=1
 echo=exitProcess=!PID!
 for /l %%. in (1 1 100) do if exist "!sst.dir!\temp\PID-!PID!" (
-	del "!sst.dir!\temp\PID-!PID:\=!" > nul 2>&1 < nul
+	del "!sst.dir!\temp\proc\PID-!PID:\=!" > nul 2>&1 < nul
 )
 
 set "processes=!processes: %PID% = !"
