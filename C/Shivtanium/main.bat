@@ -44,8 +44,9 @@ if /I "!sst.noguiboot!" neq "True" (
 
 (for %%a in (
 	":clearEnv|Clearing environment"
-	":loadresourcepack init|Loading resources"
 	":loadSettings|Loading settings"
+	":loadresourcepack init|Loading resources"
+	":loadresourcepack discord_themes|Loading resource packs"
 	":checkCompat|Checking compatibility"
 	":setFont|Applying font"
 	":compileBXF|Compiling BXF applications"
@@ -95,7 +96,13 @@ for /f "delims=" %%a in ('dir /b /a:-D "!sst.dir!\resourcepacks\%~1\sprites\*.sp
 for /f "delims=" %%a in ('dir /b /a:-D "!sst.dir!\resourcepacks\%~1\sounds\*.*" 2^>nul') do set "asset[\sounds\%%~a]=!sst.dir!\resourcepacks\%~1\sounds\%%~a"
 if exist "!sst.dir!\resourcepacks\%~1\textmodes.dat" for /f "usebackq tokens=1* delims=:" %%a in ("!sst.dir!\resourcepacks\%~1\textmodes.dat") do set "sst.boot.textmode[%%~a]=%%~b"
 set /a "sst.boot.logoX=(sys.modeW-spr.[bootlogo.spr].W)/2+1", "sst.boot.logoY=(sys.modeH-spr.[bootlogo.spr].H)/2+1"
-echo=%\e%[H%\e%[48;2;0;0;0m%\e%[38;2;255;255;255m%\e%[2J
+for /f "delims=" %%A in ('dir /b /a:-D "!sys.dir!\resourcepacks\%~1\themes\*"') do (
+	set "theme[%%~nA]= "
+	for /f "usebackq tokens=1* delims==" %%x in ("!sys.dir!\resourcepacks\%~1\themes\%%~A") do (
+		if /I "%%~x" neq "CBUIOffset" set theme[%%~nA]=!theme[%%~nA]! "%%~x=%%~y"
+	)
+	set "theme[%%~nA]=!theme[%%~nA]:~2!"
+)
 if exist "!sst.dir!\resourcepacks\%~1\keyboard_init.bat" call "!sst.dir!\resourcepacks\%~1\keyboard_init.bat"
 exit /b 0
 :loadSprites
@@ -126,7 +133,7 @@ if exist temp (
 )
 set "halt.text=%~2"
 set halt.text=!halt.text:\n=","!
-set "halt.pausemsg= Press any key to exit. . . "
+set "halt.pausemsg= Hold any key to exit. . . "
 set "halt.tracemsg= At %~1: "
 for /l %%a in (64 -1 0) do (
 	<nul set /p "=%\e%[2;3H%\e%[48;2;255;0;0m%\e%[38;2;255;255;255m%\e%[?25l Execution halted %\e%[4;3H!halt.tracemsg:~%%a!"
@@ -138,6 +145,7 @@ for /l %%a in (64 -1 0) do (
 	<nul set /p "=%\e%[999;3H%\e%[A!halt.pausemsg:~%%a!%\e%8"
 )
 call :memorydump
+start /b cmd /c "pause < con" >nul 2>&1
 pause>nul<con
 exit 0
 :clearEnv
@@ -256,13 +264,6 @@ for %%a in (
 	"sst.boot"
 ) do for /f "tokens=1 delims==" %%b in ('set %%a 2^>nul') do set "%%b="
 for %%a in (!sys.bootVars!) do set "sys.%%~a="
-for /f "delims=" %%A in ('dir /b /a:-D "!sys.dir!\resourcepacks\init\themes\*"') do (
-	set "theme[%%~nA]= "
-	for /f "usebackq tokens=1* delims==" %%x in ("!sys.dir!\resourcepacks\init\themes\%%~A") do (
-		if /I "%%~x" neq "CBUIOffset" set theme[%%~nA]=!theme[%%~nA]! "%%~x=%%~y"
-	)
-	set "theme[%%~nA]=!theme[%%~nA]:~2!"
-)
 
 set modeW=
 set modeH=
@@ -315,9 +316,9 @@ cd "!sst.dir!" || exit /b
 
 set BXF_toCompile=0
 set BXF_compiled=0
-for %%F in ("dwm.bxf" "systemb\*.bxf") do if not exist "%%~dpnF.bat" set /a BXF_toCompile+=1
+for %%F in (dwm.bxf "systemb\*.bxf") do if not exist "%%~dpnF.bat" set /a BXF_toCompile+=1
 
-(for %%F in ("dwm.bxf" "systemb\*.bxf") do if not exist "%%~dpnF.bat" (
+(for %%F in (dwm.bxf "systemb\*.bxf") do if not exist "%%~dpnF.bat" (
 	set /a BXF_compiled+=1
 	call :startup.submsg "!sst.boot.msg!" "File: %%F" !BXF_toCompile! !BXF_compiled!
 	<nul set /p "=%\e%[48;2;0;0;0;38;2;255;255;255m"
