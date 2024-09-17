@@ -6,7 +6,7 @@ if "!args:~0,1!"==":" (
 	call %*
 	exit /b
 )
-if "!args!" neq "!args:--=!" set args="!args:--=" "!"
+set "args=!args:'="!"
 for %%A in (
 	!args!
 ) do set sst.%%~A >nul 2>&1
@@ -46,7 +46,6 @@ if /I "!sst.noguiboot!" neq "True" (
 	":clearEnv|Clearing environment"
 	":loadSettings|Loading settings"
 	":loadresourcepack init|Loading resources"
-	":loadresourcepack discord_themes|Loading resource packs"
 	":checkCompat|Checking compatibility"
 	":setFont|Applying font"
 	":compileBXF|Compiling BXF applications"
@@ -169,7 +168,7 @@ exit /b 0
 :loadSettings
 if not exist "!sst.dir!\settings.dat" call :halt "%~nx0:loadSettings" "Failed to load 'settings.dat':\n  File not found."
 
-set "sys.bootVars=bootVars noResize font textMode"
+set "sys.bootVars=bootVars noResize font textMode useAltWinCtrlChars"
 
 set "sys.loginTheme=metroTyper"
 set "sys.windowManager=dwm.bat"
@@ -263,6 +262,11 @@ for %%a in (
 	"charset"
 	"sst.boot"
 ) do for /f "tokens=1 delims==" %%b in ('set %%a 2^>nul') do set "%%b="
+if /I "!sys.useAltWinCtrlChars!"=="True" for /f "tokens=1* delims==" %%a in ('set theme[ 2^>nul') do (
+	set "%%a=!%%a: - = ▿ !"
+	set "%%a=!%%a: □ = o !"
+	set "%%a=!%%a: × = x !"
+)
 for %%a in (!sys.bootVars!) do set "sys.%%~a="
 
 set modeW=
