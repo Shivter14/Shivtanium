@@ -45,7 +45,7 @@ for %%a in (%*) do (
 if not defined sys.username call systemb-dialog.bat (sys.modeW-w)/2 (sys.modeH-h)/2 48 6 "Control Panel" "l2=  Something went wrong:	l3=    Missing parameter: --username" w-buttonW-2 h-2 7 " Close "
 if not defined sys.UPID     call systemb-dialog.bat (sys.modeW-w)/2 (sys.modeH-h)/2 48 6 "Control Panel" "l2=  Something went wrong:	l3=    Missing parameter: --UPID"     w-buttonW-2 h-2 7 " Close "
 set /a PID=PID
-set /a "pagesBY=5, currentPage=2, contentW=(win[!PID!.control]W=64)-(sidebarW=16)-4, contentH=(inbH=(win[!PID!.control]H=16)-1)-1, win[!PID!.control]X=(sys.modeW-win[!PID!.control]W)/2, win[!PID!.control]Y=(sys.modeH-win[!PID!.control]H)/2, closeButtonX=win[!PID!.control]W-4"
+set /a "pagesBY=5, currentPage=2, contentWp=(contentW=(win[!PID!.control]W=64)-(sidebarW=16)-4)-1, contentH=(inbH=(win[!PID!.control]H=16)-1)-1, win[!PID!.control]X=(sys.modeW-win[!PID!.control]W)/2, win[!PID!.control]Y=(sys.modeH-win[!PID!.control]H)/2, closeButtonX=win[!PID!.control]W-4"
 echo=¤CW	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!	Control Panel
 >>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!
 set "page[2]= Performance    "
@@ -99,20 +99,21 @@ for /l %%# in () do (
 )
 :spg
 set unsavedChanges=!currentPage!
+set "btn[Cancel]title= Cancel "
+set "btn[Cancel]=:page[!currentPage!].cancel"
 if "!currentPage!"=="3" (
 	set "buttons=Cancel Save !buttons:Cancel Save =!"
 	set "btn[Save]title= Save "
 	set "btn[Save]=:page[!currentPage!].save"
 	set /a "btn[Save]X=win[!PID!.control]W-8, btn[Save]Y=contentH, btn[Save]BX=btn[Save]X+7, btn[Cancel]X=btn[Save]X-10, btn[Cancel]Y=contentH, btn[Cancel]BX=btn[Cancel]X+8"
+	set "o!contentH!=!o%contentH%!%\e%8%\e%[!btn[Cancel]X!C!btn[Cancel]title!%\e%[2C!btn[Save]title!"
 ) else (
 	set "buttons=Cancel Apply !buttons:Cancel Apply =!"
 	set "btn[Apply]title= Apply "
 	set "btn[Apply]=:page[!currentPage!].apply"
 	set /a "btn[Apply]X=win[!PID!.control]W-9, btn[Apply]Y=contentH, btn[Apply]BX=btn[Apply]X+7, btn[Cancel]X=btn[Apply]X-10, btn[Cancel]Y=contentH, btn[Cancel]BX=btn[Cancel]X+8"
+	set "o!contentH!=!o%contentH%!%\e%8%\e%[!btn[Cancel]X!C!btn[Cancel]title!%\e%[2C!btn[Apply]title!"
 )
-set "btn[Cancel]title= Cancel "
-set "btn[Cancel]=:page[!currentPage!].cancel"
-set "o!contentH!=!o%contentH%!%\e%8%\e%[!btn[Cancel]X!C!btn[Cancel]title!%\e%[2C!btn[Apply]title!"
 
 if /I "!%~2!"=="True" (
 	set "%~2=False"
@@ -130,35 +131,39 @@ set "pipe=¤MW	!PID!.control"
 for /l %%y in (1 1 !inbH!) do set "pipe=!pipe!	o%%y=!o%%y!"
 @dwm.flushPipe
 exit /b 0
-:page[3].switch
-set unsavedChanges=!currentPage!
-set "buttons=Cancel Save !buttons:Cancel Save =!"
-set "btn[Cancel]title= Cancel "
-set "btn[Cancel]=:page[!currentPage!].cancel"
-set "btn[Save]title= Save "
-set "btn[Save]=:page[!currentPage!].save"
-set /a "btn[Save]X=win[!PID!.control]W-8, btn[Save]Y=contentH, btn[Save]BX=btn[Save]X+7, btn[Cancel]X=btn[Save]X-10, btn[Cancel]Y=contentH, btn[Cancel]BX=btn[Cancel]X+8"
-set "o!contentH!=!o%contentH%!%\e%8%\e%[!btn[Cancel]X!C!btn[Cancel]title!%\e%[2C!btn[Save]title!"
-set "l5=%\e%[!sidebarW!C%\e%[7m%\e%[!contentW!X%\e%[27m %\e%[7m !theme[%selectedTheme%]:~0,%contentW%!%\e%[27m"
-set /a "selectedTheme=(selectedTheme %~1 1) %% themeCount"
-if !selectedTheme! lss 1 set selectedTheme=!themeCount!
-echo=¤CTRL	APPLYTHEME	!theme[%selectedTheme%]!
-echo=¤DW	!PID!.control
-echo=¤CW	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!	Control Panel
+:page[3].PickTheme
+
+set lsux.list=theme
+set /a "lsux.itemCount=themeCount, win[!PID!.lsux]X=win[!PID!.control]X+sidebarW+2, win[!PID!.lsux]W=contentWp, win[!PID!.lsux]Y=win[!PID!.control]Y+5"
+set "theme[!selectedTheme!]o=o"
+cmd /c listSelectionUX.bat
+set "theme[!selectedTheme!]o="
+if errorlevel 1 (
+	set unsavedChanges=!currentPage!
+	set "buttons=Cancel Save !buttons:Cancel Save =!"
+	set "btn[Cancel]title= Cancel "
+	set "btn[Cancel]=:page[!currentPage!].cancel"
+	set "btn[Save]title= Save "
+	set "btn[Save]=:page[!currentPage!].save"
+	set /a "btn[Save]X=win[!PID!.control]W-8, btn[Save]Y=contentH, btn[Save]BX=btn[Save]X+7, btn[Cancel]X=btn[Save]X-10, btn[Cancel]Y=contentH, btn[Cancel]BX=btn[Cancel]X+8"
+	set "o!contentH!=!o%contentH%!%\e%8%\e%[!btn[Cancel]X!C!btn[Cancel]title!%\e%[2C!btn[Save]title!"
+	set selectedTheme=!errorlevel!
+	for /f "delims=^!*" %%a in ("!selectedTheme!") do echo=¤CTRL	APPLYTHEME	!theme[%%a]!
+	echo=¤DW	!PID!.control
+	echo=¤CW	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!	Control Panel
+) else if "!errorlevel!"=="-1" exit 0
 goto page[3].qrld
 :page[3] Appearance
-for /f "tokens=1 delims==" %%a in ('set btn[ 2^>nul') do set "%%a="
+for /f "tokens=1 delims==" %%a in ('set btn[ 2^>nul ^& set theme 2^>nul') do set "%%a="
 
 set user.globalTheme=aero
 for /f "usebackq tokens=1* delims==" %%a in ("!sst.root!\Users\!sys.username!\userprofile.dat") do (
 	set "user.%%a=%%b" > nul 2>&1
 )
-set buttons=prev next
-set /a "btn[prev]Y=btn[next]Y=5, btn[prev]X=(btn[prev]BX=(btn[next]X=(btn[next]BX=win[!PID!.control]W-4)-2)-1)-2, themeCount=0, selectedTheme=1"
-set btn[prev]=:page[3].switch -
-set btn[next]=:page[3].switch +
-set "btn[prev]title= ◄ "
-set "btn[next]title= ► "
+set buttons=PickTheme
+set btn[PickTheme]Y=5
+set /a "btn[PickTheme]X=sidebarW+2, btn[PickTheme]BX=win[!PID!.control]W-4"
+set btn[PickTheme]=:page[3].PickTheme
 
 for /f "delims=" %%R in ('dir /b /a:D "!sst.dir!\resourcepacks"') do for /f "delims=" %%T in ('dir /b /a:-D "!sst.dir!\resourcepacks\%%~nxR\themes"') do if /I "%%~xT" neq ".themeMod" (
 	set /a themeCount+=1
@@ -169,6 +174,7 @@ if not defined selectedTheme (
 	echo=¤CTRL	APPLYTHEME	!theme[1]!
 	set selectedTheme=1
 )
+for /f "delims=" %%a in ('call "!sys.dir!\core\config.bat" --get useAltWinCtrlChars') do set "sys.%%a">nul 2>&1
 
 @dwm.clearBuffers "from=1" "to=!inbH!" "o=%\e%[!sidebarW!X" "l="
 for /l %%y in (2 1 !pagesBY!) do set "o%%y=!o%%y!!page[%%y]!"
@@ -176,14 +182,13 @@ for /l %%y in (2 1 !pagesBY!) do set "o%%y=!o%%y!!page[%%y]!"
 set "o!currentPage!=%\e%[!sidebarW!X%\e%[7m!page[%currentPage%]!%\e%[27m"
 
 set "l2=%\e%[!sidebarW!C Appearance"
-set "l4=%\e%[!sidebarW!C Current theme:"
-set "l5=%\e%[!sidebarW!C%\e%[7m%\e%[!contentW!X%\e%[27m %\e%[7m !theme[%selectedTheme%]:~0,%contentW%!%\e%[27m"
-set "o5=!o5!%\e%8%\e%[!btn[prev]X!C ◄  ► "
+set "l4=%\e%[!sidebarW!C User theme:"
+set "l5=%\e%[!sidebarW!C %\e%[7m%\e%[!contentWp!X !theme[%selectedTheme%]:~0,%contentW%!%\e%[27m"
 set "l8=%\e%[!sidebarW!C ( This fixes issues on non-UTF-8 fonts,"
 set "l9=%\e%[!sidebarW!C   restart required.%\e%[21C)"
 
 for %%b in (
-	"useAltWinCtrlChars	dwm.useAltWinCtrlChars	7	Alternatative Window Control Characters"
+	"useAltWinCtrlChars	sys.useAltWinCtrlChars	7	Alternatative Window Control Characters"
 ) do (
 	@makeSelectors "x=42"
 )
@@ -251,6 +256,7 @@ set "user.globalTheme=!theme[%selectedTheme%]!"
 	)
 	endlocal
 ) > "!sst.root!\Users\!sys.username!\userprofile.dat"
+call "!sys.dir!\core\config.bat" --set useAltWinCtrlChars !sys.useAltWinCtrlChars!
 goto page[3]
 :page[4]
 @dwm.clearBuffers "from=1" "to=!inbH!" "o=%\e%[!sidebarW!X" "l="
