@@ -45,7 +45,7 @@ if /I "!sst.noguiboot!" neq "True" (
 (for %%a in (
 	":clearEnv|Clearing environment"
 	":loadSettings|Loading settings"
-	":loadresourcepack init|Loading resources"
+	":loadresourcepacks|Loading resources"
 	":checkCompat|Checking compatibility"
 	":setFont|Applying font"
 	":compileBXF|Compiling BXF applications"
@@ -68,6 +68,9 @@ cd "%~dp0"
 for %%a in (!sys.bootVars!) do set "sys.%%~a="
 call sstoskrnl.bat %* < "temp\kernelPipe" > "temp\kernelOut" 3> "temp\DWM-!sst.localtemp!"
 ) 2>> "temp\kernelErr"
+
+exit /b 1
+REM == Modules ==
 :startup.submsg
 set "sst.boot.msg=%~1"
 set "sst.boot.submsg=%~2"
@@ -86,9 +89,13 @@ for %%A in (memoryDump) do (
 	popd
 	exit /b %%~zA
 )
-exit /b %errorlevel%
-
-REM == Modules ==
+exit /b
+:loadresourcepacks
+for %%a in (!sys.activeResourcePacks!) do (
+	call :startup.submsg "!sst.boot.msg!" "Loading resource pack: %%~a"
+	call :loadresourcepack "%%~a"
+)
+exit /b
 :loadresourcepack
 if not exist "!sst.dir!\resourcepacks\%~1" exit /b 1
 for /f "delims=" %%a in ('dir /b /a:-D "!sst.dir!\resourcepacks\%~1\sprites\*.spr" 2^>nul') do call :loadsprites "!sst.dir!\resourcepacks\%~1\sprites\%%~a" %%~a
@@ -169,7 +176,7 @@ exit /b 0
 if not exist "!sst.dir!\settings.dat" call :halt "%~nx0:loadSettings" "Failed to load 'settings.dat':\n  File not found."
 
 set "sys.bootVars=bootVars noResize font textMode useAltWinCtrlChars"
-
+set "sys.activeResourcePacks=init"
 set "sys.loginTheme=metroTyper"
 set "sys.windowManager=dwm.bat"
 set "sst.boot.fadeout=255"
@@ -194,9 +201,6 @@ if defined sys.textMode (
 	>>"temp\bootStatus-!sst.localtemp!" echo=¤MODE !sys.modeW!,!sys.modeH!
 	set sys.textMode=
 )
-
-set "sst.processes= "
-set "sst.processes.paused= "
 
 set dwm.scene=%\e%[H%\e%[0m%\e%[48;5;0;38;5;231m%\e%[2JShivtanium OS !sys.tag! !sys.ver! !sys.subvinfo! ^| No theme loaded.
 set dwm.sceneBGcolor=5;0
