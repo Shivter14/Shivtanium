@@ -14,10 +14,11 @@ for %%a in (%*) do (
 		)
 	)
 )
-set /a "closeButtonX=(win[!PID!.conhost]W=64)-3, conP=(conH=(win[!PID!.conhost]H=16)-4)+2, win[!PID!.conhost]X=(sys.modeW-win[!PID!.conhost]W)/2, win[!PID!.conhost]Y=(sys.modeH-win[!PID!.conhost]H)/2"
+set /a "closeButtonX=(conW=(win[!PID!.conhost]W=64)-2)-1, conP=(conH=(win[!PID!.conhost]H=16)-4)+2, win[!PID!.conhost]X=(sys.modeW-win[!PID!.conhost]W)/2, win[!PID!.conhost]Y=(sys.modeH-win[!PID!.conhost]H)/2"
+set "conprompt=[!sys.username! ^!cd:!sst.root!=~^!]$"
 
 echo=¤CW	!PID!.conhost	!win[%PID%.conhost]X!	!win[%PID%.conhost]Y!	!win[%PID%.conhost]W!	!win[%PID%.conhost]H!	Terminal	discord
-echo=¤MW	!PID!.conhost	l!conP!=]
+echo=¤MW	!PID!.conhost	l!conP!=%conprompt%
 >>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.conhost	!win[%PID%.conhost]X!	!win[%PID%.conhost]Y!	!win[%PID%.conhost]W!	!win[%PID%.conhost]H!
 set "focusedWindow=!PID!.conhost"
 set "input= "
@@ -33,32 +34,45 @@ for /l %%# in () do (
 				if "%%~k" neq "32" set char=
 				if "%%~k"=="8" (
 					if "!input!" neq " " set "input=!input:~0,-1!"
-					echo=¤MW	!PID!.conhost	l!conP!=]!input!
+					echo=¤MW	!PID!.conhost	l!conP!=%conprompt%!input!
 				) else if "%%~k"=="13" (
 					if /I "!input!"==" exit" (
 						>>"!sst.dir!\temp\kernelPipe" echo=exitProcess	!PID!
 						exit 0
 					)
-					for /f "delims=*^!	" %%a in ('echo=]!input!^& !input:~1! 2^>^&1') do (
+					for /l %%y in (1 1 !conH!) do (
+						set /a "x=%%y+1"
+						for %%z in (!x!) do set "l%%y=!l%%z!"
+					)
+					set "l!x!=%conprompt%!input!"
+					for /l %%y in (1 1 !conH!) do (
+						set /a "x=%%y+1"
+						for %%z in (!x!) do set "l%%y=!l%%z!"
+					)
+					for /f "delims=*^!" %%a in ('!input! 2^>^&1') do (
 						for /l %%y in (1 1 !conH!) do (
 							set /a "x=%%y+1"
 							for %%z in (!x!) do set "l%%y=!l%%z!"
 						)
-						set "l!x!=%%a"
+						set "text=%%a"
+						set "text=!text:	=    !"
+						if "!text!"=="!text:%\e%=!" set "text=!text:~0,%conW%!"
+						set "l!x!=!text!"
+						set pipe=
+						for /l %%y in (1 1 !conP!) do set "pipe=!pipe!	l%%y=!l%%y!"
+						echo=¤MW	!PID!.conhost	!pipe!
+						set pipe=
 					)
-					set pipe=
-					for /l %%y in (1 1 !conP!) do set "pipe=!pipe!	l%%y=!l%%y!"
 					set "input= "
-					echo=¤MW	!PID!.conhost	l!conP!=]!input!!pipe!
-					set pipe=
+					echo=¤MW	!PID!.conhost	l!conP!=%conprompt%!input!
 				) else if "%%~k"=="27" (
 					set "input= "
-					echo=¤MW	!PID!.conhost	l!conP!=]!input!
+					echo=¤MW	!PID!.conhost	l!conP!=%conprompt%!input!
 				)
 			)
 			if defined char (
 				set "input=!input!!char!"
-				echo=¤MW	!PID!.conhost	l!conP!=]!input!
+				echo=¤MW	!PID!.conhost	l!conP!=%conprompt%!input!
 			)
 		)
 	@sys.onEvent click=1
