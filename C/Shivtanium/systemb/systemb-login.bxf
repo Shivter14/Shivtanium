@@ -1,16 +1,9 @@
 #import sys.bxf
-if not defined PID (
-	echo=This program requires to be run in the Shivtanium OS Kernel / userSpace
-	set /p "=Press any key to exit. . ."
-	exit /b 0
-)
-set /a PID=PID
 set /a "win[%PID%.systemb_login]W=64, closeButtonX=win[%PID%.systemb_login]W-3, systemb.login.tW=win[%PID%.systemb_login]W-4, win[%PID%.systemb_login]H=8, win[%PID%.systemb_login]X=(sys.modeW-win[%PID%.systemb_login]W)/2, win[%PID%.systemb_login]Y=(sys.modeH-win[%PID%.systemb_login]H)/2"
 if defined sys.loginBGTheme echo=¤CTRL	APPLYTHEME	!sys.loginBGTheme!
 echo=¤CW	!PID!.systemb_login	!win[%PID%.systemb_login]X!	!win[%PID%.systemb_login]Y!	!win[%PID%.systemb_login]W!	!win[%PID%.systemb_login]H!	Shivtanium Login	!sys.loginTheme!
 echo=¤MW	!PID!.systemb_login	l2=  Welcome to Shivtanium.	l4=  Enter your username:	o6=%\e%[2C%\e%[!systemb.login.tW!X
->>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.systemb_login	!win[%PID%.systemb_login]X!	!win[%PID%.systemb_login]Y!	!win[%PID%.systemb_login]W!	!win[%PID%.systemb_login]H!
-if exist "!asset[\sounds\boot.mp3]!" start "<Shivtanium startup sound handeler> (ignore this)" /min cscript.exe //b core\playsound.vbs "!asset[\sounds\boot.mp3]!"
+@sys.call registerWindow	!PID!	!PID!.systemb_login	!win[%PID%.systemb_login]X!	!win[%PID%.systemb_login]Y!	!win[%PID%.systemb_login]W!	!win[%PID%.systemb_login]H!
 set "systemb.login.username= "
 for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t2=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000)"
 set timer.50cs=50
@@ -22,7 +15,7 @@ for /l %%# in () do (
 	)
 	set "keysPressedRN= "
 	@sys.pullEvents
-	@sys.onEventRaw "!kernelOut:~0,14!;!focusedWindow!"=="keysPressedRN=;!PID!.systemb_login"
+	@sys.onEventRaw "!kernelOut:~0,14!;!focusedWindow:%PID%.lsux=%PID%.systemb_login!"=="keysPressedRN=;!PID!.systemb_login"
 		set "keysPressedRN=!kernelOut:~14!"
 		for %%k in (!keysPressedRN!) do (
 			set "char=!charset_L:~%%k,1!"
@@ -64,6 +57,35 @@ for /l %%# in () do (
 					exit 0
 				)
 			) >> "!sst.dir!\temp\kernelPipe"
+		) else if "!keysPressedRN!" neq "!keysPressedRN: 9 =!" (
+			set lsux.itemCount=0
+			set "temp.search=!systemb.login.username:\=¤!"
+			set "temp.search=!systemb.login.username:/=¤!"
+			for /f "delims=" %%a in ('dir /b "!sst.root!\Users\!temp.search:~1!*" 2^>nul') do (
+				set /a lsux.itemCount+=1
+				set "search[!lsux.itemCount!]=%%~a"
+			)
+			if !lsux.itemCount! geq 1 (
+				if "!lsux.itemCount!"=="1" (
+					set "systemb.login.username= !search[1]!"
+				) else (
+					set lsux.exitOnKeyPress=True
+					set lsux.list=search
+					set /a "win[!PID!.lsux]Y=win[!PID!.systemb_login]Y+7, win[!PID!.lsux]X=win[!PID!.systemb_login]X+2"
+					cmd /c listSelectionUX.bat
+					@sys.call unRegisterWindow	!PID!.systemb_login
+					@sys.call registerWindow	!PID!	!PID!.systemb_login	!win[%PID%.systemb_login]X!	!win[%PID%.systemb_login]Y!	!win[%PID%.systemb_login]W!	!win[%PID%.systemb_login]H!
+					echo=¤FOCUS	!PID!.systemb_login
+					if "!errorlevel!"=="-1" (
+						exit 0
+					) else if errorlevel 1 for %%a in (!errorlevel!) do (
+						set "systemb.login.username= !search[%%a]!"
+					)
+				)
+				
+				for /f "delims==" %%a in ('set temp. ^& set search[ 2^>nul ^& set lsux. 2^>nul') do set "%%a="
+				echo=¤MW	!PID!.systemb_login	o6=%\e%[2C%\e%[!systemb.login.tW!X!systemb.login.username:~-60!
+			)
 		)
 	@sys.onEvent click=1
 		set /a "relativeMouseX=mouseXpos - win[!PID!.systemb_login]X, relativeMouseY=mouseYpos - win[!PID!.systemb_login]Y"
