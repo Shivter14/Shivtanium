@@ -25,7 +25,7 @@ set \a=^*
 if not defined sys.dir set "sys.dir=!cd!"
 set theme[disable_aero]="aero=" "winAero="
 set "dwm.bottombuffer=▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀"
-for /l %%a in (64 64 !modeW!) do set "dwm.bottombuffer=!dwm.bottombuffer!%dwm.bottombuffer%"
+for /l %%a in (65 64 !modeW!) do set "dwm.bottombuffer=!dwm.bottombuffer!%dwm.bottombuffer%"
 set "dwm.bottombuffer=!dwm.bottombuffer:~0,%modeW%!"
 set mainbuffer=!dwm.scene!
 set "win.order= "
@@ -179,16 +179,17 @@ for /l %%# in () do (
 				if "%%~4"=="/append" (
 					set %%2 >> "%%~3" 2>nul
 				) else set %%2 > "%%~3" 2>nul
-			) else if "%%~2"=="LOAD" (
+			) else if "%%~1"=="LOAD" (
 				set loadLines=0
 				for /f "usebackq tokens=1* delims==" %%x in ("%%~2") do set /a loadLines+=1
 				(for /l %%l in (1 1 !loadLines!) do (
 					set line=
-					set /p line= || set /p line=
+					set /p line= || set /p line= || set /p line= || set /p line=
 					set "!line!" >nul 2>&1
 				))<"%%~2">nul 2>&1
 				set line=
 				set loadLines=
+				if "%%~3"=="/deleteAfterLoad" del "%%~2" >nul 2>&1
 			)
 		) else if "%%~0"=="EXIT" exit 0
 		
