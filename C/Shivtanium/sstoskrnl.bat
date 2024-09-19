@@ -169,7 +169,7 @@ for /l %%# in () do (
 	) else if "%%~0"=="unRegisterWindow" (
 		set "windows=!windows: "%%~1"=!"
 		for /f "tokens=1* delims==" %%a in ('set "win[%%~1]" 2^>nul') do (
-			if "%%a"=="win[%%~1]" set "pid[%%b]windows=!pid[%%b]windows:"%%~1" =!"
+			if "%%a"=="win[%%~1]" set "pid[%%b]windows=!pid[%%b]windows: "%%~1"=!"
 			set "%%a="
 		)
 		if "%%~1"=="!focusedWindow!" (
@@ -226,17 +226,45 @@ for /l %%# in () do (
 			) >&3
 		)
 	) else if "%%~0"=="minimizeWindow" (
-		if not defined win[%%2] call :kernelPanic "Function minimizeWindow failed" "Tried to minimize a non-existent window.\nProcess: %%~1\nWindow: %%~2"
-		if "!focusedWindow!"=="%%~2" (
-			set /a ioTotal+=1
-			echo=focusedWindow=
+		for /f "tokens=1*" %%1 in ("%%~1") do (
+			if not defined win[%%~2] call :kernelPanic "Function minimizeWindow failed" "Tried to minimize a non-existent window.\nProcess: %%~1\nWindow: %%~2"
+			set "windows=!windows: "%%~2"=!"
+			if "!focusedWindow!"=="%%~2" (
+				set focusedWindow=
+				for %%w in (!windows!) do if not defined focusedWindow set "focusedWindow=%%~w"
+				set /a ioTotal+=1
+				echo=focusedWindow=!focusedWindow!
+				>&3 echo=¤FOCUS	!focusedWindow!
+			)
+			if "!movingWindow!"=="%%~2" set movingWindow=
+			if defined win[%%~2]off call :kernelPanic "Function minimizeWindow failed" "Tried to minimize a window, which was already minimized.\nProcess: %%~1\nWindow: %%~2"
+			if not exist "!sst.dir!\temp\DWM-offload" md "!sst.dir!\temp\DWM-offload" || call :kernelPanic "Function minimizeWindow failed" "Failed to create directory: ~\temp\DWM-offload\nProcess: %%~1\nWindow: %%~2"
+			if exist "!sst.dir!\temp\DWM-offload\snapshot.%%~1.%%~2" call :kernelPanic "Function minimizeWindow failed" "Window is already minimized"
+			(
+				echo=¤CTRL	DUMP	win[%%~2]	"!sst.dir!\temp\DWM-offload\snapshot.%%~1.%%~2"
+				echo=¤DW	%%~2
+			) >&3
+			set "win[%%~2]off=1"
 		)
-		if not exist "!sst.dir!\temp\DWM-offload" md "!sst.dir!\temp\DWM-offload" || call :kernelPanic "Function minimizeWindow failed" "Failed to create directory: ~\temp\DWM-offload\nProcess: %%~1\nWindow: %%~2"
-		if exist "!sst.dir!\temp\DWM-offload\snapshot.%%~1.%%~2" call :kernelPanic "Function minimizeWindow failed" "Window is already minimized"
-		(
-			echo=¤CTRL	DUMP	win[%%~2]	"!sst.dir!\temp\DWM-offload\snapshot.%%~1.%%~2"
-			echo=¤DW	%%~2
-		) >&3
+	) else if "%%~0"=="restoreWindow" (
+		for /f "tokens=1*" %%1 in ("%%~1") do (
+			if not defined win[%%~2] call :kernelPanic "Function restoreWindow failed" "Tried to restore a non-existent window.\nProcess: %%~1\nWindow: %%~2"
+			if not defined win[%%~2]off call :kernelPanic "Function restoreWindow failed" "Tried to restore a non-minimized window.\nProcess: %%~1\nWindow: %%~2"
+			set "focusedWindow=%%~2"
+			if not exist "!sst.dir!\temp\DWM-offload" call :kernelPanic "Function restoreWindow failed" "DWM offload memory was lost.\nProcess: %%~1\nWindow: %%~2"
+			if not exist "!sst.dir!\temp\DWM-offload\snapshot.%%~1.%%~2" call :kernelPanic "Function restoreWindow failed" "DWM offload memory for the window being currently restored was lost.\nProcess: %%~1\nWindow: %%~2"
+			(
+				echo=¤CTRL	LOAD	"!sst.dir!\temp\DWM-offload\snapshot.%%~1.%%~2"	/deleteAfterLoad
+				echo=¤MW	%%~2	x=!win[%%~2]X!	y=!win[%%~2]Y!
+				echo=¤FOCUS	%%~2
+			) >&3
+			set "windows= "%%~2"!windows: "%%~2"=!"
+			set /a ioTotal+=3
+			echo=focusedWindow=!focusedWindow!
+			echo=win[%%~2]X=!win[%%~2]X!
+			echo=win[%%~2]Y=!win[%%~2]Y!
+			set "win[%%~2]off="
+		)
 	) else if "%%~0"=="powerState" (
 		if /I "%%~1"=="shutdown" (
 			cd "!sst.dir!"
