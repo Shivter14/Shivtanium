@@ -1,12 +1,22 @@
 # Shivtanium Changelog
 This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
-## Beta 1.3.3 [build 31.3309]
+## Beta 1.3.3 [build 31.3319]
+- Added a new embeddable script: `core\listSelectionUX.bat`
+  This script handles dropdown/selection/context menus. More information is on
+  the ![User Interface wiki](https://github.com/Shivter14/Shivtanium/wiki/UI).
+- Added window minimizing & restoring.
+  This uses the 2 new kernel functions:
+  - `minimizeWindow   <PID>   <window>`
+  - `restoreWindow    <PID>   <window>`
 - The application launcher can now display installed programs in the left list.
   These programs can be BXF applications that will be compiled on first launch.
   Programs are located in `~\Shivtanium\Programs` as folders. A program folder
   must contain a `shivtanium.dat` file with metadata. More information:
   [Shivtanium Programs](https://github.com/Shivter14/Shivtanium/wiki/Programs)
+- Added new resource pack: `discord_themes` - This resource pack contains
+  themes from *Discord Nitro* ported to Shivtanium DWM themes which include:
+  `mint_apple`, `citrus_sherbert`, `retro_raincloud`, `hanami`, and many others.
 - Added new system variable: `textMode` (Default value: `default` or undefined)
   This variable can force a custom text mode on startup, by an identifier.
   Text mode identifiers can be set with resource packs in file `textmodes.dat`.
@@ -23,6 +33,7 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
     theme. The centering has also been fixed.
   - Fixed more issues with Windows 11.
   - It is now compiled with BXF.
+  - Fixed offloading & loading memory from files.
 - Bugfixes:
   - *No GUI boot* causing an infinite black screen.
   - `systemb-control-panel` - Changing the user theme not saving changes.
@@ -179,20 +190,23 @@ This also includes the updated Desktop Window Manager with better window moving.
 # Future plans
 
 ## Milestone 4 Plans
-- Unfocusing windows should change colors if theme supports it.
-- Finish up the compiler with non-called functions (BXF).
+- Unfocusing windows changing colors
+- The compiler with non-called functions (BXF)
+- Window minimizing & restoring
+- Resource packs (functionallity/concept)
 [current progress]
-- Add a game.
-- Fully implement system updates.
-- Text viewer.
-- Implement window resizing.
-- Create an installer.
+- New game
+- System updates
+- Text viewer
+- Installer
 
 ## Milestone 5 Plans
+- Window resizing
 - Notifications
 - Multilanguism
 - Sprite Viewer
-- Resource Packs
+- Resource Packs (full implementation + store)
+- STORE
 
 ## Full release plans
 - Trailer
