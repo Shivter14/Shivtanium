@@ -29,6 +29,7 @@ for /l %%a in (1 1 !lsux.itemCount!) do (
 )
 if not defined win[!PID!.lsux]X set "win[!PID!.lsux]X=!mouseXpos!"
 if not defined win[!PID!.lsux]Y set "win[!PID!.lsux]Y=!mouseYpos!"
+if !win[%PID%.lsux]W! lss 8 set "win[!PID!.lsux]W=8"
 set /a "win[!PID!.lsux]W=(contentW=win[!PID!.lsux]W)+4, win[!PID!.lsux]H=sys.modeH-win[!PID!.lsux]Y-1"
 
 if !win[%PID%.lsux]H! gtr !lsux.itemCount! set win[!PID!.lsux]H=!lsux.itemCount!
@@ -65,28 +66,122 @@ set cl=
 for /l %%# in () do (
 	set kernelOut=
 	set /p kernelOut= && if "!kernelOut:~0,6!"=="click=" (
-		set /a "!kernelOut!, relativeMouseX=mouseXpos-win[!PID!.lsux]X, relativeMouseY=mouseYpos-win[!PID!.lsux]Y"
-		if !relativeMouseX! lss 0 call :exit 0
-		if !relativeMouseX! gtr !win[%PID%.lsux]W! call :exit 0
-		if !relativeMouseY! lss 0 call :exit 0
-		if !relativeMouseY! gtr !win[%PID%.lsux]H! call :exit 0
+		set /a "prevClick=click, !kernelOut!, relativeMouseX=mouseXpos-win[!PID!.lsux]X, relativeMouseY=mouseYpos-win[!PID!.lsux]Y"
 		if "!click!"=="1" (
 			if "!relativeMouseY!" neq "0" if "!relativeMouseY!" neq "!contentH!" (
-				set /a "cl=relativeMouseY+scrollS-1, clp=relativeMouseY"
-				for %%a in (!cl!) do if defined %lsux.list%[%%a]o (
+				set /a "clr=relativeMouseY+scrollS-1, clp=relativeMouseY"
+				for %%a in (!clr!) do if defined %lsux.list%[%%a]o (
 					echo=¤MW	!PID!.lsux	o!clp!=%\e%[2C%\e%[7m%\e%[!contentW!X!%lsux.list%[%%a]!%\e%[27m
 				) else echo=¤MW	!PID!.lsux	l!clp!= %\e%[7m%\e%[!contentW!X!%lsux.list%[%%a]!%\e%[27m
 			)
-		) else if "!click!"=="0" if defined cl (
-			for %%a in (!cl!) do if defined %lsux.list%[%%a]o (
-				echo=¤MW	!PID!.lsux	o!cl!=%\e%[2C%\e%[!contentW!X!%lsux.list%[%%a]!
+		) else if "!click!"=="0" if defined clr if not defined scroll (
+			for %%a in (!clr!) do if defined %lsux.list%[%%a]o (
+				echo=¤MW	!PID!.lsux	o!clr!=%\e%[2C%\e%[!contentW!X!%lsux.list%[%%a]!
 			) else echo=¤MW	!PID!.lsux	l!clp!= !%lsux.list%[%%a]!
-			if "!relativeMouseY!"=="!clp!" call :exit !cl!
-			set cl=
+			if "!relativeMouseY!"=="!clp!" call :exit !clr!
+			set clr=
 			set clp=
+		) else (
+			if defined scroll if !scrollS! lss 1 (
+				for /l %%b in (!scrollS! 1 0) do (
+					set /a "scrollS+=1, scrollE+=1"
+					set cl=1
+					set "pipe=¤MW	!PID!.lsux	pt="
+					for /l %%a in (!scrollS! 1 !scrollE!) do (
+						set "_pipe=!pipe!"
+						
+						if defined %lsux.list%[%%a]o (
+							if "!cl!"=="1" (
+								set "pipe=!pipe!	l!cl!=%\e%8%\e%[A%\e%[38;^!win[!PID!.lsux]TIcolor^!m█^!dwm.bottombuffer:~0,!lsux.topui!^!█"
+							) else set "pipe=!pipe!	l!cl!="
+							set "pipe=!pipe!	o!cl!=%\e%[2C%\e%[!contentW!X!%lsux.list%[%%a]!"
+						) else (
+							if "!cl!"=="1" (
+								set "pipe=!pipe!	l!cl!=%\e%8%\e%[A%\e%[38;^!win[!PID!.lsux]TIcolor^!m█^!dwm.bottombuffer:~0,!lsux.topui!^!█%\e%8%\e%[C%\e%[38;^!win[!PID!.lsux]FGcolor^!m !%lsux.list%[%%a]!	o!cl!="
+							) else set "pipe=!pipe!	l!cl!= !%lsux.list%[%%a]!	o!cl!="
+						)
+						if "!pipe:~1022,1!" neq "" (
+							echo=!_pipe!
+							if defined %lsux.list%[%%a]o (
+								set "pipe=¤MW	!PID!.lsux	o!cl!=%\e%[2C%\e%[!contentW!X!%lsux.list%[%%a]!	l!cl!="
+							) else set "pipe=¤MW	!PID!.lsux	l!cl!= !%lsux.list%[%%a]!	o!cl!="
+						)
+						set /a cl+=1
+					)
+					set _pipe=
+					echo=!pipe!
+					set pipe=
+				)
+			) else if !scrollE! gtr !lsux.itemCount! (
+				for /l %%b in (!scrollE! -1 !lsux.itemCount!) do if "%%~b" neq "!lsux.itemCount!" (
+					set /a "scrollE-=1, scrollS-=1"
+					set cl=1
+					set "pipe=¤MW	!PID!.lsux	pt="
+					for /l %%a in (!scrollS! 1 !scrollE!) do (
+						set "_pipe=!pipe!"
+						
+						if defined %lsux.list%[%%a]o (
+							if "!cl!"=="1" (
+								set "pipe=!pipe!	l!cl!=%\e%8%\e%[A%\e%[38;^!win[!PID!.lsux]TIcolor^!m█^!dwm.bottombuffer:~0,!lsux.topui!^!█"
+							) else set "pipe=!pipe!	l!cl!="
+							set "pipe=!pipe!	o!cl!=%\e%[2C%\e%[!contentW!X!%lsux.list%[%%a]!"
+						) else (
+							if "!cl!"=="1" (
+								set "pipe=!pipe!	l!cl!=%\e%8%\e%[A%\e%[38;^!win[!PID!.lsux]TIcolor^!m█^!dwm.bottombuffer:~0,!lsux.topui!^!█%\e%8%\e%[C%\e%[38;^!win[!PID!.lsux]FGcolor^!m !%lsux.list%[%%a]!	o!cl!="
+							) else set "pipe=!pipe!	l!cl!= !%lsux.list%[%%a]!	o!cl!="
+						)
+						if "!pipe:~1022,1!" neq "" (
+							echo=!_pipe!
+							if defined %lsux.list%[%%a]o (
+								set "pipe=¤MW	!PID!.lsux	o!cl!=%\e%[2C%\e%[!contentW!X!%lsux.list%[%%a]!	l!cl!="
+							) else set "pipe=¤MW	!PID!.lsux	l!cl!= !%lsux.list%[%%a]!	o!cl!="
+						)
+						set /a cl+=1
+					)
+					set _pipe=
+					echo=!pipe!
+					set pipe=
+				)
+			)
+			set scroll=
 		)
 	) else if "!kernelOut:~0,14!"=="focusedWindow=" (
 		if "!kernelOut:~14!" neq "!PID!.lsux" call :exit 0
+	) else if "!kernelOut:~0,10!"=="mouseYpos=" (
+		if "!prevClick!;!click!"=="1;1" (
+			set /a "scroll=(!kernelOut:~10!-win[!PID!.lsux]Y-relativeMouseY), scrollS-=scroll, scrollE-=scroll"
+			if "!scroll!" neq "0" (
+				set cl=1
+				set "pipe=¤MW	!PID!.lsux	pt="
+				for /l %%a in (!scrollS! 1 !scrollE!) do (
+					set "_pipe=!pipe!"
+					
+					if defined %lsux.list%[%%a]o (
+						if "!cl!"=="1" (
+							set "pipe=!pipe!	l!cl!=%\e%8%\e%[A%\e%[38;^!win[!PID!.lsux]TIcolor^!m█^!dwm.bottombuffer:~0,!lsux.topui!^!█"
+						) else set "pipe=!pipe!	l!cl!="
+						set "pipe=!pipe!	o!cl!=%\e%[2C%\e%[!contentW!X!%lsux.list%[%%a]!"
+					) else (
+						if "!cl!"=="1" (
+							set "pipe=!pipe!	l!cl!=%\e%8%\e%[A%\e%[38;^!win[!PID!.lsux]TIcolor^!m█^!dwm.bottombuffer:~0,!lsux.topui!^!█%\e%8%\e%[C%\e%[38;^!win[!PID!.lsux]FGcolor^!m !%lsux.list%[%%a]!	o!cl!="
+						) else set "pipe=!pipe!	l!cl!= !%lsux.list%[%%a]!	o!cl!="
+					)
+					if "!pipe:~1022,1!" neq "" (
+						echo=!_pipe!
+						if defined %lsux.list%[%%a]o (
+							set "pipe=¤MW	!PID!.lsux	o!cl!=%\e%[2C%\e%[!contentW!X!%lsux.list%[%%a]!	l!cl!="
+						) else set "pipe=¤MW	!PID!.lsux	l!cl!= !%lsux.list%[%%a]!	o!cl!="
+					)
+					set /a cl+=1
+				)
+				set _pipe=
+				echo=!pipe!
+				set pipe=
+			)
+		)
+		set /a "prevClick=click, !kernelOut!, relativeMouseY=mouseYpos-win[!PID!.lsux]Y" >nul 2>&1
+	) else if "!kernelOut:~0,14!"=="keysPressedRN=" (
+		if "!lsux.exitOnKeyPress!"=="True" call :exit 0
 	) else if "!kernelOut!"=="exitProcess=!PID!" (
 		exit -1
 	) else if "!kernelOut!"=="exit" (
