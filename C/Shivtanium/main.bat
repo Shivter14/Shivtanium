@@ -58,12 +58,13 @@ if /I "!sst.noguiboot!" neq "True" (
 	set sst.boot.command=!sst.boot.command:'="!
 	if "%%~c" neq "" (
 		set "sst.boot.msg=%%~c"
-		echo=!sst.boot.msg!>> "temp\bootStatus-!sst.localtemp!"
+		>>"temp\bootStatus-!sst.localtemp!" echo=!sst.boot.msg!
 	)
 	call !sst.boot.command! || call :halt "Boot" "Something went wrong.\nCommand: %%~b\nText: %%~c\nErrorlevel: !errorlevel!\nError logs are located in: ~\temp\kernelErr"
 )
 set "processes= "
-for /f "tokens=1 delims==" %%a in ('set sst.boot') do if /I "%%~a" neq "sst.boot.logoX" if /I "%%~a" neq "sst.boot.logoY" set "%%a="
+for /f "delims==" %%a in ('set sst.boot 2^>nul') do if /I "%%~a" neq "sst.boot.logoX" if /I "%%~a" neq "sst.boot.logoY" set "%%a="
+for /f "delims==" %%a in ('set theme[ 2^>nul') do set "%%a="
 cd "%~dp0"
 for %%a in (!sys.bootVars!) do set "sys.%%~a="
 call sstoskrnl.bat %* < "temp\kernelPipe" > "temp\kernelOut" 3> "temp\DWM-!sst.localtemp!"
@@ -293,27 +294,6 @@ start /b cmd /c !sys.windowManager! < "temp\DWM-!sst.localtemp!" 3> "temp\DWMRes
 endlocal
 set sys.windowManager=
 exit /b 0
-:waitForBootServices
-cmd /c "%~f0" :waitForBootServices
-exit /b
-:waitForBootServices.service
-set "services=cfmsf updateCheckSvc bootanim"
-for /l %%. in () do (
-	for %%F in (!services!) do if exist "!sst.dir!\temp\pf-%%~F" (
-		set svcIn=
-		set /p svcIn=<"!sst.dir!\temp\pf-%%~F"
-		if defined svcIn (
-			call :halt "service %%~F" "!svcIn!"
-		)
-		del "!sst.dir!\temp\pf-%%~F" > nul
-		set new_services=
-		for %%a in (!services!) do if "%%~a" neq "%%~F" set new_services=!new_services! %%a
-		if not defined new_services exit 0
-		set "services=!new_services!"
-		set new_services=
-		if "!services!"=="!services:bootanim=!" call :startup.submsg "Waiting for startup tasks:" "!services!" /nologo
-	)
-)
 :checkCompat
 if "!sys.CPU.architecture!" neq "AMD64" call :halt "%~nx0:checkCompat" "Incompatible processor architecture: !sys.CPU.architecture!\nShivtanium requires processor architecture AMD64/x86_64"
 exit /b
@@ -323,15 +303,38 @@ set bxf.failed=
 cd "!sst.dir!" || exit /b
 
 set BXF_toCompile=0
-set BXF_compiled=0
 for %%F in (dwm.bxf "systemb\*.bxf") do if not exist "%%~dpnF.bat" set /a BXF_toCompile+=1
+if !BXF_toCompile! leq 0 exit /b 0
+call :startup.submsg "!sst.boot.msg!" "Starting !BXF_toCompile! threads" !BXF_toCompile! 0
 
-(for %%F in (dwm.bxf "systemb\*.bxf") do if not exist "%%~dpnF.bat" (
-	set /a BXF_compiled+=1
-	call :startup.submsg "!sst.boot.msg!" "File: %%F" !BXF_toCompile! !BXF_compiled!
+call "%~f0" :compileBXF.main | call "%~f0" :compileBXF.manageThreads
+exit /b
+:compileBXF.main
+for %%F in (dwm.bxf "systemb\*.bxf") do if not exist "%%~dpnF.bat" (
+	start /b cmd /c "%~f0" :compileBXF.thread %%F
+)
+exit /b
+:compileBXF.thread
+(
 	<nul set /p "=%\e%[48;2;0;0;0;38;2;255;255;255m"
-	if not exist "%%~dpn.bat" call bxf.bat "%%~fF" || set bxf.failed=True
-)) >> "!sst.dir!\temp\BXFstartup.log" 2>&1
+	call bxf.bat "%~f1" || (
+		echo="%~n1"¤!errorlevel!
+		exit 1
+	)
+) > nul 2>&1
+echo="%~n1"¤0
+exit /b 0
+:compileBXF.manageThreads
+for /l %%a in (1 1 !BXF_toCompile!) do (
+	set io=
+	set /p "io=" && set "io=!io:"=!"
+	if "!io:*¤=!" neq "0" (
+		if defined io (
+			call :startup.submsg "!sst.boot.msg!" "Failed to compile '!io!'" !BXF_toCompile! %%a
+			set bxf.failed=True
+		) else call :startup.submsg "!sst.boot.msg!" " " !BXF_toCompile! %%a
+	) else call :startup.submsg "!sst.boot.msg!" "Finished compiling '!io:~0,-2!'" !BXF_toCompile! %%a
+)
 if not defined bxf.failed (
 	del "!sst.dir!\temp\BXFstartup.log"
 	exit /b 0
@@ -341,7 +344,7 @@ call :waitForAnimations
 echo=%\e%[48;2;0;0;0;38;2;255;255;255m%\e%[H%\e%[2J
 call :compileBXF.failed < "!sst.dir!\temp\BXFstartup.log"
 set BXF_toCompile=
-exit /b 0
+exit 0
 :compileBXF.failed
 set lineDef=
 for /l %%# in (2 1 !sys.modeH!) do (
@@ -357,6 +360,7 @@ if not defined line (
 pause<con>nul
 echo=%\e%[2K%\e%[F
 goto compileBXF.failed
+exit /b 0
 :waitForAnimations
 if not exist "!sst.dir!\temp\pf-bootanim" goto waitForAnimations
 exit /b
