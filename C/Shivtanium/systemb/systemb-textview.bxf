@@ -2,12 +2,13 @@
 set "filePath=%~f1"
 set "fileName=%~nx1"
 set /a "closeButtonX=(win[!PID!.txt]W=sys.modeW/2)-4, win[!PID!.txt]H=sys.modeH/2, win[!PID!.txt]X=sys.modeW/4, win[!PID!.txt]Y=sys.modeH/4, contentH=bufferedLines=win[!PID!.txt]H-2"
-echo=¤CW	!PID!.txt	!win[%PID%.txt]X!	!win[%PID%.txt]Y!	!win[%PID%.txt]W!	!win[%PID%.txt]H! !fileName!
+echo=¤CW	!PID!.txt	!win[%PID%.txt]X!	!win[%PID%.txt]Y!	!win[%PID%.txt]W!	!win[%PID%.txt]H!	!fileName!
 >>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.txt	!win[%PID%.txt]X!	!win[%PID%.txt]Y!	!win[%PID%.txt]W!	!win[%PID%.txt]H!
 (
 set buffer=¤MW	!PID!.txt
 for /l %%a in (1 1 !bufferedLines!) do (
 	set /p "f%%a=" <&3
+	set "f%%a=!f%%a!"
 	set "buffer=!buffer!	l%%a=!f%%a!"
 )
 echo=!buffer!

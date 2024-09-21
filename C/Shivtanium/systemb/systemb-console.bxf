@@ -45,10 +45,6 @@ for /l %%# in () do (
 						for %%z in (!x!) do set "l%%y=!l%%z!"
 					)
 					set "l!x!=%conprompt%!input!"
-					for /l %%y in (1 1 !conH!) do (
-						set /a "x=%%y+1"
-						for %%z in (!x!) do set "l%%y=!l%%z!"
-					)
 					for /f "delims=*^!" %%a in ('!input! 2^>^&1') do (
 						for /l %%y in (1 1 !conH!) do (
 							set /a "x=%%y+1"

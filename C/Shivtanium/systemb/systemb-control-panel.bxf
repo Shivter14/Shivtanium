@@ -45,9 +45,17 @@ for %%a in (%*) do (
 if not defined sys.username call systemb-dialog.bat (sys.modeW-w)/2 (sys.modeH-h)/2 48 6 "Control Panel" "l2=  Something went wrong:	l3=    Missing parameter: --username" w-buttonW-2 h-2 7 " Close "
 if not defined sys.UPID     call systemb-dialog.bat (sys.modeW-w)/2 (sys.modeH-h)/2 48 6 "Control Panel" "l2=  Something went wrong:	l3=    Missing parameter: --UPID"     w-buttonW-2 h-2 7 " Close "
 set /a PID=PID
-set /a "pagesBY=5, currentPage=2, contentWp=(contentW=(win[!PID!.control]W=64)-(sidebarW=16)-4)-1, contentH=(inbH=(win[!PID!.control]H=16)-1)-1, win[!PID!.control]X=(sys.modeW-win[!PID!.control]W)/2, win[!PID!.control]Y=(sys.modeH-win[!PID!.control]H)/2, closeButtonX=win[!PID!.control]W-4"
+set /a "pagesBY=5, currentPage=2, contentWp=(contentW=(win[!PID!.control]W=64)-(sidebarW=16)-4)-1, contentH=(inbH=(win[!PID!.control]H=16)-1)-1, win[!PID!.control]X=(sys.modeW-win[!PID!.control]W)/2, win[!PID!.control]Y=(sys.modeH-win[!PID!.control]H)/2"
 echo=¤CW	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!	Control Panel
->>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!
+@sys.call registerWindow	!PID!	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!
+
+set user.globalTheme=aero
+for /f "usebackq tokens=1* delims==" %%a in ("!sst.root!\Users\!sys.username!\userprofile.dat") do (
+	set "user.%%a=%%b" > nul 2>&1
+)
+@dwm.getThemeCBUIoffset "theme=!user.globalTheme!" "return=CBUIoffset"
+set /a "closeButtonX=win[!PID!.control]W-3+CBUIoffset"
+
 set "page[2]= Performance    "
 set "page[3]= Appearance     "
 set "page[4]= System         "
@@ -77,11 +85,11 @@ for /l %%# in () do (
 	@sys.pullEvents
 	@sys.onEvent click=1
 		if "!focusedWindow!"=="!PID!.control" (
-			set /a "relativeMouseX=mouseXpos-win[!PID!.control]X, relativeMouseY=mouseYpos-win[!PID!.control]Y, closeButtonX=win[!PID!.control]W-4"
+			set /a "relativeMouseX=mouseXpos-win[!PID!.control]X, relativeMouseY=mouseYpos-win[!PID!.control]Y"
 			if "!relativeMouseY!"=="0" (
 				if !relativeMouseX! geq !closeButtonX! (
-					>>"!sst.dir!\temp\kernelPipe" echo=exitProcessTree	!PID!
-					exit 0
+					call :page[!unsavedChanges!].cancel
+					@sys.exit
 				)
 			) else if !relativeMouseX! lss !sidebarW! (
 				if defined page[!relativeMouseY!] (
@@ -148,10 +156,17 @@ if errorlevel 1 (
 	set /a "btn[Save]X=win[!PID!.control]W-8, btn[Save]Y=contentH, btn[Save]BX=btn[Save]X+7, btn[Cancel]X=btn[Save]X-10, btn[Cancel]Y=contentH, btn[Cancel]BX=btn[Cancel]X+8"
 	set "o!contentH!=!o%contentH%!%\e%8%\e%[!btn[Cancel]X!C!btn[Cancel]title!%\e%[2C!btn[Save]title!"
 	set selectedTheme=!errorlevel!
-	for /f "delims=^!*" %%a in ("!selectedTheme!") do echo=¤CTRL	APPLYTHEME	!theme[%%a]!
+	for /f "delims=^!*" %%a in ("!selectedTheme!") do (
+		@dwm.getThemeCBUIoffset "theme=!theme[%%a]!" "return=CBUIoffset"
+		set /a "closeButtonX=win[!PID!.control]W-3+CBUIoffset"
+		echo=¤CTRL	APPLYTHEME	!theme[%%a]!
+	)
 	echo=¤DW	!PID!.control
 	echo=¤CW	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!	Control Panel
-) else if "!errorlevel!"=="-1" exit 0
+) else if "!errorlevel!"=="-1" (
+	call :page[!unsavedChanges!].cancel
+	exit 0
+)
 goto page[3].qrld
 :page[3] Appearance
 for /f "tokens=1 delims==" %%a in ('set btn[ 2^>nul ^& set theme 2^>nul') do set "%%a="
@@ -165,7 +180,7 @@ set btn[PickTheme]Y=5
 set /a "btn[PickTheme]X=sidebarW+2, btn[PickTheme]BX=win[!PID!.control]W-4"
 set btn[PickTheme]=:page[3].PickTheme
 
-for /f "delims=" %%R in ('dir /b /a:D "!sst.dir!\resourcepacks"') do for /f "delims=" %%T in ('dir /b /a:-D "!sst.dir!\resourcepacks\%%~nxR\themes"') do if /I "%%~xT" neq ".themeMod" (
+for %%R in (!sys.activeResourcePacks!) do for /f "delims=" %%T in ('dir /b /a:-D "!sst.dir!\resourcepacks\%%~R\themes"') do if /I "%%~xT" neq ".themeMod" (
 	set /a themeCount+=1
 	set "theme[!themeCount!]=%%~nxT"
 	if "!user.globalTheme!"=="%%~nxT" set selectedTheme=!themeCount!
@@ -242,6 +257,8 @@ set user.globalTheme=aero
 for /f "usebackq tokens=1* delims==" %%a in ("!sst.root!\Users\!sys.username!\userprofile.dat") do (
 	set "user.%%a=%%b" > nul 2>&1
 )
+@dwm.getThemeCBUIoffset "theme=!user.globalTheme!" "return=CBUIoffset"
+set /a "closeButtonX=win[!PID!.control]W-3+CBUIoffset"
 echo=¤CTRL	APPLYTHEME	!user.globalTheme!
 echo=¤DW	!PID!.control
 echo=¤CW	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!	Control Panel
@@ -288,7 +305,6 @@ set "o!currentPage!=%\e%[!sidebarW!X%\e%[7m!page[%currentPage%]!%\e%[27m"
 for /f "tokens=1 delims==" %%a in ('set btn[ 2^>nul') do set "%%a="
 
 set "l2=%\e%[!sidebarW!C System updates"
-
 
 set /a "ll=0, currentLineN=4"
 set currentLine=
