@@ -1,4 +1,9 @@
 #import sys.bxf
+set user.globalTheme=aero
+for /f "usebackq tokens=1* delims==" %%a in ("!sst.root!\Users\!sys.username!\userprofile.dat") do (
+	set "user.%%a=%%b" > nul 2>&1
+)
+@dwm.getThemeCBUIoffset "theme=!user.globalTheme!" "return=CBUIoffset"
 set math="win[!PID!.calc]W=26, win[!PID!.calc]H=10, win[!PID!.calc]X=(sys.modeW-win[!PID!.calc]W)/2, win[!PID!.calc]Y=(sys.modeH-win[!PID!.calc]H)/2, inputW=win[!PID!.calc]W-4"
 for %%b in (
 	"times	3	12	4	:input times	 × "
@@ -28,7 +33,7 @@ for %%b in (
 	"bitAnd	3	2	5	:input bitAnd	 & "
 	"bitOr	3	5	5	:input bitOr	 | "
 	"bitXor	3	8	5	:input bitXor	 ^^ "
-	"close	3	win[!PID!.calc]W-3	0	:exit"
+	"close	3	win[!PID!.calc]W-3+CBUIoffset	0	:exit"
 ) do for /f "tokens=1-5* delims=	" %%0 in (%%b) do (
 	set "buttons=!buttons!"%%~0" "
 	set "button[%%~0]=%%4"
