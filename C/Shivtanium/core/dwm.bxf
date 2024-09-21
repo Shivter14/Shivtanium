@@ -21,3 +21,11 @@
 	echo=!pipe!
 	set pipe=
 #end
+#function getThemeCBUIoffset
+	set "!$return!=0"
+	for %%a in (!sys.activeResourcePacks!) do if exist "!sst.dir!\resourcepacks\%%~a\themes\!$theme!" (
+		for /f "usebackq tokens=1* delims==" %%x in ("!sst.dir!\resourcepacks\%%~a\themes\!$theme!") do (
+			if /I "%%~x"=="CBUIoffset" set "!$return!=%%~y"
+		)
+	)
+#end
