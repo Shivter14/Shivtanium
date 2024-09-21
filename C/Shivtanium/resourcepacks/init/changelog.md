@@ -1,7 +1,7 @@
 # Shivtanium Changelog
 This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
-## Beta 1.3.3 [build 31.3319]
+## Beta 1.3.3 [build 31.3321]
 - Added a new embeddable script: `core\listSelectionUX.bat`
   This script handles dropdown/selection/context menus. More information is on
   the ![User Interface wiki](https://github.com/Shivter14/Shivtanium/wiki/UI).
@@ -17,6 +17,10 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
 - Added new resource pack: `discord_themes` - This resource pack contains
   themes from *Discord Nitro* ported to Shivtanium DWM themes which include:
   `mint_apple`, `citrus_sherbert`, `retro_raincloud`, `hanami`, and many others.
+- BXF applications compiled on first boot are now compiled with multi-threading.
+- Fixed issues with the Git repository having BXF applications with Unix line
+  endings (`LF`) instead of Windows line endings (`CRLF`) causing them to fail
+  to compile. With that, the build on the Git repository is now fully stable.
 - Added new system variable: `textMode` (Default value: `default` or undefined)
   This variable can force a custom text mode on startup, by an identifier.
   Text mode identifiers can be set with resource packs in file `textmodes.dat`.
@@ -49,7 +53,7 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
 - Bugfixes:
   - BXF compiler issues with inline functions
   - `systemb-oobe` - issues selecting themes
-  - Focused window's color not changing on automatic focusing after closing a window
+  - Focused window's color not changing on auto-focusing after closing a window
   - `systemb-dialog` - not responding
 - Changes to DWM:
   - Fixed many graphical issues on Windows 11 hosts.
@@ -97,7 +101,8 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
 	it's positions to all processes.
 - Updated some legacy themes to use RGB colors instead of built-in
   3bpc colors for stability reasons.
-- Optimized the file explorer. It is also compiled by the new BXF compiler on first boot.
+- Optimized the file explorer. It is also compiled by the new BXF compiler on
+  first boot.
 - `systemb-dialog` is also compiled by the BXF compiler on first boot.
 
 ## Beta 1.3.0 [Milestone 3]
@@ -153,7 +158,8 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
   the default theme is set to 'classic',
   the Shell doesn't use animations,
   and newer programs will behave more suitably for lower-end computers.
-- Added an automatic process exitting if the process exits without terminating the CMD session
+- Added an automatic process exitting if the process exits without terminating
+  the CMD session
 - Removed remains of the Alpha stage interpreter.
 - Added a Console/Terminal
   This is a simple terminal. It can run CMD commands,
@@ -194,7 +200,10 @@ This also includes the updated Desktop Window Manager with better window moving.
 - The compiler with non-called functions (BXF)
 - Window minimizing & restoring
 - Resource packs (functionallity/concept)
+- Fixing issues on Windows 11 + bugfixes & optimizations
+
 [current progress]
+
 - New game
 - System updates
 - Text viewer
