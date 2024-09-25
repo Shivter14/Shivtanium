@@ -18,9 +18,7 @@ set /a PID=PID
 	>>"!sst.dir!\temp\kernelPipe" echo=unRegisterWindow	!PID!	!$winName!
 	for /f "delims==" %%$ in ('set $ 2^>nul ^&^& set win[!$winName!] 2^>nul') do set "%%$="
 #end
-#function exit
-	>>"!sst.dir!\temp\kernelPipe" echo=exitProcessTree	!PID!
-	exit !$code!
+#function exit; (>>"!sst.dir!\temp\kernelPipe" echo=exitProcessTree	!PID!) & exit $$
 #end
 #function createProcess
 	if not defined $parent set $parent=!PID!
@@ -41,6 +39,8 @@ set /a PID=PID
 	) else if "!kernelOut!"=="exitProcess=!PID!" (
 		exit 0
 	) else if "!kernelOut!"=="exit" (
+		if exist "!sst.dir!\temp\proc\PID-!PID!" del "!sst.dir!\temp\proc\PID-!PID!" <nul>nul 2>&1
+		del "!sst.dir!\temp\proc\PID-!PID!-*" <nul>nul 2>&1
 		exit 0
 	) else set "!kernelOut!">nul 2>&1
 #end
