@@ -44,7 +44,7 @@ if /I "!sst.noguiboot!" neq "True" (
 
 (for %%a in (
 	":clearEnv|Clearing environment"
-	":loadSettings|Loading settings"
+	"boot\loadSettings.bat|Loading settings"
 	":loadresourcepacks|Loading resources"
 	":checkCompat|Checking compatibility"
 	":setFont|Applying font"
@@ -63,7 +63,18 @@ if /I "!sst.noguiboot!" neq "True" (
 	call !sst.boot.command! || call :halt "Boot" "Something went wrong.\nCommand: %%~b\nText: %%~c\nErrorlevel: !errorlevel!\nError logs are located in: ~\temp\kernelErr"
 )
 set "processes= "
-for /f "delims==" %%a in ('set sst.boot 2^>nul') do if /I "%%~a" neq "sst.boot.logoX" if /I "%%~a" neq "sst.boot.logoY" set "%%a="
+%= This looks jank, but it's the best way to do it. =%
+set "_sst.boot.logoX=!sst.boot.logoX!"
+set "_sst.boot.logoY=!sst.boot.logoY!"
+set "_sst.boot.dir=!sst.boot.dir!"
+for /f "delims==" %%a in ('set sst.boot 2^>nul') do set "%%a="
+set "sst.boot.logoX=!_sst.boot.logoX!"
+set "sst.boot.logoY=!_sst.boot.logoY!"
+set "sst.boot.dir=!_sst.boot.dir!"
+set _sst.boot.logoX=
+set _sst.boot.logoY=
+set _sst.boot.dir=
+
 for /f "delims==" %%a in ('set theme[ 2^>nul') do set "%%a="
 cd "%~dp0"
 for %%a in (!sys.bootVars!) do set "sys.%%~a="
@@ -92,6 +103,7 @@ for %%A in (memoryDump) do (
 )
 exit /b
 :loadresourcepacks
+if not defined sys.activeResourcePacks call :halt "%~nx0:loadresourcepacks" "Active Resource Packs are not defined."
 for %%a in (!sys.activeResourcePacks!) do (
 	call :startup.submsg "!sst.boot.msg!" "Loading resource pack: %%~a"
 	call :loadresourcepack "%%~a"
@@ -99,22 +111,22 @@ for %%a in (!sys.activeResourcePacks!) do (
 exit /b
 :loadresourcepack
 if not exist "!sst.dir!\resourcepacks\%~1" exit /b 1
-for /f "delims=" %%a in ('dir /b /a:-D "!sst.dir!\resourcepacks\%~1\sprites\*.spr" 2^>nul') do call :loadsprites "!sst.dir!\resourcepacks\%~1\sprites\%%~a" %%~a
+for /f "delims=" %%a in ('dir /b /a:-D "!sst.dir!\resourcepacks\%~1\sprites\*.spr" 2^>nul') do call :loadsprite "!sst.dir!\resourcepacks\%~1\sprites\%%~a" %%~a
 for /f "delims=" %%a in ('dir /b /a:-D "!sst.dir!\resourcepacks\%~1\sounds\*.*" 2^>nul') do set "asset[\sounds\%%~a]=!sst.dir!\resourcepacks\%~1\sounds\%%~a"
 if exist "!sst.dir!\resourcepacks\%~1\textmodes.dat" for /f "usebackq tokens=1* delims=:" %%a in ("!sst.dir!\resourcepacks\%~1\textmodes.dat") do set "sst.boot.textmode[%%~a]=%%~b"
 set /a "sst.boot.logoX=(sys.modeW-spr.[bootlogo.spr].W)/2+1", "sst.boot.logoY=(sys.modeH-spr.[bootlogo.spr].H)/2+1"
-for /f "delims=" %%A in ('dir /b /a:-D "!sys.dir!\resourcepacks\%~1\themes\*"') do (
+for /f "delims=" %%A in ('dir /b /a:-D "!sst.dir!\resourcepacks\%~1\themes\*"') do (
 	set "theme[%%~nA]= "
-	for /f "usebackq tokens=1* delims==" %%x in ("!sys.dir!\resourcepacks\%~1\themes\%%~A") do (
+	for /f "usebackq tokens=1* delims==" %%x in ("!sst.dir!\resourcepacks\%~1\themes\%%~A") do (
 		if /I "%%~x" neq "CBUIOffset" set theme[%%~nA]=!theme[%%~nA]! "%%~x=%%~y"
 	)
 	set "theme[%%~nA]=!theme[%%~nA]:~2!"
 )
 if exist "!sst.dir!\resourcepacks\%~1\keyboard_init.bat" call "!sst.dir!\resourcepacks\%~1\keyboard_init.bat"
 exit /b 0
-:loadSprites
-if not exist "%~1" call :halt "%~nx0:loadSprites" "File not found: %~1"
-if "%~2"=="" call :halt "%~nx0:loadSprites" "Memory location not specified"
+:loadSprite
+if not exist "%~1" call :halt "%~nx0:loadSprite" "File not found: %~1"
+if "%~2"=="" call :halt "%~nx0:loadSprite" "Memory location not specified"
 set "spr.[%~2]=%\e%7"
 set /a "spr.W=0", "spr.[%~2].H=0"
 for /f "delims=" %%a in ('type "%~1"') do (
@@ -172,67 +184,6 @@ for /f "tokens=1 delims==" %%a in ('set') do for /f "tokens=1 delims=._" %%c in 
 set PATHEXT=.COM;.EXE;.BAT
 set "PATH=!sst.dir!\systemb;!sst.dir!\core;!windir!\System32;!windir!;!windir!\System32\WindowsPowerShell\v1.0\"
 set unload=
-exit /b 0
-:loadSettings
-if not exist "!sst.dir!\settings.dat" call :halt "%~nx0:loadSettings" "Failed to load 'settings.dat':\n  File not found."
-
-set "sys.bootVars=bootVars noResize font textMode useAltWinCtrlChars"
-set "sys.activeResourcePacks=init"
-set "sys.loginTheme=metroTyper"
-set "sys.windowManager=dwm.bat"
-set "sst.boot.fadeout=255"
-set "sys.noResize=True"
-
-set "sys.fontW=8"
-set "sys.fontH=16"
-set "sys.font=MxPlus IBM VGA 8x16"
-
-for /f "usebackq tokens=1* delims==" %%a in ("!sst.dir!\settings.dat") do set "sys.%%~a=%%~b"
-if defined sys.boot.fadeout (
-	set sst.boot.fadeout=!sys.boot.fadeout!
-	set sys.boot.fadeout=
-)
-if defined sys.textMode if /I "!sys.textMode!" neq "default" (
-	for /f "delims=" %%a in ("!sys.textMode!") do set "sys.textMode=!sst.boot.textmode[%%~a]!"
-) else set sys.textMode=
-if defined sys.textMode (
-	set /a "sys.modeW=!sys.textMode:,=,sys.modeH=!"
-	if !sys.modeW! lss 64 set sys.modeW=64
-	if !sys.modeH! lss 16 set sys.modeW=16
-	>>"temp\bootStatus-!sst.localtemp!" echo=¤MODE !sys.modeW!,!sys.modeH!
-	set sys.textMode=
-)
-
-set dwm.scene=%\e%[H%\e%[0m%\e%[48;5;0;38;5;231m%\e%[2JShivtanium OS !sys.tag! !sys.ver! !sys.subvinfo! ^| No theme loaded.
-set dwm.sceneBGcolor=5;0
-set dwm.BGcolor=5;231
-set dwm.FGcolor=5;16
-set dwm.TIcolor=5;12
-set dwm.TTcolor=5;231
-set dwm.NIcolor=5;4
-set dwm.NTcolor=5;7
-set dwm.CBUI=%\e%[38;5;231m%\e%[48;2;0;192;192m - %\e%[48;2;0;255;255m □ %\e%[48;2;255;0;0m × 
-
-cd "%~dp0" > nul 2>&1 || exit /b
-set "sys.dir=!cd!"
-
-for %%a in (
-	"PROCESSOR_ARCHITECTURE=sys.CPU.architecture"
-	"PROCESSOR_IDENTIFIER=sys.CPU.identifier"
-	"PROCESSOR_LEVEL=sys.CPU.level"
-	"PROCESSOR_REVISION=sys.CPU.revision"
-	"NUMBER_OF_PROCESSORS=sys.CPU.count"
-	"FIRMWARE_TYPE=sys.FIRMWARE_TYPE"
-	"USERNAME=sys.host.USERNAME"
-) do for /f "tokens=1,2 delims==" %%b in ("%%~a") do (
-	set "%%~c=!%%~b!"
-	set "%%~b="
-	if "!%%~c!"=="" call :halt "%~nx0:loadSettings" "Failed to define variable translation:\n%%~c = %%~b"
-)
-
-if not defined \a for /f "delims=" %%A in ('forfiles /p "%~dp0." /m "%~nx0" /c "cmd /c echo(0x07"') do set "\a=%%A"
-
-set /a "sst.proccount=0", "sys.click=0"
 exit /b 0
 :injectDLLs
 
@@ -303,14 +254,14 @@ set bxf.failed=
 cd "!sst.dir!" || exit /b
 
 set BXF_toCompile=0
-for %%F in (dwm.bxf "systemb\*.bxf") do if not exist "%%~dpnF.bat" set /a BXF_toCompile+=1
+for %%F in (dwm.bxf "systemb\*.bxf" "boot\*.bxf") do if not exist "%%~dpnF.bat" set /a BXF_toCompile+=1
 if !BXF_toCompile! leq 0 exit /b 0
 call :startup.submsg "!sst.boot.msg!" "Starting !BXF_toCompile! threads" !BXF_toCompile! 0
 
 call "%~f0" :compileBXF.main | call "%~f0" :compileBXF.manageThreads
 exit /b
 :compileBXF.main
-for %%F in (dwm.bxf "systemb\*.bxf") do if not exist "%%~dpnF.bat" (
+for %%F in (dwm.bxf "systemb\*.bxf" "boot\*.bxf") do if not exist "%%~dpnF.bat" (
 	start /b cmd /c "%~f0" :compileBXF.thread %%F
 )
 exit /b
