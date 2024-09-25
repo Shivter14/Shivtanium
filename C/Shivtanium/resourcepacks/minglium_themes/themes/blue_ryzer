@@ -1,0 +1,9 @@
+aero=r=0, g=(x×28/modeH), b=(x×76/modeH)
+winAero=r=0, g=(x×28/modeH)/2, b=(x×76/modeH)/2
+BGcolor=2;;14;38
+FGcolor=5;15
+TIcolor=5;16
+TTcolor=2;179;227;255
+NIcolor=2;;14;38
+NTcolor=2;179;227;255
+CBUI= -  □  × 
