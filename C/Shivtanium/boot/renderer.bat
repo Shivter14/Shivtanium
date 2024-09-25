@@ -119,7 +119,7 @@ for /l %%. in () do (
 		set /a "sst.boot.msgY=!sys.modeH!/2+7, sst.boot.msgX=(sys.modeW-sst.boot.msglen)/2, sst.boot.submsgX=(sys.modeW-sst.boot.submsglen)/2"
 	)
 	set /a "%buildstring%"
-	echo=%\e%[48;2;;;m%\e%[2J%\e%[!sst.boot.logoY!;!sst.boot.logoX!H%echostring%%\e%[48;2;;;;38;2;255;255;255m%\e%[!sst.boot.msgY!;!sst.boot.msgX!H%\e%[2K!sst.boot.msg:~1!%\e%[2E%\e%[!sst.boot.submsgX!G%\e%[2K!sst.boot.submsg:~1!!barbuffer!%\e%[H
+	echo=%\e%[48;2;;;m%\e%[2J%\e%[!sst.boot.logoY!;!sst.boot.logoX!H%echostring%%\e%[48;2;;;;38;2;255;255;255m%\e%[!sst.boot.msgY!;!sst.boot.msgX!H!sst.boot.msg:~1!%\e%[2E%\e%[!sst.boot.submsgX!G!sst.boot.submsg:~1!!barbuffer!%\e%[H
 )
 :exitAnim
 for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100,t2=t1, sst.boot.fadeout=255"
