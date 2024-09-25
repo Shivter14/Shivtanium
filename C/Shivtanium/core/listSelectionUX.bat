@@ -17,6 +17,7 @@ if not defined win[!PID!.lsux]W (
 ) else set /a win[!PID!.lsux]W-=4
 for /l %%a in (1 1 !lsux.itemCount!) do (
 	set "$=A!%lsux.list%[%%a]!"
+	if "!$!"=="A" set "%lsux.list%[%%a]= "
 	set "%lsux.list%[%%a]w=0"
 	for %%$ in (4096 2048 1024 512 256 128 64 32 16) do if "!$:~%%$!" NEQ "" (
 		set /a "%lsux.list%[%%a]w+=%%$"
@@ -30,17 +31,20 @@ for /l %%a in (1 1 !lsux.itemCount!) do (
 if not defined win[!PID!.lsux]X set "win[!PID!.lsux]X=!mouseXpos!"
 if not defined win[!PID!.lsux]Y set "win[!PID!.lsux]Y=!mouseYpos!"
 if !win[%PID%.lsux]W! lss 8 set "win[!PID!.lsux]W=8"
-set /a "win[!PID!.lsux]W=(contentW=win[!PID!.lsux]W)+4, win[!PID!.lsux]H=sys.modeH-win[!PID!.lsux]Y-1"
+set /a "bx=win[!PID!.lsux]X+(win[!PID!.lsux]W=(win[!PID!.lsux]W)+4)-1, win[!PID!.lsux]H=sys.modeH-win[!PID!.lsux]Y-2"
+if !win[%PID%.lsux]W! geq !sys.modeW! set /a "win[!PID!.lsux]W=sys.modeW-4, win[!PID!.lsux]X=3, bx=sys.modeW-3"
+if !bx! gtr !sys.modeW! set /a "win[!PID!.lsux]X=sys.modeW-win[!PID!.lsux]W+1"
 
 if !win[%PID%.lsux]H! gtr !lsux.itemCount! set win[!PID!.lsux]H=!lsux.itemCount!
-set /a "scrollS=1, scrollE=win[!PID!.lsux]H, win[!PID!.lsux]H+=2, contentH=win[!PID!.lsux]H-1, lsux.topui=win[!PID!.lsux]W-2"
+if !win[%PID%.lsux]H! lss 1 exit 0
+set /a "scrollS=1, scrollE=win[!PID!.lsux]H, win[!PID!.lsux]H+=2, contentW=win[!PID!.lsux]W-4, contentH=win[!PID!.lsux]H-1, lsux.topui=win[!PID!.lsux]W-2"
 echo=¤CW	!PID!.lsux	!win[%PID%.lsux]X!	!win[%PID%.lsux]Y!	!win[%PID%.lsux]W!	!win[%PID%.lsux]H!	 	noCBUI noUnfocusedColors
 
 set cl=1
 set "pipe=¤MW	!PID!.lsux	pt="
 for /l %%a in (!scrollS! 1 !scrollE!) do (
 	set "_pipe=!pipe!"
-	
+	if defined %lsux.list%[%%a] set "%lsux.list%[%%a]=!%lsux.list%[%%a]:~0,%contentW%!"
 	if defined %lsux.list%[%%a]o (
 		if "!cl!"=="1" set "pipe=!pipe!	l!cl!=%\e%8%\e%[A%\e%[38;^!win[!PID!.lsux]TIcolor^!m█^!dwm.bottombuffer:~0,!lsux.topui!^!█"
 		set "pipe=!pipe!	o!cl!=%\e%[2C%\e%[!contentW!X!%lsux.list%[%%a]!"
@@ -89,7 +93,7 @@ for /l %%# in () do (
 					set "pipe=¤MW	!PID!.lsux	pt="
 					for /l %%a in (!scrollS! 1 !scrollE!) do (
 						set "_pipe=!pipe!"
-						
+						if defined %lsux.list%[%%a] set "%lsux.list%[%%a]=!%lsux.list%[%%a]:~0,%contentW%!"
 						if defined %lsux.list%[%%a]o (
 							if "!cl!"=="1" (
 								set "pipe=!pipe!	l!cl!=%\e%8%\e%[A%\e%[38;^!win[!PID!.lsux]TIcolor^!m█^!dwm.bottombuffer:~0,!lsux.topui!^!█"
@@ -119,7 +123,7 @@ for /l %%# in () do (
 					set "pipe=¤MW	!PID!.lsux	pt="
 					for /l %%a in (!scrollS! 1 !scrollE!) do (
 						set "_pipe=!pipe!"
-						
+						if defined %lsux.list%[%%a] set "%lsux.list%[%%a]=!%lsux.list%[%%a]:~0,%contentW%!"
 						if defined %lsux.list%[%%a]o (
 							if "!cl!"=="1" (
 								set "pipe=!pipe!	l!cl!=%\e%8%\e%[A%\e%[38;^!win[!PID!.lsux]TIcolor^!m█^!dwm.bottombuffer:~0,!lsux.topui!^!█"
@@ -155,7 +159,7 @@ for /l %%# in () do (
 				set "pipe=¤MW	!PID!.lsux	pt="
 				for /l %%a in (!scrollS! 1 !scrollE!) do (
 					set "_pipe=!pipe!"
-					
+					if defined %lsux.list%[%%a] set "%lsux.list%[%%a]=!%lsux.list%[%%a]:~0,%contentW%!"
 					if defined %lsux.list%[%%a]o (
 						if "!cl!"=="1" (
 							set "pipe=!pipe!	l!cl!=%\e%8%\e%[A%\e%[38;^!win[!PID!.lsux]TIcolor^!m█^!dwm.bottombuffer:~0,!lsux.topui!^!█"
