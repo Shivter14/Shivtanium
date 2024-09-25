@@ -8,11 +8,8 @@ if /I "!sys.boot.disableUpdateChecks!" neq "True" (
 	set latest.tag=
 	set latest.ver=
 	set latest.subvinfo=
-	for /f "delims=*^!" %%a in ('curl -sm 3 "https://github.com/Shivter14/Shivtanium/releases/download/latest/update.dat" 2^>^&1') do (
-		set "str=%%a"
-			if "!str:~0,4!"=="tag=" set "latest.tag=!str:~4!"
-		if "!str:~0,4!"=="ver=" set "latest.ver=!str:~4!"
-		if "!str:~0,9!"=="subvinfo=" set "latest.ver=!str:~9!"
+	for /f "delims=*^!" %%a in ('curl -Lsm 3 "https://raw.githubusercontent.com/Shivter14/Shivtanium/main/update.dat"') do (
+		set "latest.%%a"
 	)
 	if defined latest.tag if "!latest.tag!" neq "!sys.tag!" goto updateFound
 	if defined latest.ver if "!latest.ver!" neq "!sys.ver!" goto updateFound
