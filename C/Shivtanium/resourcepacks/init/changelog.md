@@ -2,6 +2,7 @@
 This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
 ## Beta 1.3.3 [build 31.3321]
+- Added system updates (Preview)
 - Added a new embeddable script: `core\listSelectionUX.bat`
   This script handles dropdown/selection/context menus. More information is on
   the ![User Interface wiki](https://github.com/Shivter14/Shivtanium/wiki/UI).
@@ -14,13 +15,13 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
   Programs are located in `~\Shivtanium\Programs` as folders. A program folder
   must contain a `shivtanium.dat` file with metadata. More information:
   [Shivtanium Programs](https://github.com/Shivter14/Shivtanium/wiki/Programs)
-- Added new resource pack: `discord_themes` - This resource pack contains
-  themes from *Discord Nitro* ported to Shivtanium DWM themes which include:
-  `mint_apple`, `citrus_sherbert`, `retro_raincloud`, `hanami`, and many others.
+- Added new resource packs:
+  `discord_themes` - This resource pack contains
+    themes from *Discord Nitro* ported to Shivtanium DWM themes which include:
+    `mint_apple`, `citrus_sherbert`, `retro_raincloud`
+  `minglium_themes` - This resource pack contains the `blue_ryzer` theme from
+    Minglium OS created by Sambubo.
 - BXF applications compiled on first boot are now compiled with multi-threading.
-- Fixed issues with the Git repository having BXF applications with Unix line
-  endings (`LF`) instead of Windows line endings (`CRLF`) causing them to fail
-  to compile. With that, the build on the Git repository is now fully stable.
 - Added new system variable: `textMode` (Default value: `default` or undefined)
   This variable can force a custom text mode on startup, by an identifier.
   Text mode identifiers can be set with resource packs in file `textmodes.dat`.
@@ -28,6 +29,8 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
 - Shivtanium can now change the font on startup.
   (if running with administrator privileges)
 - Added a new function to `sys.bxf`: `@sys.call`
+- Added kernel function: `modifyWindowProperties`
+  Parameters: `WINDOW_ID  X  Y  [W]  [H]  [ATTRIB]`
 - Added `conhost.exe` from Windows 10 to SSVM, and enabled forcing conhost as
   the terminal application. This has been done to completely eliminate problems
   on Windows 11 aswell as disabling all other incompatible terminals.
@@ -39,6 +42,9 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
   - It is now compiled with BXF.
   - Fixed offloading & loading memory from files.
 - Bugfixes:
+  - Fixed issues with the Git repository having BXF applications with Unix line
+    endings (`LF`) instead of Windows line endings (`CRLF`) causing them to fail
+    to compile. With that, the build on the Git repository is now fully stable.
   - *No GUI boot* causing an infinite black screen.
   - `systemb-control-panel` - Changing the user theme not saving changes.
   - `systemb-desktop` - Logging off not closing user's programs.
@@ -204,6 +210,7 @@ This also includes the updated Desktop Window Manager with better window moving.
 
 [current progress]
 
+- Task bar
 - New game
 - System updates
 - Text viewer
@@ -218,6 +225,8 @@ This also includes the updated Desktop Window Manager with better window moving.
 - STORE
 
 ## Full release plans
+- Window snapping
+- Better login screen
 - Trailer
 - Youtube videos
 - Finish up the Wiki
