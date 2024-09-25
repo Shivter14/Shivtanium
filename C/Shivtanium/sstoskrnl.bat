@@ -24,8 +24,10 @@ if /I "%~1"=="/forceoobe" (
 set sys.keys=
 set keysPressedOld=
 set "windows= "
+set "windowsT= "
 set ioTotal=0
 title Shivtanium OS !sys.tag! !sys.ver! !sys.subvinfo!
+
 
 for /l %%# in () do (
 	set "sys.clickOld=!sys.click!"
@@ -116,9 +118,8 @@ for /l %%# in () do (
 	)
 	set "keysPressedOld=!sys.keys:-= !"
 	
-	if "!sys.keys:~0,8!"==" -17-18-" (
+	if "!sys.keys:~0,8!"==" -17-18-" if defined sys.keysRN (
 		if "!sys.keysRN!"=="  82 " (
-			echo=¤CTRL	DUMP
 			call :kernelPanic "User triggered crash" "Shivtanium OS !sys.tag! !sys.ver! !sys.subvinfo!\nTotal IO transfers: !ioTotal!\nA memory dump has been created at: ~:\Shivtanium\temp\KernelMemoryDump\nA window manager dump has been created at: ~:\Shivtanium\temp\DWM-!sst.localtemp!-memoryDump"
 		) else if "!sys.keysRN!"=="  84 " (
 			echo=exit
@@ -130,6 +131,7 @@ for /l %%# in () do (
 			del /q "!sst.dir!\temp\proc\PID-*" > nul
 			set "processes= "
 			set "windows= "
+			set "windowsT= "
 			set focusedWindow=
 			set movingWindow=
 			set movingWindowOffset=
@@ -137,6 +139,8 @@ for /l %%# in () do (
 			call :createProcess 0	systemb-login.bat
 		) else if "!sys.keysRN!"=="  69 " (
 			call :createProcess	0	systemb-taskmgr.bat
+		) else if "!sys.keysRN!"=="  90 " (
+			call :createProcess 0	systemb-devutil.bat
 		)
 	)
 
@@ -153,21 +157,24 @@ for /l %%# in () do (
 			set "temp.id=!temp.id:<=!"
 			set "temp.id=!temp.id:^^=!"
 			if "%%~b" neq "!temp.id!" call :kernelPanic	"Invalid Window ID" "At function 'registerWindow':\n  Window ID contains illegal characters.\n  (For reference, these are listed on the Wiki.)\nA memory dump has been created at: ~:\Shivtanium\temp\KernelMemoryDump"
+			set "temp.d=%%~g"
 			set "windows= "!temp.id!"!windows!"
+			if "!temp.d:~1,1!" neq "1" set "windowsT=!windowsT!"!temp.id!" "
 			set "pid[%%~a]windows=!pid[%%~a]windows!"!temp.id!" "
 			set "win[!temp.id!]=%%~a"
 			set "win[!temp.id!]X=%%~c"
 			set "win[!temp.id!]Y=%%~d"
 			set "win[!temp.id!]W=%%~e"
 			set "win[!temp.id!]H=%%~f"
-			set "win[!temp.id!]D=%%~g"
+			set "win[!temp.id!]D=!temp.d!"
 			set /a "win[!temp.id!]X=win[!temp.id!]X, win[!temp.id!]Y=win[!temp.id!]Y, win[!temp.id!]W=win[!temp.id!]W, win[!temp.id!]H=win[!temp.id!]H, win[!temp.id!]BX=win[!temp.id!]X+win[!temp.id!]W-1, win[!temp.id!]BY=win[!temp.id!]Y+win[!temp.id!]H-1", ioTotal+=1
 			set "focusedWindow=!temp.id!"
 			echo=focusedWindow=!temp.id!
-			set temp.id=
+			set temp.id= & set temp.d=
 		)
 	) else if "%%~0"=="unRegisterWindow" (
 		set "windows=!windows: "%%~1"=!"
+		set "windowsT=!windowsT: "%%~1"=!"
 		for /f "tokens=1* delims==" %%a in ('set "win[%%~1]" 2^>nul') do (
 			if "%%a"=="win[%%~1]" set "pid[%%b]windows=!pid[%%b]windows: "%%~1"=!"
 			set "%%a="
@@ -185,16 +192,11 @@ for /l %%# in () do (
 		if exist "temp\proc\PID-!PID!" del "temp\proc\PID-!PID!" >nul 2>&1 <nul
 		set "processes=!processes: %%1 = !"
 		if "!processes: =!"=="" (
-			echo=exit
-			echo=¤EXIT>&3
-			for /l %%# in (1 1 100000) do rem
-			echo=%\e%[48;2;0;0;0m%\e%[H%\e%[2J>con
-			copy nul "temp\bootStatus-!sst.localtemp!-exit" > nul 2>&1
-			call "!sst.dir!\boot\fadeout.bat">con
-			exit 0
+			call :shutdown 0
 		) else for %%w in (!pid[%%~1]windows!) do (
 			>&3	echo=¤DW	%%~w
 			set "windows=!windows: "%%~w" = !"
+			set "windowsT=!windowsT: "%%~w" = !"
 			if "%%~w"=="!focusedWindow!" (
 				set focusedWindow=
 				for %%w in (!windows!) do if not defined focusedWindow set "focusedWindow=%%~w"
@@ -265,31 +267,37 @@ for /l %%# in () do (
 			echo=win[%%~2]Y=!win[%%~2]Y!
 			set "win[%%~2]off="
 		)
+	) else if "%%~0"=="modifyWindowProperties" (
+		for /f "tokens=1-6" %%b in ("%%~1") do (
+			set "temp.id=%%~b"
+			set "temp.id=!temp.id:,=!"
+			set "temp.id=!temp.id:+=!"
+			set "temp.id=!temp.id:-=!"
+			set "temp.id=!temp.id:/=!"
+			set "temp.id=!temp.id:(=!"
+			set "temp.id=!temp.id:)=!"
+			set "temp.id=!temp.id:>=!"
+			set "temp.id=!temp.id:<=!"
+			set "temp.id=!temp.id:^^=!"
+			if "%%~b" neq "!temp.id!" call :kernelPanic	"Invalid Window ID" "At function 'registerWindow':\n  Window ID contains illegal characters.\n  (For reference, these are listed on the Wiki.)\nA memory dump has been created at: ~:\Shivtanium\temp\KernelMemoryDump"
+			if not defined win[!temp.id!] call :kernelPanic "Attempted to modify non-existent window" "At function 'modifyWindowProperties':\n  Unknown window: '!temp.id!'"
+			set "win[!temp.id!]X=%%~c"
+			set "win[!temp.id!]Y=%%~d"
+			if "%%~f" neq "" (
+				set "win[!temp.id!]W=%%~e"
+				set "win[!temp.id!]H=%%~f"
+				if "%%~g" neq "" set "win[!temp.id!]D=%%~g"
+			) else if "%%~e" neq "" set "win[!temp.id!]D=%%~e"
+			set /a "win[!temp.id!]X=win[!temp.id!]X, win[!temp.id!]Y=win[!temp.id!]Y, win[!temp.id!]W=win[!temp.id!]W, win[!temp.id!]H=win[!temp.id!]H, win[!temp.id!]BX=win[!temp.id!]X+win[!temp.id!]W-1, win[!temp.id!]BY=win[!temp.id!]Y+win[!temp.id!]H-1"
+			set temp.id=
+		)
 	) else if "%%~0"=="powerState" (
 		if /I "%%~1"=="shutdown" (
-			cd "!sst.dir!"
-			call main.bat :loadResourcePack init
-			echo=exit
-			echo=¤EXIT>&3
-			for /l %%# in (1 1 100000) do rem
-			echo=%\e%[48;2;0;0;0m%\e%[H%\e%[2J>con
-			copy nul "temp\bootStatus-!sst.localtemp!-exit" > nul 2>&1
-			set "sst.boot.fadeout=255"
-			call "!sst.dir!\boot\fadeout.bat" Shivtanium is shutting down.%\e%[2;HRemaining processes: !processes! >con
-			exit 0
+			call :shutdown 0
 		) else if /I "%%~1"=="reboot" (
-			echo=exit
-			echo=¤EXIT>&3
-			for /l %%# in (1 1 100000) do rem
-			echo=%\e%[48;2;0;0;0m%\e%[H%\e%[2J>con
-			exit 27
+			call :shutdown 27
 		) else if /I "%%~1"=="fastReboot" (
-			echo=exit
-			echo=¤EXIT>&3
-			cmd /c ping -n 2 127.0.0.1 >nul 2>&1
-			set "sst.boot.fadeout=255"
-			call "!sst.dir!\boot\fadeout.bat" Shivtanium is shutting down.%\e%[2;HRemaining processes: !processes! >con
-			exit 13
+			call :shutdown 13
 		)
 	)
 )
@@ -319,22 +327,17 @@ exit /b
 set "PID=%~1"
 set /a PID=PID, ioTotal+=1
 echo=exitProcess=!PID!
-for /l %%. in (1 1 100) do if exist "!sst.dir!\temp\PID-!PID!" (
+for /l %%. in (1 1 100) do if exist "!sst.dir!\temp\proc\PID-!PID!" (
 	del "!sst.dir!\temp\proc\PID-!PID:\=!" > nul 2>&1 < nul
 )
 
 set "processes=!processes: %PID% = !"
 if "!processes: =!"=="" (
-	echo=exit
-	echo=¤EXIT>&3
-	for /l %%# in (1 1 10000) do rem
-	echo=%\e%[48;2;0;0;0m%\e%[H%\e%[2J>con
-	copy nul "temp\bootStatus-!sst.localtemp!-exit" > nul 2>&1
-	call "!sst.dir!\boot\fadeout.bat">con
-	exit 0
+	call :shutdown
 ) else for %%w in (!pid[%PID%]windows!) do (
 	>&3	echo=¤DW	%%~w
 	set "windows=!windows: "%%~w" = !"
+	set "windowsT=!windowsT: "%%~w" = !"
 	if "%%~w"=="!focusedWindow!" (
 		set focusedWindow=
 		for %%w in (!windows!) do if not defined focusedWindow set "focusedWindow=%%~w"
@@ -382,3 +385,58 @@ set > "!sst.dir!\temp\kernelMemoryDump"
 ping -n 2 127.0.0.1 > nul
 for /l %%# in () do if defined keysPressed exit 0
 exit 0
+:shutdown
+md "!sst.dir!\temp\shutdown"
+echo=exit
+(
+	echo=¤CTRL	DUMP	dwm.aero	"!sst.dir!\temp\shutdown\DWM-memoryDump"
+	echo=¤EXIT
+) >&3
+for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "timeOut=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100 + 100"
+:shutdown.waitForDWM
+for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t2=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100"
+if not exist "!sst.dir!\temp\shutdown\DWM-memoryDump" if !t2! leq !timeOut! goto shutdown.waitForDWM
+for /l %%y in (1 1 !sys.modeH!) do set "dmp.dwm.aero[%%y]=2;%%y;%%y;%%y"
+if exist "!sst.dir!\temp\shutdown\DWM-memoryDump" for /f "usebackq tokens=1* delims==" %%a in ("!sst.dir!\temp\shutdown\DWM-memoryDump") do set "dmp.%%~a=%%~b"
+
+set "ts=!t2!"
+set "anim=0"
+set "fadeout=255"
+set "modeH=!sys.modeH!" & set "modeW=!sys.modeW!"
+
+set "_SIN=a-a*a/1920*a/312500+a*a/1920*a/15625*a/15625*a/2560000-a*a/1875*a/15360*a/15625*a/15625*a/16000*a/44800000"
+set "sinr=(a=(x)%%62832, c=(a>>31|1)*a, a-=(((c-47125)>>31)+1)*((a>>31|1)*62832)  +  (-((c-47125)>>31))*( (((c-15709)>>31)+1)*(-(a>>31|1)*31416+2*a)  ), !_SIN!) / 10000"
+set "sinr=!sinr: =!"
+set "cosr=(a=(15708 - x)%%62832, c=(a>>31|1)*a, a-=(((c-47125)>>31)+1)*((a>>31|1)*62832)  +  (-((c-47125)>>31))*( (((c-15709)>>31)+1)*(-(a>>31|1)*31416+2*a)  ), !_SIN!) / 10000"
+set "cosr=!cosr: =!"
+set "sin=(a=((x*31416/180)%%62832)+(((x*31416/180)%%62832)>>31&62832), b=(a-15708^a-47124)>>31,a=(-a&b)+(a&~b)+(31416&b)+(-62832&(47123-a>>31)),a-a*a/1875*a/320000+a*a/1875*a/15625*a/16000*a/2560000-a*a/1875*a/15360*a/15625*a/15625*a/16000*a/44800000) / 10000"
+set "cos=(a=((15708-x*31416/180)%%62832)+(((15708-x*31416/180)%%62832)>>31&62832), b=(a-15708^a-47124)>>31,a=(-a&b)+(a&~b)+(31416&b)+(-62832&(47123-a>>31)),a-a*a/1875*a/320000+a*a/1875*a/15625*a/16000*a/2560000-a*a/1875*a/15360*a/15625*a/15625*a/16000*a/44800000) / 10000"
+set /a "PI=(35500000/113+5)/10, HALF_PI=(35500000/113/2+5)/10, TAU=TWO_PI=2*PI, PI32=PI+HALF_PI"
+title !dmp.dwm.aero!
+if exist "!sst.boot.dir!" (
+	if "%~1"=="27" copy nul "!sst.boot.dir!\befiReboot.cww" > nul
+	if "%~1"=="13" >"!sst.boot.dir!\befiReboot.cww" echo 13
+)
+(for /l %%# in () do (
+	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100, deltaTime=(t1 - t2), t2=t1, x=(t1 - ts) * 200, _anim=anim, shift=(anim = 1 + sys.modeW * !sinr!) - _anim"
+	if !shift! geq 1 (
+		set "buffer=%\e%[H"
+		for /l %%y in (1 1 !sys.modeH!) do (
+			set "buffer=!buffer!%\e%[48;!dmp.dwm.aero[%%y]!m%\e%[!shift!P%\e%[E"
+		)
+		set /p "=!buffer!"
+		if !anim! geq !sys.modeW! (
+			for /l %%# in () do (
+				for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100, fadeout-=(deltaTime=(t1 - t2))*4, t2=t1"
+				set "buffer=%\e%[H"
+				for /l %%x in (1 1 !sys.modeH!) do (
+					set /a "x=%%x", "!dmp.dwm.aero:×=*!", "r=r*fadeout/255, g=g*fadeout/255, b=b*fadeout/255"
+					set "buffer=!buffer!%\e%[48;2;!r!;!g!;!b!m%\e%[2K%\e%[B"
+				)
+				set /p "=!buffer!"
+				if !fadeout! lss 1 exit 0
+			)
+		)
+	)
+)) < nul > con
+exit %1
