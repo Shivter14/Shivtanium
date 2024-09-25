@@ -83,21 +83,19 @@ if "!sys.reduceMotion!"=="True" (
 
 for /l %%# in () do (
 	@sys.pullEvents
-	@sys.onEvent click=1
-		if "!focusedWindow!"=="!PID!.control" (
-			set /a "relativeMouseX=mouseXpos-win[!PID!.control]X, relativeMouseY=mouseYpos-win[!PID!.control]Y"
-			if "!relativeMouseY!"=="0" (
-				if !relativeMouseX! geq !closeButtonX! (
-					call :page[!unsavedChanges!].cancel
-					@sys.exit
-				)
-			) else if !relativeMouseX! lss !sidebarW! (
-				if defined page[!relativeMouseY!] (
-					set currentPage=!relativeMouseY!
-					@loadpage
-				)
-			) else for %%b in (!buttons!) do if "!relativeMouseY!"=="!btn[%%~b]Y!" if !relativeMouseX! geq !btn[%%~b]X! if !relativeMouseX! leq !btn[%%~b]BX! for %%y in (!btn[%%~b]Y!) do echo=¤MW	!PID!.control	o%%y=!o%%y!%\e%8%\e%[!btn[%%~b]X!C%\e%[7m!btn[%%~b]title!%\e%[27m
-		)
+	@sys.onEventRaw "!kernelOut!;!focusedWindow!"=="click=1;!PID!.control"
+		set /a "relativeMouseX=mouseXpos-win[!PID!.control]X, relativeMouseY=mouseYpos-win[!PID!.control]Y"
+		if "!relativeMouseY!"=="0" (
+			if !relativeMouseX! geq !closeButtonX! (
+				call :page[!unsavedChanges!].cancel
+				@sys.exit
+			)
+		) else if !relativeMouseX! lss !sidebarW! (
+			if defined page[!relativeMouseY!] (
+				set currentPage=!relativeMouseY!
+				@loadpage
+			)
+		) else for %%b in (!buttons!) do if "!relativeMouseY!"=="!btn[%%~b]Y!" if !relativeMouseX! geq !btn[%%~b]X! if !relativeMouseX! leq !btn[%%~b]BX! for %%y in (!btn[%%~b]Y!) do echo=¤MW	!PID!.control	o%%y=!o%%y!%\e%8%\e%[!btn[%%~b]X!C%\e%[7m!btn[%%~b]title!%\e%[27m
 	@sys.onEvent click=0
 		if "!focusedWindow!"=="!PID!.control" (
 			set /a "relativeMouseX=mouseXpos-win[!PID!.control]X, relativeMouseY=mouseYpos-win[!PID!.control]Y"
