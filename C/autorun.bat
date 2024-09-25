@@ -1,6 +1,6 @@
 @echo off & setlocal enabledelayedexpansion
 
-	%= Standard BEFI boot menu rev4 =%
+	%= Standard BEFI boot menu rev5 =%
 	     %= Created by Shivter =%
 
 if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
@@ -8,6 +8,7 @@ if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
 :main
 (
 	cd "%~dp0"
+	set "sst.boot.dir=!cd!"
 	set sst.boot.entries=
 	set sst.boot.entrycount=0
 	for /f "delims=" %%a in ('dir /b /a:D') do if exist "%%~a\befi.dat" (
@@ -25,9 +26,14 @@ if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
 		) else cmd /c %%a %* || set sst.boot.errorlevel=!errorlevel!
 	) else goto bootmenu
 	cd "%~dp0"
+	if exist "befiReboot.cww" (
+		set exitcode=27
+		set /p "exitcode="<befiReboot.cww
+		del befiReboot.cww
+		exit /b !exitcode!
+	)
 	if defined sst.boot.errorlevel (
 		if "!sst.boot.errorlevel!"=="13" goto main
-		if "!sst.boot.errorlevel!"=="1" if not exist "!sst.boot.path!" call :halt "@CrashHandeler !sst.boot.path!" "The system files were lost.\nIf you're running this off a removable storage device,\nIt might have been disconnected causing this crash.\nIf this problem occurs after a reboot,\nYou should reinstall the system."
 		if "!sst.boot.errorlevel!" neq "5783" if "!sst.boot.errorlevel!" neq "27" call :halt "@Errorlevel !sst.boot.path!" "System exited with code !sst.boot.errorlevel!"
 	)
 	exit /b !sst.boot.errorlevel!
@@ -139,12 +145,18 @@ set "sst.boot.path=!temp.bootentry[%selection%]!"
 for %%a in (
 	"input" "temp" "current" "parameters_disp" "selection" "sst.boot.entr" "scroll"
 ) do for /f "tokens=1 delims==" %%b in ('set %%a 2^>nul') do set "%%~a="
+(
 cmd /c !sst.boot.path! !parameters! %* || set sst.boot.errorlevel=!errorlevel!
-cd "%~dp0"
-if defined sst.boot.errorlevel (
-	if "!sst.boot.errorlevel!"=="13" goto main
-	if "!sst.boot.errorlevel!"=="1" if not exist "!sst.boot.path!" call :halt "@CrashHandeler !sst.boot.path!" "The system files were lost.\nIf you're running this off a removable storage device,\nIt might have been disconnected causing this crash.\nIf this problem occurs after a reboot,\nYou should reinstall the system."
-	if "!sst.boot.errorlevel!" neq "5783" if "!sst.boot.errorlevel!" neq "27" call :halt "@Errorlevel !sst.boot.path!" "System exited with code !sst.boot.errorlevel!"
+	cd "%~dp0"
+	if exist "befiReboot.cww" (
+		set exitcode=27
+		set /p "exitcode="<befiReboot.cww
+		del befiReboot.cww
+		exit /b !exitcode!
+	)
+	if defined sst.boot.errorlevel (
+		if "!sst.boot.errorlevel!"=="13" goto main
+		if "!sst.boot.errorlevel!" neq "5783" if "!sst.boot.errorlevel!" neq "27" call :halt "@Errorlevel !sst.boot.path!" "System exited with code !sst.boot.errorlevel!"
+	)
+	exit /b !sst.boot.errorlevel!
 )
-
-exit /b !sst.boot.errorlevel!
