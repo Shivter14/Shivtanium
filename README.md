@@ -6,13 +6,16 @@
 [![Commits](https://img.shields.io/github/commit-activity/m/Shivter14/Shivtanium?label=commits&style=for-the-badge)](https://github.com/Shivter14/Shivtanium/commits "Commit History")
 [![Last Commit](https://img.shields.io/github/last-commit/Shivter14/Shivtanium/main?label=Latest%20commit&style=for-the-badge&display_timestamp=committer)](https://github.com/Shivter14/Shivtanium/pulse/monthly "Last activity")
 
-## Shivtanium is a Batch OS Kernel, along with `systemb` and `bxf` making it the most advanced Batch OS ever created.
+## Shivtanium is a Batch OS subsystem, along with `systemb` and `bxf` making it the ultimate Batch OS.
 (Screenshots are avaliable at the bottom of this document.)
 </div>
 
-Shivtanium has a Kernel which allows it to do true multi tasking (aka. having multiple windows open), with a process system. A process is a running asynchronous batch file. Communication is done via _file pipe streams_, and an API made with BXF (Batch Expanded Functions Compiler).
+Shivtanium has a process manager which allows it to do true multi tasking (aka. having multiple windows open).
 
-The Shivtanium Kernel handles:
+A process is a running asynchronous batch file. Communication is done via _file pipe streams_, 
+and an API made with BXF (Batch Expanded Functions Compiler).
+
+the Shivtanium subsystem handles:
 
 - Process management
 
