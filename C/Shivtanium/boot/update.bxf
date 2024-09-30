@@ -61,5 +61,10 @@ for /l %%# in () do (
 				)
 			)
 		)
+	@sys.onEventRaw "!kernelOut:~0,14!;!focusedWindow!"=="keysPressedRN=;svc.update"
+		set "!kernelOut!" >nul 2>&1
+		if "!keysPressedRN!" neq "!keysPressedRN: 27 =!" (
+			@sys.exit
+		)
 	@sys.handleStdEvents
 )
