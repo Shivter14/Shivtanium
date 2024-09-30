@@ -159,7 +159,11 @@ for /l %%# in () do (
 			if "%%~b" neq "!temp.id!" call :kernelPanic	"Invalid Window ID" "At function 'registerWindow':\n  Window ID contains illegal characters.\n  (For reference, these are listed on the Wiki.)\nA memory dump has been created at: ~:\Shivtanium\temp\KernelMemoryDump"
 			set "temp.d=%%~g"
 			set "windows= "!temp.id!"!windows!"
-			if "!temp.d:~1,1!" neq "1" set "windowsT=!windowsT!"!temp.id!" "
+			if "!temp.d:~1,1!" neq "1" (
+				set "windowsT=!windowsT!"!temp.id!" "
+				set /a ioTotal+=1
+				echo=windowsT=!windowsT!
+			)
 			set "pid[%%~a]windows=!pid[%%~a]windows!"!temp.id!" "
 			set "win[!temp.id!]=%%~a"
 			set "win[!temp.id!]X=%%~c"
@@ -189,6 +193,9 @@ for /l %%# in () do (
 		set "PID=%%~1"
 		set /a PID=PID
 		if "!PID!" neq "%%~1" call :kernelPanic "Invalid Process ID" "At function 'exitProcess':\n  Invalid Process ID: `%%~1` (NaN)\nThis is either a fatal error, or some program missbehaving.\nA memory dump has been created at: ~:\Shivtanium\temp\KernelMemoryDump"
+		for /l %%. in (1 1 100) do if exist "!sst.dir!\temp\proc\PID-!PID!" (
+			del "!sst.dir!\temp\proc\PID-!PID:\=!" > nul 2>&1 < nul
+		)
 		if exist "temp\proc\PID-!PID!" del "temp\proc\PID-!PID!" >nul 2>&1 <nul
 		set "processes=!processes: %%1 = !"
 		if "!processes: =!"=="" (
@@ -200,19 +207,22 @@ for /l %%# in () do (
 			if "%%~w"=="!focusedWindow!" (
 				set focusedWindow=
 				for %%w in (!windows!) do if not defined focusedWindow set "focusedWindow=%%~w"
-				set /a ioTotal+=1
-				echo=focusedWindow=!focusedWindow!
-				>&3 echo=¤FOCUS	!focusedWindow!
 			)
 			if "%%~w"=="!movingWindow!" set movingWindow=
 			for /f "tokens=1 delims==" %%a in ('set "win[%%~w]" 2^>nul') do set "%%a="
 		)
+		set /a ioTotal+=2
+		echo=focusedWindow=!focusedWindow!
+		echo=windowsT=!windowsT!
+		>&3 echo=¤FOCUS	!focusedWindow!
 		for /f %%a in ("!pid[%%~1]parent!") do set "pid[%%~a]subs=!pid[%%~a]subs: "%%~1"=!"
 		for /f "tokens=1 delims==" %%a in ('set pid[%%1] 2^>nul') do set "%%a="
 	) else if "%%~0"=="createProcess" (
 		call :createProcess %%1
 	) else if "%%~0"=="exitProcessTree" (
 		call :killProcessTree	%%1
+		set /a ioTotal+=1
+		echo=windowsT=!windowsT!
 	) else if "%%~0"=="config" (
 		for /f "tokens=1* delims==^!" %%x in ("%%~1") do for %%s in (
 			lowPerformanceMode
@@ -326,6 +336,7 @@ exit /b
 :killProcessTree
 set "PID=%~1"
 set /a PID=PID, ioTotal+=1
+if "!PID!" neq "%~1" call :kernelPanic "Invalid Process ID" "At function 'exitProcess':\n  Invalid Process ID: `%%~1` (NaN)\nThis is either a fatal error, or some program missbehaving.\nA memory dump has been created at: ~:\Shivtanium\temp\KernelMemoryDump"
 echo=exitProcess=!PID!
 for /l %%. in (1 1 100) do if exist "!sst.dir!\temp\proc\PID-!PID!" (
 	del "!sst.dir!\temp\proc\PID-!PID:\=!" > nul 2>&1 < nul
