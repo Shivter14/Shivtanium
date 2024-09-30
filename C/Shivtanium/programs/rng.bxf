@@ -1,0 +1,68 @@
+#import sys.bxf, dwm.bxf
+for %%a in (%*) do (
+	if defined next (
+		set "!next!=%%~a"
+		set next=
+	) else (
+		set next=
+		if "%%a"=="--username" (
+			set next=sys.username
+		) else if "%%a"=="--UPID" (
+			set next=sys.UPID
+		)
+	)
+)
+set "goalNumber=!random!"
+set "remainingAttempts=15"
+
+set /a "win[!PID!.rng]X=(sys.modeW-(win[!PID!.rng]W=32))/2, win[!PID!.rng]Y=(sys.modeH-(win[!PID!.rng]H=10))/2, contentW=win[!PID!.rng]W-6, inputFieldY=win[!PID!.rng]H-2"
+echo=¤CW	!PID!.rng	!win[%PID%.rng]X!	!win[%PID%.rng]Y!	!win[%PID%.rng]W!	!win[%PID%.rng]H!	Random Number Guesser
+echo=¤MW	!PID!.rng	l2=  Guess the random number^^!\x^^!	o!inputFieldY!=%\e%[3C%\e%[!contentW!X	l5=  Remaining attempts: !remainingAttempts!
+@sys.call registerWindow	!PID!	!PID!.rng	!win[%PID%.rng]X!	!win[%PID%.rng]Y!	!win[%PID%.rng]W!	!win[%PID%.rng]H!
+
+set "input= "
+set user.globalTheme=aero
+for /f "usebackq tokens=1* delims==" %%a in ("!sst.root!\Users\!sys.username!\userprofile.dat") do (
+	set "user.%%a=%%b" > nul 2>&1
+)
+@dwm.getThemeCBUIoffset "theme=!user.globalTheme!" "return=CBUIoffset"
+set /a "closeButtonX=win[!PID!.rng]W-3+CBUIoffset"
+
+for /l %%# in () do (
+	@sys.pullEvents
+	@sys.onEvent click=1
+		set /a "relativeMouseX=mouseXpos-win[!PID!.rng]X, relativeMouseY=mouseYpos-win[!PID!.rng]Y"
+		if "!relativeMouseY!"=="0" if !relativeMouseX! geq !closeButtonX! (
+			@sys.exit
+		)
+	@sys.onEventRaw "!kernelOut:~0,14!;!focusedWindow!"=="keysPressedRN=;!PID!.rng"
+		set "!kernelOut!" >nul 2>&1
+		for %%k in (!keysPressedRN!) do (
+			set numPressed=
+			if %%k geq 48 if %%k leq 57 (
+				set /a "numPressed=%%k-48"
+			) else if %%k geq 96 if %%k leq 105 (
+				set /a "numPressed=%%k-96"
+			)
+			if %%k == 27 (
+				set "input= "
+			) else if %%k == 8 (
+				set "input=!input:~0,-1!"
+				if not defined input set "input= "
+			) else if %%k == 13 if !remainingAttempts! gtr 0 (
+				if "!input:~1!"=="!goalNumber!" (
+					echo=¤MW	!PID!.rng	l4=  You got the number^^!\x^^!
+				) else if !goalNumber! leq !input:~1! (
+					echo=¤MW	!PID!.rng	l4=  Go lower^^!\x^^!
+				) else (
+					echo=¤MW	!PID!.rng	l4=  Go higher^^!\x^^!
+				)
+				set /a remainingAttempts-=1
+				echo=¤MW	!PID!.rng	l5=  Remaining attempts: !remainingAttempts!	o!inputFieldY!=%\e%[7m%\e%[3C%\e%[!contentW!X!input:~-%contentW%!%\e%[27m
+				pathping.exe 127.0.0.1 -n -q 1 -p 200 1 > nul < nul
+			) else echo=¤MW	!PID!.rng	l4=  You don't have any	l5=  remaining attempts^^!\x^^!
+			if defined numPressed set "input=!input!!numPressed!"
+		)
+		echo=¤MW	!PID!.rng	o!inputFieldY!=%\e%[3C%\e%[!contentW!X!input:~-%contentW%!
+	@sys.handleStdEvents
+)
