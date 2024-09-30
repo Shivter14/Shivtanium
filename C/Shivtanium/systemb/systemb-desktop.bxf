@@ -1,30 +1,40 @@
 #import sys.bxf
+#function renderTaskBar
+	set "render=%\e%[48;^!dwm.NIcolor^!;38;^!dwm.NTcolor^!m"
+	for %%w in (!windowsT!) do if "!focusedWindow!"=="%%~w" (
+		set "render=!render!%\e%[48;^!dwm.TIcolor^!;38;^!dwm.TTcolor^!m%\e%[!WinDispW!X%\e%7^!win[%%~w]title:~0,!WinDispW!^!%\e%8%\e%[!WinDispW!C%\e%[48;^!dwm.NIcolor^!;38;^!dwm.NTcolor^!m"
+	) else set "render=!render!%\e%[!WinDispW!X%\e%7^!win[%%~w]title:~0,!WinDispW!^!%\e%8%\e%[!WinDispW!C"
+	echo=¤OV	%\e%[!launcherY!;!launcherX!H%\e%[48;^^!dwm.NIcolor^^!;38;^^!dwm.TTcolor^^!m Shivtanium %\e%[48;^^!dwm.BGcolor^^!;38;^^!dwm.FGcolor^^!m%\e%[!launcherW!X !render!%\e%[999C%\e%[24D!date! !expTime!
+#end
 if "%~1"=="--dialog" (
 	shift /1 & shift /1
 	goto :dialog.%2
 )
 
-set /a "launcherY=sys.modeH, launcherW=sys.modeW-(launcherBX=(launcherX=1)+11)+1"
+set /a "launcherY=sys.modeH, launcherW=sys.modeW-(launcherBX=(launcherX=1)+11)+1, WinDispW=16"
 for /l %%# in () do (
 	set _expTime=!expTime!
 	set expTime=!time:~0,-6!
 	if "!_expTime!" neq "!expTime!" (
-		echo=¤OV	%\e%[!launcherY!;!launcherX!H%\e%[48;^^!dwm.NIcolor^^!;38;^^!dwm.TTcolor^^!m Shivtanium %\e%[48;^^!dwm.BGcolor^^!;38;^^!dwm.FGcolor^^!m%\e%[!launcherW!X ^^!win[!focusedWindow!]title^^!%\e%[999C%\e%[24D!date! !expTime!
+		echo=¤OV	%\e%[!launcherY!;!launcherX!H%\e%[48;^^!dwm.NIcolor^^!;38;^^!dwm.TTcolor^^!m Shivtanium %\e%[48;^^!dwm.BGcolor^^!;38;^^!dwm.FGcolor^^!m%\e%[!launcherW!X !render!%\e%[48;^^!dwm.BGcolor^^!;38;^^!dwm.FGcolor^^!m%\e%[999C%\e%[24D!date! !expTime!
 	)
 	@sys.pullEvents
 	@sys.onEvent click=1
 		if not defined focusedWindow (
 			if "!mouseYpos!"=="!launcherY!" if !mouseXpos! geq !launcherX! if !mouseXpos! leq !launcherBX! call :launcher
 		)
+	@sys.onEventRaw "!kernelOut:~0,9!"=="windowsT="
+		set "!kernelOut!" >nul 2>&1
+		@renderTaskBar
 	@sys.onEventRaw "!kernelOut:~0,14!"=="focusedWindow="
 		set "!kernelOut!" >nul 2>&1
-		if "!focusedWindow!" neq "systemb_launcher" echo=¤OV	%\e%[!launcherY!;!launcherX!H%\e%[48;^^!dwm.NIcolor^^!;38;^^!dwm.TTcolor^^!m Shivtanium %\e%[48;^^!dwm.BGcolor^^!;38;^^!dwm.FGcolor^^!m%\e%[!launcherW!X ^^!win[!focusedWindow!]title^^!%\e%[999C%\e%[24D!date! !expTime!
+		@renderTaskBar
 	@sys.handleStdEvents
 )
 
 :launcher
 setlocal
-echo=¤OV	%\e%[!launcherY!;!launcherX!H%\e%[48;^^!dwm.TIcolor^^!;38;^^!dwm.TTcolor^^!m Shivtanium %\e%[48;^^!dwm.BGcolor^^!;38;^^!dwm.FGcolor^^!m%\e%[!launcherW!X%\e%[999C%\e%[24D!date! !expTime!
+echo=¤OV	%\e%[!launcherY!;!launcherX!H%\e%[48;^^!dwm.TIcolor^^!;38;^^!dwm.TTcolor^^!m Shivtanium %\e%[48;^^!dwm.BGcolor^^!;38;^^!dwm.FGcolor^^!m%\e%[!launcherW!X !render!%\e%[48;^^!dwm.BGcolor^^!;38;^^!dwm.FGcolor^^!m%\e%[999C%\e%[24D!date! !expTime!
 set /a "win[systemb_launcher]X=launcherX, tempY=launcherY-1, win[systemb_launcher]W=38, win[systemb_launcher]H=11, win[systemb_launcher]Y=launcherY-win[systemb_launcher]H, tempZ=win[systemb_launcher]Y+1"
 if "!sys.lowPerformanceMode!"=="True" (
 	set "tempY=!win[systemb_launcher]Y!"
@@ -32,7 +42,7 @@ if "!sys.lowPerformanceMode!"=="True" (
 	set sys.reduceMotion=True
 ) else set theme=
 echo=¤CW	systemb_launcher	!win[systemb_launcher]X!	!tempY!	!win[systemb_launcher]W!	!win[systemb_launcher]H!	!sys.username!	!theme! noCBUI noWinAero
->>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	systemb_launcher	!win[systemb_launcher]X!	!tempZ!	!win[systemb_launcher]W!	!win[systemb_launcher]H!	1
+@sys.call registerWindow	!PID!	systemb_launcher	!win[systemb_launcher]X!	!tempZ!	!win[systemb_launcher]W!	!win[systemb_launcher]H!	11
 
 set "pipe=	pt=	l1=%\e%[38;^!win[systemb_launcher]TIcolor^!m▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀"
 if "!sys.reduceMotion!" neq "True" for /l %%y in (!tempY! -1 !win[systemb_launcher]Y!) do (
@@ -105,7 +115,7 @@ for /l %%# in (1 1 1000) do if not defined exit for /l %%# in (1 1 1000) do if n
 	set _expTime=!expTime!
 	set expTime=!time:~0,-6!
 	if "!_expTime!" neq "!expTime!" (
-		echo=¤OV	%\e%[!launcherY!;!launcherX!H%\e%[48;^^!dwm.TIcolor^^!;38;^^!dwm.TTcolor^^!m Shivtanium %\e%[48;^^!dwm.BGcolor^^!;38;^^!dwm.FGcolor^^!m%\e%[!launcherW!X%\e%[999C%\e%[24D!date! !expTime!
+		echo=¤OV	%\e%[!launcherY!;!launcherX!H%\e%[48;^^!dwm.TIcolor^^!;38;^^!dwm.TTcolor^^!m Shivtanium %\e%[48;^^!dwm.BGcolor^^!;38;^^!dwm.FGcolor^^!m%\e%[!launcherW!X !render!%\e%[999C%\e%[24D!date! !expTime!
 	)
 	@sys.pullEvents
 	@sys.onEvent click=1
@@ -121,6 +131,12 @@ for /l %%# in (1 1 1000) do if not defined exit for /l %%# in (1 1 1000) do if n
 			call :exit
 			set exit=True
 		)
+	@sys.onEventRaw "!kernelOut:~0,9!"=="windowsT="
+		set "!kernelOut!" >nul 2>&1
+		@renderTaskBar
+	@sys.onEventRaw "!kernelOut:~0,14!"=="focusedWindow="
+		set "!kernelOut!" >nul 2>&1
+		@renderTaskBar
 	@sys.handleStdEvents
 )
 if not defined exit goto launcher.loop
@@ -176,7 +192,7 @@ if "!sys.reduceMotion!" neq "True" (
 )
 echo=¤DW	systemb_launcher
 @sys.call unRegisterWindow	systemb_launcher
-echo=¤OV	%\e%[!launcherY!;!launcherX!H%\e%[48;^^!dwm.NIcolor^^!;38;^^!dwm.TTcolor^^!m Shivtanium %\e%[48;^^!dwm.BGcolor^^!;38;^^!dwm.FGcolor^^!m%\e%[!launcherW!X !focusedWindow!%\e%[999C%\e%[24D!date! !expTime!
+echo=¤OV	%\e%[!launcherY!;!launcherX!H%\e%[48;^^!dwm.NIcolor^^!;38;^^!dwm.TTcolor^^!m Shivtanium %\e%[48;^^!dwm.BGcolor^^!;38;^^!dwm.FGcolor^^!m%\e%[!launcherW!X !render!%\e%[48;^^!dwm.BGcolor^^!;38;^^!dwm.FGcolor^^!m%\e%[999C%\e%[24D!date! !expTime!
 set exit=True
 exit /b
 :dialog.about
