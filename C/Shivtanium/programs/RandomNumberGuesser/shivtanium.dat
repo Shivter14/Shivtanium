@@ -1,0 +1,4 @@
+name=Random Number Guesser
+info=A simple game where you have to guess a number that's randomly generated.
+authors=Shivter
+path=rng.bxf
