@@ -15,6 +15,7 @@ shift /1
 shift /1
 set "buttonName=%~8"
 set "embed=%~9"
+shift /1
 echo=¤CW	!PID!.systemb_dialog	!win[%PID%.systemb_dialog]X!	!win[%PID%.systemb_dialog]Y!	!win[%PID%.systemb_dialog]W!	!win[%PID%.systemb_dialog]H!	!initial_window_params!
 echo=¤MW	!PID!.systemb_dialog	!secondary_window_params!	o!buttonY!=%\e%[!buttonX!C!buttonName!
 if defined extended_window_params echo=¤MW	!PID!.systemb_dialog	!extended_window_params!
@@ -25,7 +26,7 @@ for /l %%# in () do (
 	@sys.onEvent click=1
 		if "!focusedWindow!"=="!PID!.systemb_dialog" (
 			set /a "relativeMouseX=mouseXpos-win[!PID!.systemb_dialog]X, relativeMouseY=mouseYpos-win[!PID!.systemb_dialog]Y"
-			if "!relativeMouseY!"=="0" if !relativeMouseX! geq !closeButtonX! if /I "!embed!"=="True" (
+			if /I "%~9" neq "False" if "!relativeMouseY!"=="0" if !relativeMouseX! geq !closeButtonX! if /I "!embed!"=="True" (
 				echo=¤DW	!PID!.systemb_dialog
 				@sys.call unRegisterWindow	!PID!.systemb_dialog
 				exit 0
