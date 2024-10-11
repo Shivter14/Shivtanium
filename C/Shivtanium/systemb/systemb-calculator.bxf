@@ -1,10 +1,23 @@
 #import sys.bxf
+for %%a in (%*) do (
+	if defined next (
+		set "!next!=%%~a"
+		set next=
+	) else (
+		set next=
+		if "%%a"=="--username" (
+			set next=sys.username
+		) else if "%%a"=="--UPID" (
+			set next=sys.UPID
+		)
+	)
+)
 set user.globalTheme=aero
 for /f "usebackq tokens=1* delims==" %%a in ("!sst.root!\Users\!sys.username!\userprofile.dat") do (
 	set "user.%%a=%%b" > nul 2>&1
 )
 @dwm.getThemeCBUIoffset "theme=!user.globalTheme!" "return=CBUIoffset"
-set math="win[!PID!.calc]W=26, win[!PID!.calc]H=10, win[!PID!.calc]X=(sys.modeW-win[!PID!.calc]W)/2, win[!PID!.calc]Y=(sys.modeH-win[!PID!.calc]H)/2, inputW=win[!PID!.calc]W-4"
+set math="win[!PID!.calc]W=26, win[!PID!.calc]H=10, win[!PID!.calc]X=(sys.modeW-win[!PID!.calc]W)/2+1, win[!PID!.calc]Y=(sys.modeH-win[!PID!.calc]H)/2, inputW=win[!PID!.calc]W-4"
 for %%b in (
 	"times	3	12	4	:input times	 × "
 	"divide	3	15	4	:input divide	 / "
@@ -96,7 +109,7 @@ for /l %%# in () do (
 		if "!focusedWindow!"=="!PID!.calc" for %%k in (!keysPressedRN!) do (
 			set "char=!charset_L:~%%k,1!"
 			if "!keysPressed!" neq "!keysPressed:-16-=!" set "char=!charset_U:~%%k,1!"
-			if "!keysPressed!" neq "!keysPressed:-17-=!" set "char=!charset_A:~%%k,1!"
+			if "!keysPressed!" neq "!keysPressed:-18-=!" set "char=!charset_A:~%%k,1!"
 			if "!char!"==" " (
 				if "%%~k" neq "32" set char=
 				if "%%~k"=="8" (
