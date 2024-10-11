@@ -7,15 +7,26 @@ if "!ssvm.args:~0,1!" neq ":" goto start
 	call %*
 	exit /b
 :start
-start "SSVM Launcher" conhost.exe cmd.exe /c %0 :init %*
-exit
+echo=Starting batch environment. . .
+echo=: Applying configuration with reg
+reg add "HKCU\Console\SSVM Launcher" /v FontSize /t reg_dword /d 1048576 /f
+reg add "HKCU\Console\SSVM Launcher" /v FaceName /t reg_sz /d "MxPlus IBM VGA 8x16" /f
+reg add "HKCU\Console\SSVM Launcher" /v QuickEdit /t reg_dword /d 0 /f
+echo=: Starting console host
+
+set "ssvm.temp.con=Starting console host%\e%[S%\e%[999E: Applying configuration with reg%\e%[S%\e%[999E: Starting console host%\e%[S%\e%[999E: Exitting launcher session"
+start "SSVM Launcher" conhost.exe "!ComSpec!" /c "%~f0" :init %*
+echo=: Exitting launcher session
+exit /b
 :init
+reg delete "HKCU\Console\SSVM Launcher" /f >nul
 set "ssvm.args=%~1"
-set ssvm.ver=3.0.5
+set ssvm.ver=3.1.0
 title SSVM !ssvm.ver!
-<nul set /p "=%\e%[1;1H%\e%[48;2;0;0;0m%\e%[38;2;255;255;255m%\e%[?25l%\e%[J"
+set "ssvm.temp.con=!ssvm.temp.con!%\e%[S%\e%[999ELoading SSVM settings. . .%\e%[S%\e%[999E: Changing code page"
+<nul set /p "=%\e%[999;H%\e%[48;2;0;0;0;38;2;255;255;255m%\e%[?25l%\e%[2J!ssvm.temp.con!"
 chcp 65001>nul 2>&1 || (
-	< nul set /p "=%\e%[2;3HYour system doesn't support UTF-8 [Codepage 65001]%\e%[4;3HThe system cannot continue. Press any key to exit. . .%\e%[?25h"
+	< nul set /p "=%\e%[2S%\e%[999E  Your system doesn't support UTF-8 [Codepage 65001]%\e%[2S%\e%[999E  The system cannot continue. Press any key to exit. . .%\e%[?25h%\e%[S%\e%[999E"
 	pause > nul
 	exit /b
 ) 2>nul
@@ -29,23 +40,28 @@ for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
 
 for %%a in ("mode=128,32" "temp.fadein=0") do set "ssvm.%%~a"
 for /f "skip=1 eol=# tokens=1,2 delims==#	 " %%a in ('type "%~dp0ssvm.cww"') do set "ssvm.%%~a=%%~b"
-
+set "ssvm.temp.con=!ssvm.temp.con!%\e%[S%\e%[999E: Changing mode"
+<nul set /p "=%\e%[999;H%\e%[2J!ssvm.temp.con!"
 for /f "tokens=1,2 delims=," %%x in ("!ssvm.mode!") do set /a "ssvm.modeW=%%~x", "ssvm.modeH=%%~y" 2>nul || (
-	< nul set /p "=%\e%[2;3HThe SSVM configuration is invalid. Try deleting the 'ssvm.cww' file to reset it.%\e%[4;3HThe system cannot continue. Press any key to exit. . ."
+	< nul set /p "=%\e%[2S%\e%[999E  The SSVM configuration is invalid. Try deleting the 'ssvm.cww' file to reset it.%\e%[2S%\e%[999E  The system cannot continue. Press any key to exit. . .%\e%[?25h%\e%[S%\e%[999E"
 	pause>nul
 	exit /b
 )
 mode !ssvm.modeW!,!ssvm.modeH!
-<nul set /p "=%\e%[1;1H%\e%[48;2;0;0;0m%\e%[38;2;255;255;255m%\e%[?25l%\e%[J%\e%[!ssvm.modeH!;!ssvm.modeW!H%\e%[27DPress ESC to enter boot menu%\e%[38;2;0;0;0m"
+set "ssvm.temp.con=!ssvm.temp.con!%\e%[S%\e%[999E: Loading sprites"
+<nul set /p "=%\e%[999;H%\e%[48;2;0;0;0;38;2;127;127;127m%\e%[?25l%\e%[2J!ssvm.temp.con!"
 call :loadsprites "%~dp0SSVM.sprite"
 cd "%~dp0" || exit /b
+set "ssvm.temp.con=!ssvm.temp.con!%\e%[S%\e%[999E: Injecting getInput DLL"
+<nul set /p "=%\e%[999;H%\e%[2J!ssvm.temp.con!"
 set GetInputPath=getInput64.dll
 if not exist "!GetInputPath!" (
 	if not exist "C\Shivtanium\core\!GetInputPath!" goto skipGetInput
 	set "getInputPath=C\Shivtanium\core\!GetInputPath!"
 )
 rundll32.exe !getInputPath!,inject >nul 2>&1
-
+set "ssvm.temp.con=!ssvm.temp.con!%\e%[S%\e%[999EFinished."
+<nul set /p "=%\e%[999;H%\e%[48;2;0;0;0;38;2;127;127;127m%\e%[?25l%\e%[2J!ssvm.temp.con!%\e%[!ssvm.modeH!;!ssvm.modeW!H%\e%[27DPress ESC to enter boot menu%\e%[38;2;0;0;0m"
 :skipGetInput
 set getInputPath=
 set /a "ssvm.boot.logoX=(!SSVM.modeW!-!spr.[SSVM].W!)/2+1", "ssvm.boot.logoY=(!SSVM.modeH!-!spr.[SSVM].H!)/2+2"
@@ -64,7 +80,7 @@ for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=(((1%%a*60)+1
 if !ssvm.temp.fadein! lss 255 goto bootanim.1
 set ssvm.temp.fadein=
 
-for /f "delims=" %%a in ('dir /b /a:d "%~dp0"') do if /I "%%~a" neq "A" (
+for /f "delims=" %%a in ('dir /b /a:d "%~dp0"') do if /I "%%~a" neq "A" if exist "%%~a\ssvm.cww" (
 	call :boot "%~dp0%%a"
 	if "!ssvm.exitcode!" == "27" goto init
 	exit 0
@@ -153,6 +169,7 @@ exit /b
 :boot
 title SSVM !ssvm.ver! ^| Booting from "%~1"
 <nul set /p "=%\e%[0m%\e%[?25h"
+for /f "delims==" %%a in ('set ssvm.temp 2^>nul') do set "%%a="
 set ssvm.BEFI=
 if exist "%~1\SSVM.cww" for /f "tokens=1,2 delims==" %%a in ('type "%~1\SSVM.cww"') do if "%%~a"=="BEFI" set "ssvm.BEFI=%%~b"
 cd "%~dp0"
