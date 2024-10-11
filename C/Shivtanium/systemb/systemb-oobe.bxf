@@ -542,7 +542,7 @@ pushd "!sst.dir!\temp\proc\PID-!PID!-dir" || exit /b 1
 if exist "oldschool_pc_font_pack_v2.2_win.zip" goto getfonts.skipdownload
 
 echo=¤CW	!PID!.getfonts	5	3	84	8	Downloading assets	classic noCBUI
->>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.getfonts	5	3	84	8
+@sys.call registerWindow	!PID!	!PID!.getfonts	5	3	84	8
 set contentW=80
 echo=¤MW	!PID!.getfonts	l2=  Downloading %\e%[7m oldschool_pc_font_pack_v2.2_win.zip %\e%[27m . . .	l4=  %% Total    %% Received %% Xferd  Average Speed   Time    Time     Time  Current	l5=                                 Dload  Upload   Total   Spent    Left  Speed
 
@@ -566,11 +566,11 @@ start /wait notepad.exe README.txt
 start /wait notepad.exe LICENSE.txt
 :getfonts.skipextraction
 start /wait "" "ttf - Mx (mixed outline+bitmap)\MxPlus_IBM_VGA_8x16.ttf"
->>"!sst.dir!\temp\kernelPipe" echo=createProcess	!PID!	systemb-dialog 5 3 58 13 "Finish font installation	classic noCBUI" "l2=  To finish installing this font;	l3=  - Restart your host system	l4=  - Start Shivtanium	l5=  - Right-click on the console's title bar	l6=  - Go to properties	l7=  - Click on the %\e%[7m Fonts %\e%[27m tab	l8=  - Find the new font & set the font size to %\e%[7m 16 %\e%[27m	l9=  - Finally, click on %\e%[7m Done %\e%[27m and the font should apply." w-buttonW-2 h-2 7 " Close "
+@sys.call createProcess	!PID!	systemb-dialog 5 3 58 13 "Finish font installation	classic noCBUI" "l2=  To finish installing this font;	l3=  - Restart your host system	l4=  - Start Shivtanium	l5=  - Right-click on the console's title bar	l6=  - Go to properties	l7=  - Click on the %\e%[7m Fonts %\e%[27m tab	l8=  - Find the new font & set the font size to %\e%[7m 16 %\e%[27m	l9=  - Finally, click on %\e%[7m Done %\e%[27m and the font should apply." w-buttonW-2 h-2 7 " Close "
 popd
 :getfonts.exit
 echo=¤DW	!PID!.getfonts
->>"!sst.dir!\temp\kernelPipe" echo=unRegisterWindow	!PID!.getfonts
+@sys.call unRegisterWindow	!PID!.getfonts
 exit /b 0
 :errorbox
 set halt.title=
@@ -596,7 +596,7 @@ for %%a in (%*) do (
 )
 set /a "halt.winH=lines + 4"
 
->>"!sst.dir!\temp\kernelPipe" echo=createProcess	!PID!	systemb-dialog 5 3 !halt.winW! !halt.winH! "!halt.title!	classic noCBUI" "!halt.winparams!" w-buttonW-2 h-2 7 " Close "
+@sys.call createProcess	!PID!	systemb-dialog 5 3 !halt.winW! !halt.winH! "!halt.title!	classic noCBUI" "!halt.winparams!" w-buttonW-2 h-2 7 " Close "
 exit /b 0
 :setTheme
 set /a "selected%~1Theme%~2=1"
