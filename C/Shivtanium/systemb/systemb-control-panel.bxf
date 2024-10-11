@@ -45,7 +45,7 @@ for %%a in (%*) do (
 if not defined sys.username call systemb-dialog.bat (sys.modeW-w)/2 (sys.modeH-h)/2 48 6 "Control Panel" "l2=  Something went wrong:	l3=    Missing parameter: --username" w-buttonW-2 h-2 7 " Close "
 if not defined sys.UPID     call systemb-dialog.bat (sys.modeW-w)/2 (sys.modeH-h)/2 48 6 "Control Panel" "l2=  Something went wrong:	l3=    Missing parameter: --UPID"     w-buttonW-2 h-2 7 " Close "
 set /a PID=PID
-set /a "pagesBY=5, currentPage=2, contentWp=(contentW=(win[!PID!.control]W=64)-(sidebarW=16)-4)-1, contentH=(inbH=(win[!PID!.control]H=16)-1)-1, win[!PID!.control]X=(sys.modeW-win[!PID!.control]W)/2, win[!PID!.control]Y=(sys.modeH-win[!PID!.control]H)/2"
+set /a "pagesBY=5, currentPage=2, contentWp=(contentW=(win[!PID!.control]W=64)-(sidebarW=16)-4)-1, contentH=(inbH=(win[!PID!.control]H=16)-1)-1, win[!PID!.control]X=(sys.modeW-win[!PID!.control]W)/2+1, win[!PID!.control]Y=(sys.modeH-win[!PID!.control]H)/2"
 echo=¤CW	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!	Control Panel
 @sys.call registerWindow	!PID!	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!
 
@@ -187,7 +187,7 @@ if not defined selectedTheme (
 	echo=¤CTRL	APPLYTHEME	!theme[1]!
 	set selectedTheme=1
 )
-for /f "delims=" %%a in ('call "!sys.dir!\core\config.bat" --get useAltWinCtrlChars') do set "sys.%%a">nul 2>&1
+for /f "delims=" %%a in ('call "!sst.dir!\core\config.bat" --get useAltWinCtrlChars') do set "sys.%%a">nul 2>&1
 
 @dwm.clearBuffers "from=1" "to=!inbH!" "o=%\e%[!sidebarW!X" "l="
 for /l %%y in (2 1 !pagesBY!) do set "o%%y=!o%%y!!page[%%y]!"
@@ -234,14 +234,14 @@ for /l %%y in (1 1 !inbH!) do set "pipe=!pipe!	l%%y=!l%%y!	o%%y=!o%%y!"
 @dwm.flushPipe
 exit /b 0
 :page[2].cancel
-for /f "delims=" %%a in ('call "!sys.dir!\core\config.bat" --get lowPerformanceMode --get reduceMotion') do set "sys.%%a">nul 2>&1
+for /f "delims=" %%a in ('call "!sst.dir!\core\config.bat" --get lowPerformanceMode --get reduceMotion') do set "sys.%%a">nul 2>&1
 set unsavedChanges=
 goto page[2]
 :page[2].apply
 @dwm.clearBuffers "from=1" "to=!inbH!" "o=%\e%[!sidebarW!X" "l="
 for /l %%y in (2 1 !pagesBY!) do set "o%%y=!o%%y!!page[%%y]!"
 set "o!currentPage!=%\e%[!sidebarW!X%\e%[7m!page[%currentPage%]!%\e%[27m"
-call "!sys.dir!\core\config.bat" --set lowPerformanceMode !sys.lowPerformanceMode! --set reduceMotion !sys.reduceMotion!
+call "!sst.dir!\core\config.bat" --set lowPerformanceMode !sys.lowPerformanceMode! --set reduceMotion !sys.reduceMotion!
 if "!sys.lowPerformanceMode!"=="True" echo=¤CTRL	APPLYTHEME	classic
 (
 	echo=config	lowPerformanceMode=!sys.lowPerformanceMode!
@@ -271,7 +271,7 @@ set "user.globalTheme=!theme[%selectedTheme%]!"
 	)
 	endlocal
 ) > "!sst.root!\Users\!sys.username!\userprofile.dat"
-call "!sys.dir!\core\config.bat" --set useAltWinCtrlChars !sys.useAltWinCtrlChars!
+call "!sst.dir!\core\config.bat" --set useAltWinCtrlChars !sys.useAltWinCtrlChars!
 goto page[3]
 :page[4]
 @dwm.clearBuffers "from=1" "to=!inbH!" "o=%\e%[!sidebarW!X" "l="
