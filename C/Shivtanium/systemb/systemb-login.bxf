@@ -1,5 +1,5 @@
 #import sys.bxf
-set /a "win[%PID%.systemb_login]W=64, closeButtonX=win[%PID%.systemb_login]W-3, systemb.login.tW=win[%PID%.systemb_login]W-4, win[%PID%.systemb_login]H=8, win[%PID%.systemb_login]X=(sys.modeW-win[%PID%.systemb_login]W)/2, win[%PID%.systemb_login]Y=(sys.modeH-win[%PID%.systemb_login]H)/2"
+set /a "win[%PID%.systemb_login]W=64, closeButtonX=win[%PID%.systemb_login]W-3, systemb.login.tW=win[%PID%.systemb_login]W-4, win[%PID%.systemb_login]H=8, win[%PID%.systemb_login]X=(sys.modeW-win[%PID%.systemb_login]W)/2+1, win[%PID%.systemb_login]Y=(sys.modeH-win[%PID%.systemb_login]H)/2"
 if defined sys.loginBGTheme echo=¤CTRL	APPLYTHEME	!sys.loginBGTheme!
 echo=¤CW	!PID!.systemb_login	!win[%PID%.systemb_login]X!	!win[%PID%.systemb_login]Y!	!win[%PID%.systemb_login]W!	!win[%PID%.systemb_login]H!	Shivtanium Login	!sys.loginTheme!
 echo=¤MW	!PID!.systemb_login	l2=  Welcome to Shivtanium.	l4=  Enter your username:	o6=%\e%[2C%\e%[!systemb.login.tW!X
@@ -20,7 +20,7 @@ for /l %%# in () do (
 		for %%k in (!keysPressedRN!) do (
 			set "char=!charset_L:~%%k,1!"
 			if "!keysPressed!" neq "!keysPressed:-16-=!" set "char=!charset_U:~%%k,1!"
-			if "!keysPressed!" neq "!keysPressed:-17-=!" set "char=!charset_A:~%%k,1!"
+			if "!keysPressed!" neq "!keysPressed:-18-=!" set "char=!charset_A:~%%k,1!"
 			if "!char!"==" " (
 				if "%%~k" neq "32" set char=
 				if "%%~k"=="8" (
