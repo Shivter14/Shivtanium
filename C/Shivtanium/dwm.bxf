@@ -22,8 +22,10 @@ set \x=^^!
 set \q=^?
 set \c=^^
 set \a=^*
-if not defined sys.dir set "sys.dir=!cd!"
-set theme[disable_aero]="aero=" "winAero="
+if not defined sst.dir set "sst.dir=!cd!"
+set theme[noWinAero]="winAero="
+set theme[noCBUI]="CBUI=%\e%[9X" "CBUIOffset=0"
+set theme[noUnfocusedColors]="NIcolor=" "NTcolor="
 set "dwm.bottombuffer=▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀"
 for /l %%a in (65 64 !modeW!) do set "dwm.bottombuffer=!dwm.bottombuffer!%dwm.bottombuffer%"
 set "dwm.bottombuffer=!dwm.bottombuffer:~0,%modeW%!"
@@ -34,11 +36,16 @@ for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t2=((((1%%a-1000
 
 set @chanceMethod=if "^!random:~-1^!"=="1"
 if /I "!sys.lowPerformanceMode!"=="True" set "@chanceMethod=if 1==1"
+(
+set @chanceMethod=
 for /l %%# in () do (
 	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=((((1%%a-1000)*60+(1%%b-1000))*60+(1%%c-1000))*100)+(1%%d-1000), deltaTime=(t1 - t2), timer.100cs+=deltaTime, t2=t1, fpsFrames+=1"
 	if !timer.100cs! geq 100 (
 		set /a "timer.100cs%%=100, fps=fpsFrames, fpsFrames=0"
-		title Shivtanium !sys.tag! !sys.ver! !sys.subvinfo! ^| DWM: {FPS: !fps! Frametime: !deltaTime!}
+		if exist "!sst.dir!\temp" (
+			set > "!sst.dir!\temp\DWMMemoryDump"
+			for %%A in ("!sst.dir!\temp\DWMMemoryDump") do title Shivtanium !sys.tag! !sys.ver! !sys.subvinfo! ^| DWM: {FPS: !fps! ^| Frametime: !deltaTime! ^| Envsize: %%~zA bytes}
+		) else title Shivtanium !sys.tag! !sys.ver! !sys.subvinfo! ^| DWM: {FPS: !fps! Frametime: !deltaTime!}
 	)
 	set /p input= && if "!input:~0,1!"=="¤" for /f "tokens=1-8* delims=	" %%0 in ("!input:~1!") do (
 		set win.redraw=!win.order!
@@ -50,28 +57,33 @@ for /l %%# in () do (
 			
 			set "args=!input:~4!"
 			set "args=!args:	=" "!"
+			set input=
 			(for %%a in ("!args!") do set "win[%%~1]%%~a")>nul 2>&1
+			set args=
 			set "mainbuffer=!mainbuffer!%\e%[H"
 			if "!oldX!;!oldY!;!oldW!;!oldH!" neq "!win[%%~1]X!;!win[%%~1]Y!;!win[%%~1]W!;!win[%%~1]H!" (%@chanceMethod% (
 				set "mainbuffer=!dwm.scene!"
 			) else (
 				set /a "oldBX=oldX+oldW-1, oldBY=oldY+oldH-1, win[%%~1]BX=win[%%~1]X+win[%%~1]W, win[%%~1]BY=win[%%~1]Y+win[%%~1]H-1, win[%%~1]DX=win[%%~1]X-oldX, unfY=win[%%~1]Y-1, unfB=win[%%~1]BY+1"
 				set "mainbuffer=%\e%[0m%\e%[48;!dwm.sceneBGcolor!m"
-				if !win[%%~1]Y! gtr !oldY! for /l %%y in (!unfY! -1 !oldY!) do set "mainbuffer=!mainbuffer!%\e%[%%y;!oldX!H%\e%[48;!dwm.aero[%%y]!m%\e%[!oldW!X"
-				if !win[%%~1]BY! lss !oldBY! for /l %%y in (!unfB! 1 !oldBY!) do set "mainbuffer=!mainbuffer!%\e%[%%y;!oldX!H%\e%[48;!dwm.aero[%%y]!m%\e%[!oldW!X"
+				if !win[%%~1]Y! gtr !oldY! for /l %%y in (!unfY! -1 !oldY!) do set "mainbuffer=!mainbuffer!%\e%[%%y;!oldX!H%\e%[48;!da[%%y]!m%\e%[!oldW!X"
+				if !win[%%~1]BY! lss !oldBY! for /l %%y in (!unfB! 1 !oldBY!) do set "mainbuffer=!mainbuffer!%\e%[%%y;!oldX!H%\e%[48;!da[%%y]!m%\e%[!oldW!X"
 				if !win[%%~1]X! gtr !oldX! (
-					for /l %%y in (!oldY! 1 !oldBY!) do set "mainbuffer=!mainbuffer!%\e%[%%y;!oldX!H%\e%[48;!dwm.aero[%%y]!m%\e%[!win[%%~1]DX!X"
-				) else if !win[%%~1]X! lss !oldX! for /l %%y in (!oldY! 1 !oldBY!) do set "mainbuffer=!mainbuffer!%\e%[%%y;!win[%%~1]BX!H%\e%[48;!dwm.aero[%%y]!m%\e%[!win[%%~1]DX:~1!X"
+					for /l %%y in (!oldY! 1 !oldBY!) do set "mainbuffer=!mainbuffer!%\e%[%%y;!oldX!H%\e%[48;!da[%%y]!m%\e%[!win[%%~1]DX!X"
+				) else if !win[%%~1]X! lss !oldX! for /l %%y in (!oldY! 1 !oldBY!) do set "mainbuffer=!mainbuffer!%\e%[%%y;!win[%%~1]BX!H%\e%[48;!da[%%y]!m%\e%[!win[%%~1]DX:~1!X"
+				set oldBX=&set oldBY=&set unfY=&set unfB=&set "win[%%~1]BX="&set "win[%%~1]BY="
 			)) else (
 				if "%%~1"=="!win.focused!" set win.redraw="%%~1"
 				set "win[%%~1]r="
 				for /l %%l in (1 1 !win[%%~1]RH!) do set "win[%%~1]r=!win[%%~1]r!%\e%8%\e%[B%\e%7!win[%%~1]p%%l!!win[%%~1]l%%l!%\e%8%\e%[0;48;!win[%%~1]TIcolor!;38;!win[%%~1]TTcolor!m!win[%%~1]o%%l!"
 			)
+			set oldX=&set oldY=&set oldW=&set oldH=
 		) else if "%%~0"=="OV" (
 			set "overlay=%%~1"
 			set "mainbuffer=%\e%[H"
 			set win.redraw=
 		) else if "%%~0"=="CW" (
+			set input=
 			if defined win.focused set win.redraw="!win.focused!" && for /f "delims=" %%1 in ("!win.focused!") do (
 				@window_switchColors
 			) else set win.redraw="%%~1"
@@ -116,7 +128,7 @@ for /l %%# in () do (
 						set "win[%%~1]p%%y=%\e%[48;!win[%%~1]TIcolor!m %\e%[%%~aC %\e%8 %\e%[0;48;2;!r!;!g!;!b!;38;!win[%%~1]FGcolor!m%\e%[%%~aX"
 					)
 					set "win[%%~1]p!win[%%~1]RH!=%\e%[38;2;!r!;!g!;!b!;48;!win[%%~1]TIcolor!m !dwm.bottombuffer:~0,%%~a! %\e%8 "
-					set r= & set g= & set b= & set x= & set gvo=
+					set r=&set g=&set b=&set x=&set gvo=
 				) else (
 					for /l %%y in (1 1 !temp.H!) do (
 						set "win[%%~1]p%%y=%\e%[48;!win[%%~1]TIcolor!m %\e%[%%~aC %\e%8 %\e%[27;48;!win[%%~1]BGcolor!;38;!win[%%~1]FGcolor!m%\e%[%%~aX"
@@ -125,7 +137,7 @@ for /l %%# in () do (
 				)
 			)
 			
-			set temp.H= & set temp.tl= & set temp.tlb= & set "win[%%~1]r="
+			set temp.H=&set temp.tl=&set temp.tlb=&set "win[%%~1]r="
 			set "win.focused=%%~1"
 			for /l %%l in (1 1 !win[%%~1]RH!) do set "win[%%~1]r=!win[%%~1]r!%\e%8%\e%[B%\e%7!win[%%~1]p%%l!!win[%%~1]l%%l!%\e%8%\e%[0;48;!win[%%~1]TIcolor!;38;!win[%%~1]TTcolor!m!win[%%~1]o%%l!"
 		) else if "%%~0"=="FOCUS" (
@@ -163,19 +175,20 @@ for /l %%# in () do (
 					set /a temp=modeH-1
 					for /l %%x in (1 1 !modeH!) do (
 						set /a "x=%%x", "!dwm.aero:×=*!"
-						set "dwm.aero[%%x]=2;!r!;!g!;!b!"
+						set "da[%%x]=2;!r!;!g!;!b!"
 						set dwm.scene=!dwm.scene!%\e%[48;2;!r!;!g!;!b!m!dwm.aeroLine!
 					)
 					set /a "x=modeH", "!dwm.aero:×=*!"
-					set "dwm.aero[!modeH!]=!r!;!g!;!b!"
+					set "da[!modeH!]=2;!r!;!g!;!b!"
 					set temp=
-				) else for /l %%x in (1 1 !modeH!) do set "dwm.aero[%%x]=!dwm.sceneBGcolor!"
+				) else for /l %%x in (1 1 !modeH!) do set "da[%%x]=!dwm.sceneBGcolor!"
 				set "mainbuffer=!dwm.scene!"
 			) else if "%%~1"=="PAUSE" (
 				call :sleep
 			) else if "%%~1"=="BSOD" (
 				call :bsod "%%~2" "%%~3"
 			) else if "%%~1"=="DUMP" (
+				set input=
 				if "%%~4"=="/append" (
 					set %%2 >> "%%~3" 2>nul
 				) else set %%2 > "%%~3" 2>nul
@@ -187,8 +200,7 @@ for /l %%# in () do (
 					set /p line= || set /p line= || set /p line= || set /p line=
 					set "!line!" >nul 2>&1
 				))<"%%~2">nul 2>&1
-				set line=
-				set loadLines=
+				set line=&set loadLines=
 				if "%%~3"=="/deleteAfterLoad" del "%%~2" >nul 2>&1
 			)
 		) else if "%%~0"=="EXIT" exit 0
@@ -213,6 +225,7 @@ for /l %%# in () do (
 		set mainbuffer=
 		set extbuffer=
 	)
+)
 )
 :bsod
 setlocal enabledelayedexpansion
