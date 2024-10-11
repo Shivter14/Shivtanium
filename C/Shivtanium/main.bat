@@ -22,7 +22,7 @@ popd
 if /I "!sst.noTempClear!" neq "True" (
 	if not exist temp md temp
 	rd /s /q temp > nul 2>&1
-	if exist temp call :halt "{Temp directory deletion}" "There is another instance of Shivtanium currently running.\nThe system will not start to prevent glitches."
+	if exist temp call :halt "{Temp directory deletion}" "There is another instance of Shivtanium currently running.\nThe system will not start to prevent glitches." /nowait
 )
 md temp >nul 2>&1
 if not defined sst.localtemp set sst.localtemp=!random!
@@ -117,10 +117,12 @@ if exist "!sst.dir!\resourcepacks\%~1\textmodes.dat" for /f "usebackq tokens=1* 
 set /a "sst.boot.logoX=(sys.modeW-spr.[bootlogo.spr].W)/2+1", "sst.boot.logoY=(sys.modeH-spr.[bootlogo.spr].H)/2+1"
 for /f "delims=" %%A in ('dir /b /a:-D "!sst.dir!\resourcepacks\%~1\themes\*"') do (
 	set "theme[%%~nA]= "
-	for /f "usebackq tokens=1* delims==" %%x in ("!sst.dir!\resourcepacks\%~1\themes\%%~A") do (
-		if /I "%%~x" neq "CBUIOffset" set theme[%%~nA]=!theme[%%~nA]! "%%~x=%%~y"
-	)
+	(for /f "usebackq delims==" %%x in ("!sst.dir!\resourcepacks\%~1\themes\%%~A") do (
+		set /p "io="
+		if /I "%%~x" neq "CBUIOffset" set theme[%%~nA]=!theme[%%~nA]! "!io!"
+	)) < "!sst.dir!\resourcepacks\%~1\themes\%%~A"
 	set "theme[%%~nA]=!theme[%%~nA]:~2!"
+	set io=
 )
 if exist "!sst.dir!\resourcepacks\%~1\keyboard_init.bat" call "!sst.dir!\resourcepacks\%~1\keyboard_init.bat"
 exit /b 0
@@ -146,9 +148,12 @@ set spr.temp=
 set spr.tempW=
 exit /b 0
 :halt
-if exist temp (
+if /I "%~3" neq "/nowait" if exist temp (
 	>>"!sst.dir!\temp\bootStatus-!sst.localtemp!" echo=¤EXITANIM
 	call :waitForAnimations
+	if exist "temp\DWM-!sst.localtemp!" (
+		echo=¤EXIT>> "temp\DWM-!sst.localtemp!"
+	)
 )
 set "halt.text=%~2"
 set halt.text=!halt.text:\n=","!
@@ -217,6 +222,9 @@ for %%a in (
 	"asset"
 	"charset"
 	"sst.boot"
+	"sys.login"
+	"sys.CPU"
+	"sys.mode"
 ) do for /f "tokens=1 delims==" %%b in ('set %%a 2^>nul') do set "%%b="
 if /I "!sys.useAltWinCtrlChars!"=="True" for /f "tokens=1* delims==" %%a in ('set theme[ 2^>nul') do (
 	set "%%a=!%%a: - = ▿ !"
@@ -235,14 +243,14 @@ set dwm.char.S=█
 for /f "tokens=2 delims=:" %%a in ('mode con') do (
 	set "token=%%~a"
 	if not defined modeH (
-		set "modeH=!token: =!"
-	) else if not defined modeW set "modeW=!token: =!"
+		set /a "modeH=!token: =!"
+	) else if not defined modeW set /a "modeW=!token: =!"
 )
 
 copy nul "temp\DWM-!sst.localtemp!" > nul
 copy nul "temp\DWMResp-!sst.localtemp!" > nul
 start /b cmd /c !sys.windowManager! < "temp\DWM-!sst.localtemp!" 3> "temp\DWMResp-!sst.localtemp!"
-endlocal
+endlocal & set "sys.modeW=%modeW%" & set "sys.modeH=%modeH%"
 set sys.windowManager=
 exit /b 0
 :checkCompat
