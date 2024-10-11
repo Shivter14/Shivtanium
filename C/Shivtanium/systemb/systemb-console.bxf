@@ -1,4 +1,4 @@
-#import sys.bxf
+#import sys.bxf, dwm.bxf
 for %%a in (%*) do (
 	if defined next (
 		set "!next!=%%~a"
@@ -17,9 +17,9 @@ for %%a in (%*) do (
 set /a "closeButtonX=(conW=(win[!PID!.conhost]W=64)-2)-1, conP=(conH=(win[!PID!.conhost]H=16)-4)+2, win[!PID!.conhost]X=(sys.modeW-win[!PID!.conhost]W)/2, win[!PID!.conhost]Y=(sys.modeH-win[!PID!.conhost]H)/2"
 set "conprompt=[!sys.username! ^!cd:!sst.root!=~^!]$"
 
-echo=¤CW	!PID!.conhost	!win[%PID%.conhost]X!	!win[%PID%.conhost]Y!	!win[%PID%.conhost]W!	!win[%PID%.conhost]H!	Terminal	discord
+echo=¤CW	!PID!.conhost	!win[%PID%.conhost]X!	!win[%PID%.conhost]Y!	!win[%PID%.conhost]W!	!win[%PID%.conhost]H!	Terminal	matrix
 echo=¤MW	!PID!.conhost	l!conP!=%conprompt%
->>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.conhost	!win[%PID%.conhost]X!	!win[%PID%.conhost]Y!	!win[%PID%.conhost]W!	!win[%PID%.conhost]H!
+@sys.call registerWindow	!PID!	!PID!.conhost	!win[%PID%.conhost]X!	!win[%PID%.conhost]Y!	!win[%PID%.conhost]W!	!win[%PID%.conhost]H!	001	32	4
 set "focusedWindow=!PID!.conhost"
 set "input= "
 for /l %%# in () do (
@@ -77,5 +77,16 @@ for /l %%# in () do (
 			>>"!sst.dir!\temp\kernelPipe" echo=exitProcess	!PID!
 			exit 0
 		)
+	@sys.onEvent resizingWindow=!PID!.conhost
+		@dwm.clearBuffers "from=1" "to=!win[%PID%.conhost]H!"
+		@dwm.preparePipe "targetWin=!PID!.conhost"
+		@dwm.flushPipe
+	@sys.onEventRaw "!kernelOut!!focusedWindow!"=="resizingWindow=!PID!.conhost"
+		set resizingWindow=
+		set /a "closeButtonX=(conW=(win[!PID!.conhost]W)-2)-1, conP=(conH=(win[!PID!.conhost]H)-4)+2"
+		@dwm.clearBuffers "from=1" "to=!win[%PID%.conhost]H!"
+		set "l!conP!=%conprompt%!input!"
+		@dwm.preparePipe "targetWin=!PID!.conhost"
+		@dwm.flushPipe
 	@sys.handleStdEvents
 )
