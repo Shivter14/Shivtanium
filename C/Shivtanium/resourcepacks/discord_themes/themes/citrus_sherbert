@@ -1,0 +1,10 @@
+aero=r=245, g=203-(x×33/modeH), b=115+(x×23/modeH)
+winAero=r=248, g=236-(x×16/modeH), b=210+(x×12/modeH)
+BGcolor=5;15
+FGcolor=5;16
+TIcolor=2;249;219;157
+TTcolor=5;235
+NIcolor=2;247;204;167
+NTcolor=5;238
+CBUI=[D[38;5;16;48;2;248;236;210m -  □  × 
+CBUIOffset=-1
