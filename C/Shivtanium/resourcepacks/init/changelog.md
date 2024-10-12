@@ -1,7 +1,11 @@
 # Shivtanium Changelog
 This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
-## Beta 1.3.3 [build 31.3321]
+## Beta 1.4.0 [build 35.3412]
+- Added window resizing. This applies to all windows with the 3rd index of
+  kernel window registery attributes being set to `1`. (Example: `001`)
+  Supported programs: `systemb_explorer`, `systemb_console`
+- The task bar now displays opened windows.
 - Added system updates (Preview)
 - Added a new embeddable script: `core\listSelectionUX.bat`
   This script handles dropdown/selection/context menus. More information is on
@@ -15,38 +19,54 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
   Programs are located in `~\Shivtanium\Programs` as folders. A program folder
   must contain a `shivtanium.dat` file with metadata. More information:
   [Shivtanium Programs](https://github.com/Shivter14/Shivtanium/wiki/Programs)
-- Added new resource packs:
-  `discord_themes` - This resource pack contains
+- Added new resource pack: `discord_themes` - This resource pack contains
     themes from *Discord Nitro* ported to Shivtanium DWM themes which include:
     `mint_apple`, `citrus_sherbert`, `retro_raincloud`
-  `minglium_themes` - This resource pack contains the `blue_ryzer` theme from
-    Minglium OS created by Sambubo.
 - BXF applications compiled on first boot are now compiled with multi-threading.
+- Added `sstoskrnldebugger.bat` - A simple batch file that streams kernel errors
+  from `temp\kernelErr` to the console. Usefull for debugging.
 - Added new system variable: `textMode` (Default value: `default` or undefined)
   This variable can force a custom text mode on startup, by an identifier.
   Text mode identifiers can be set with resource packs in file `textmodes.dat`.
 - The boot screen now has a mode change instruction.
 - Shivtanium can now change the font on startup.
   (if running with administrator privileges)
+- Added command-line utilities: `clear`, `config`, `bxf` (now usable)
 - Added a new function to `sys.bxf`: `@sys.call`
 - Added kernel function: `modifyWindowProperties`
   Parameters: `WINDOW_ID  X  Y  [W]  [H]  [ATTRIB]`
 - Added `conhost.exe` from Windows 10 to SSVM, and enabled forcing conhost as
   the terminal application. This has been done to completely eliminate problems
   on Windows 11 aswell as disabling all other incompatible terminals.
+- Changes to the File Explorer:
+  - It now supports loading icons from themes.
+  - Added new file icons.
+  - Changed the sidebar design a little.
 - Changes to DWM:
+  - Thememods located in resource pack `init` are now built-in and deleted from
+    the resource pack. This does not mean that ThemeMods are deprecated.
+  - Optimized memory usage, which now displays on the console's title.
   - Fixed issues with non-aero themes having issues with background filling.
   - The `Shivtanium` theme now has a gray background, making this a fully gray
-    theme. The centering has also been fixed.
-  - Fixed more issues with Windows 11.
-  - It is now compiled with BXF.
-  - Fixed offloading & loading memory from files.
+    theme. The centering has also been fixed. It also doesn't contain the
+	Shivtanium logo sprite, it now only points to it to reduce memory usage.
+  - Fixed all issues with Windows 11.
+  - DWM is now compiled with BXF.
+  - Fixed issues with offloading & loading memory from files.
 - Bugfixes:
+  - Fixed error screen for "{Temp directory deletion}" freezing instead of
+    showing a halt screen.
+  - Made theme loading from external resource packs safer.
+  - Fixed window centering issues for many programs. (off by 1 character)
+  - Fixed the config API being unsafe with exclamation marks.
   - Fixed issues with the Git repository having BXF applications with Unix line
     endings (`LF`) instead of Windows line endings (`CRLF`) causing them to fail
     to compile. With that, the build on the Git repository is now fully stable.
   - *No GUI boot* causing an infinite black screen.
-  - `systemb-control-panel` - Changing the user theme not saving changes.
+  - `systemb-control-panel`
+    - Using deprecated variables (`sys.dir` instead of `sst.dir`) leading to
+	  save fails.
+    - Changing the user theme not saving changes.
   - `systemb-desktop` - Logging off not closing user's programs.
 - The `systemb-desktop` task bar can be undocked. (recompiling required)
 - BEFI boot menu rev4: Enhanced with `getInput64.dll` (Arrow keys & scrolling)
@@ -207,17 +227,16 @@ This also includes the updated Desktop Window Manager with better window moving.
 - Window minimizing & restoring
 - Resource packs (functionallity/concept)
 - Fixing issues on Windows 11 + bugfixes & optimizations
+- Window resizing
 
 [current progress]
 
 - Task bar
-- New game
 - System updates
-- Text viewer
 - Installer
 
 ## Milestone 5 Plans
-- Window resizing
+- Text viewer
 - Notifications
 - Multilanguism
 - Sprite Viewer
@@ -226,13 +245,15 @@ This also includes the updated Desktop Window Manager with better window moving.
 
 ## Full release plans
 - Window snapping
+- Desktop items
 - Better login screen
 - Trailer
 - Youtube videos
 - Finish up the Wiki
 
 ## Post release plans
+- Desktop items/files
 - MetroTyper
 - DOOM
 
-### And that's the predictions for the future by Shivter.
+### And those are the predictions for the future by Shivter.
