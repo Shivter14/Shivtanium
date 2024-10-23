@@ -1,6 +1,16 @@
 # Shivtanium Changelog
 This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
+## Beta 1.4.1 [build 36.3423]
+- Windows can now be moved by holding the Windows/Super key and dragging a
+  window from any point.
+- Added more icons.
+- Added the List Selection UX to the OOBE's theme selectors.
+- Added new system variable: `autorun` (list)
+  This variable can contain processes that will be started on boot.
+  Format: `"<PID of parent> <command> [<parameters>]"`
+  Example: `"0 programs\ExampleService\svc.bat" "0 systemb-textview test.txt"`
+
 ## Beta 1.4.0 [build 35.3412]
 - Added window resizing. This applies to all windows with the 3rd index of
   kernel window registery attributes being set to `1`. (Example: `001`)
@@ -232,8 +242,8 @@ This also includes the updated Desktop Window Manager with better window moving.
 [current progress]
 
 - Task bar
+- Finish Ivy Chat
 - System updates
-- Installer
 
 ## Milestone 5 Plans
 - Text viewer
