@@ -12,7 +12,7 @@ if !verStringLen! lss 15 set verStringLen=15
 
 set /a "win[svc.update]X=sys.modeW-(win[svc.update]W=15+verStringLen)-1, win[svc.update]Y=sys.modeH-(win[svc.update]H=6)-1, tempY=sys.modeH-1, contentW=(topUI=win[svc.update]W-2)-13, btn[later]X=(btn[later]B=(btn[update]X=(btn[update]B=topUI-1)-(btn[update]Z=10))-2)-(btn[later]Z=6), CBY=win[svc.update]H-2"
 set quickbuild=pt=	l1=%\e%8%\e%[A%\e%[38;^^!win[svc.update]TIcolor^^!m█^^!dwm.bottombuffer:~0,!topUI!^^!█%\e%8%\e%[C%\e%[38;^^!win[svc.update]FGcolor^^!m A new update is avaliable^^!\x^^!	l2= Version: %\e%[7m !verString:~0,%contentW%! %\e%[27m
-echo=¤CW	svc.update	!win[svc.update]X!	!sys.modeH!	!win[svc.update]W!	!win[svc.update]H!	Update Service	!sys.loginTheme! noCBUI noUnfocusedColors
+echo=¤CW	svc.update	!win[svc.update]X!	!sys.modeH!	!win[svc.update]W!	!win[svc.update]H!	Update Service	noCBUI noUnfocusedColors
 echo=¤MW	svc.update	!quickbuild!	o!CBY!=%\e%[!btn[later]X!C!btn[later]T!%\e%[C!btn[update]T!
 @sys.call registerWindow	!PID!	svc.update	!win[svc.update]X!	!win[svc.update]Y!	!win[svc.update]W!	!win[svc.update]H!	1
 for /l %%a in (!tempY! -1 !win[svc.update]Y!) do echo=¤MW	svc.update	Y=%%a
@@ -44,19 +44,21 @@ for /l %%# in () do (
 						echo=¤MW	svc.update	X=!temp.tX!	Y=!temp.tY!
 						for /l %%a in (1 1 !temp.animLen!) do (
 							set /a "w=win[svc.update]W+(temp.tW-win[svc.update]W)*%%a/temp.animLen, CBZ=CBY, CBY=(h=win[svc.update]H+(temp.tH-win[svc.update]H)*%%a/temp.animLen)-2"
-							echo=¤CW	svc.update	!temp.tX!	!temp.tY!	!w!	!h!	Update Service	!sys.loginTheme! noCBUI noUnfocusedColors
+							echo=¤CW	svc.update	!temp.tX!	!temp.tY!	!w!	!h!	Update Service	noCBUI noUnfocusedColors
 							echo=¤MW	svc.update	!quickbuild!	o!CBZ!=	o!CBY!=%\e%[!btn[later]X!C!btn[later]T!%\e%[C!btn[update]T!
 						)
 					) else echo=¤DW	svc.update
 					set /a "win[svc.update]X=temp.tX, win[svc.update]Y=temp.tY, win[svc.update]W=temp.tW, win[svc.update]H=temp.tH, contentW=(topUI=win[svc.update]W-2)-13, btn[later]X=(btn[later]B=(btn[update]X=(btn[update]B=topUI-1)-(btn[update]Z=7))-2)-(btn[later]Z=6), CBY=win[svc.update]H-2"
 					set "btn[update]T= Update "
 					set quickbuild=pt=	l1=%\e%8%\e%[A%\e%[38;^^!win[svc.update]TIcolor^^!m█^^!dwm.bottombuffer:~0,!topUI!^^!█%\e%8%\e%[C%\e%[38;^^!win[svc.update]FGcolor^^!m A new update is avaliable^^!\x^^!	l2= Version: %\e%[7m !verString:~0,%contentW%! %\e%[27m
-					echo=¤CW	svc.update	!temp.tX!	!temp.tY!	!temp.tW!	!temp.tH!	Update Service	!sys.loginTheme! noCBUI noUnfocusedColors
+					echo=¤CW	svc.update	!temp.tX!	!temp.tY!	!temp.tW!	!temp.tH!	Update Service	noCBUI noUnfocusedColors
 					echo=¤MW	svc.update	!quickbuild!	o!CBY!=%\e%[!btn[later]X!C!btn[later]T!%\e%[C!btn[update]T!
 					@sys.call modifyWindowProperties	svc.update	!temp.tX!	!temp.tY!	!temp.tW!	!temp.tH!
 					set x= & set y= & set w= & set h= & set temp.tX= & set temp.tY= & set temp.tW= & set temp.tH=
 					set moreInfoShown=True
 				) else (
+					echo=¤MW	svc.update	o!CBY!=	l!CBY!= Please wait. . .
+					call :updateNow
 					@sys.exit
 				)
 			)
@@ -68,3 +70,68 @@ for /l %%# in () do (
 		)
 	@sys.handleStdEvents
 )
+:updateNow
+if not exist "!sst.root!" (
+	call :errorbox "Update failed" "'sst.root' does not exist."
+	exit /b 1
+)
+set "targetdir=!sst.root!\Shivtanium !update.tag! !update.ver! !update.subvinfo!"
+if exist "!targetdir!" (
+	call :errorbox "Update failed" "The destination already exists:" "~:\Shivtanium !update.tag! !update.ver! !update.subvinfo!" "You might have already updated." "Reboot into the newer installation."
+	exit /b 1
+)
+
+md "!targetdir!" || (
+	call :errorbox "Update failed" "Failed to create destination folder:" "~:\Shivtanium !update.tag! !update.ver! !update.subvinfo!"
+	exit /b 1
+)
+call :errorbox "Update failed" "Unfinished. Developer bugcheck."
+exit /b 1
+
+
+echo=¤CW	!PID!.getAssets	5	3	84	8	Downloading assets	classic noCBUI
+>>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.getAssets	5	3	84	8
+set contentW=80
+echo=¤MW	!PID!.getAssets	l2=  Downloading %\e%[7m %%~a %\e%[27m . . .	l4=  %% Total    %% Received %% Xferd  Average Speed   Time    Time     Time  Current	l5=                                 Dload  Upload   Total   Spent    Left  Speed
+cd "!sst.dir!\resourcepacks\init\sounds" || exit 1
+curl -o "%%~a" "https://raw.githubusercontent.com/Shivter14/Shivtanium/main/C/Shivtanium/resourcepacks/init/sounds/%%~a" 2>&1 | call "!sst.dir!\core\streamIntoWindow" !PID!.getAssets	l6=  
+if errorlevel 1 (
+	call :errorbox "Failed to download assets" "The following file failed to download:" "%\e%[7m %%~a %\e%[27m" "Reason: %\e%[7m curl error !errorlevel! %\e%[27m"
+) else if not exist "%%a" (
+	call :errorbox "Failed to download assets" "The following file failed to download:" "%\e%[7m %%~a %\e%[27m" "Reason: Generic error !errorlevel!"
+)
+echo=¤DW	!PID!.getAssets
+>>"!sst.dir!\temp\kernelPipe" echo=unRegisterWindow	!PID!.getAssets
+cd "!sst.dir!" || exit 1
+set "asset[\sounds\%%~a]=!sst.dir!\resourcepacks\init\sounds\%%~a"
+
+@sys.call unRegisterWindow	svc.update
+echo=¤DW	svc.update
+
+exit /b
+:errorbox
+set halt.title=
+set halt.winparams=
+set halt.winW=16
+set lines=1
+for %%a in (%*) do (
+	set "msg=#%%~a"
+	set "msglen=0"
+	for /l %%b in (9,-1,0) do (
+		set /a "msglen|=1<<%%b"
+		for %%c in (!msglen!) do if "!msg:~%%c,1!" equ "" set /a "msglen&=~1<<%%b"
+	)
+	
+	if not defined halt.title (
+		set /a msglen+=13
+		set "halt.title=%%~a"
+	) else (
+		set /a "msglen+=6, lines+=1"
+		set "halt.winparams=!halt.winparams!	l!lines!=  %%~a"
+	)
+	if !msglen! gtr !halt.winW! set "halt.winW=!msglen!"
+)
+set /a "halt.winH=lines + 4"
+
+@sys.call createProcess	!PID!	systemb-dialog 5 3 !halt.winW! !halt.winH! "!halt.title!	classic noCBUI" "!halt.winparams!" w-buttonW-2 h-2 7 " Close "
+exit /b 0
