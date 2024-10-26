@@ -167,7 +167,7 @@ set y=
 echo=¤MW	!PID!.oobe	l2=	l4=	l5=	l6=	l8=	o10=
 if errorlevel 1 goto accountsetup
 :loginTheme
-set buttons=BGthemePrev BGthemeNext FGthemePrev FGthemeNext
+set buttons=BGtheme FGtheme
 
 
 set "l2=Customization  [ 1 / 2 ]      "
@@ -201,35 +201,35 @@ if !sys.modeW! lss 104 (
 	echo=registerWindow	!PID!	!PID!.oobe	!win[%PID%.oobe]X!	!win[%PID%.oobe]Y!	!win[%PID%.oobe]W!	!win[%PID%.oobe]H!	1
 ) >> "!sst.dir!\temp\kernelPipe"
 echo=¤MW	!PID!.oobe	l2=  !l2:~0,24!	l5=  !l5!	l8=  !l8!
-for /l %%a in (1 1 9) do echo=¤MW	!PID!.oobe^
-	l6=%\e%[%%aC%\e%[7m%\e%[4%%aX%\e%[27m	l9=%\e%[%%aC%\e%[7m%\e%[4%%aX%\e%[27m
+set /a "themeCount=1, themeSNW=win[!PID!.oobe]W-9, btn[FGtheme]Y=(btn[usertheme]Y=btn[BGtheme]Y=6)+3"
+
+for /l %%a in (1 6 !themeSNW!) do echo=¤MW	!PID!.oobe^
+	l6=  %\e%[7m%\e%[4%%aX%\e%[27m	l9=  %\e%[7m%\e%[4%%aX%\e%[27m
 
 if not defined selectedBGTheme set "selectedBGTheme=1"
 if not defined selectedFGTheme set "selectedFGTheme=1"
 
-set /a "themeCount=1, themeSNW=win[!PID!.oobe]W-15, btn[FGthemeNext]Y=(btn[userthemeNext]Y=btn[BGthemeNext]Y=btn[themePrev]Y=6)+3"
 for %%a in (FG BG user) do (
-	set "btn[%%athemePrev]=:setTheme %%a -"
-	set "btn[%%athemeNext]=:setTheme %%a +"
-	set /a "btn[%%athemePrev]Y=btn[%%athemeNext]Y, btn[%%athemeNext]BX=(btn[%%athemeNext]X=(btn[%%athemePrev]BX=(btn[%%athemePrev]X=3)+2)+2)+2"
+	set "btn[%%atheme]=:setTheme %%a"
+	set /a "btn[%%atheme]BX=win[!PID!.oobe]W-4"
 )
 set theme[1]=lo-fi
-for /f "delims=" %%R in ('dir /b /a:D "!sst.dir!\resourcepacks"') do for /f "delims=" %%T in ('dir /b /a:-D "!sst.dir!\resourcepacks\%%~nxR\themes"') do if "%%~nT" neq "lo-fi" if /I "%%~xT" neq ".themeMod" (
+for /f %%R in (!sys.activeResourcePacks!) do for /f "delims=" %%T in ('dir /b /a:-D "!sst.dir!\resourcepacks\%%~nxR\themes"') do if "%%~nT" neq "lo-fi" if /I "%%~xT" neq ".themeMod" (
 	set /a themeCount+=1
 	set "theme[!themeCount!]=%%~nxT"
 )
 if defined theme[!selectedBGTheme!] echo=¤CTRL	APPLYTHEME	!theme[%selectedBGTheme%]!
 
 echo=¤MW	!PID!.oobe	l2=  !l2:~0,26!	l5=  !l5!	l8=  !l8!^
-	o6=%\e%[3C ◄ %\e%[C ► 	l6=%\e%[10C%\e%[7m %\e%[!themeSNW!X!theme[%selectedBGTheme%]!%\e%[27m^
-	o9=%\e%[3C ◄ %\e%[C ► 	l9=%\e%[10C%\e%[7m %\e%[!themeSNW!X!theme[%selectedFGTheme%]!%\e%[27m
+	l6=  %\e%[7m %\e%[!themeSNW!X!theme[%selectedBGTheme%]:~0,%themeSNW%!%\e%[27m^
+	l9=  %\e%[7m %\e%[!themeSNW!X!theme[%selectedFGTheme%]:~0,%themeSNW%!%\e%[27m
 
 call :pagewait
 for /l %%a in (!themeSNW! -4 4) do (
-	set /a "y=(z=(x=themeSNW-%%a+3)+1)+7"
+	set /a "z=(x=themeSNW-%%a+3)+1"
 	echo=¤MW	!PID!.oobe	l2=%\e%[!x!C!l2:~0,%%a!!l2:~%%a,4!	l5=%\e%[!x!C!l5:~0,%%a!!l4:~%%a,4!	l8=%\e%[!x!C!l8:~0,%%a!!l4:~%%a,4!^
-	o6=%\e%[!z!C ◄ %\e%[C ► 	l6=%\e%[!y!C%\e%[7m %\e%[%%aX!theme[%selectedBGTheme%]:~0,%%a!%\e%[27m^
-	o9=%\e%[!z!C ◄ %\e%[C ► 	l9=%\e%[!y!C%\e%[7m %\e%[%%aX!theme[%selectedFGTheme%]:~0,%%a!%\e%[27m
+	l6=%\e%[!z!C%\e%[7m %\e%[%%aX!theme[%selectedBGTheme%]:~0,%%a!%\e%[27m^
+	l9=%\e%[!z!C%\e%[7m %\e%[%%aX!theme[%selectedFGTheme%]:~0,%%a!%\e%[27m
 )
 echo=¤MW	!PID!.oobe	l2=	l5=	l6=	l8=	l9=	o6=	o9=
 echo=¤FOCUS	!PID!.oobe
@@ -599,9 +599,18 @@ set /a "halt.winH=lines + 4"
 @sys.call createProcess	!PID!	systemb-dialog 5 3 !halt.winW! !halt.winH! "!halt.title!	classic noCBUI" "!halt.winparams!" w-buttonW-2 h-2 7 " Close "
 exit /b 0
 :setTheme
-set /a "selected%~1Theme%~2=1"
-if !selected%1Theme! gtr !themeCount! set "selected%~1Theme=1"
-if !selected%1Theme! lss 1 set "selected%~1Theme=!themeCount!"
+set /a "win[!PID!.lsux]X=win[!PID!.oobe]X+3, win[!PID!.lsux]Y=win[!PID!.oobe]Y+btn[%~1theme]Y"
+set lsux.list=theme
+set lsux.itemCount=!themeCount!
+set "theme[!selected%~1Theme!]o=o"
+cmd /c listSelectionUX.bat
+set "theme[!selected%~1Theme!]o="
+if errorlevel 1 (
+	set "selected%~1Theme=!errorlevel!"
+) else if errorlevel 0 (
+	exit /b
+) else exit 0
+
 if "%~1"=="BG" (
 	echo=¤CTRL	APPLYTHEME	!theme[%selectedBGTheme%]!
 	echo=¤MW	!PID!.oobe	o6=%\e%[3C ◄ %\e%[C ► 	l6=%\e%[10C%\e%[7m %\e%[!themeSNW!X!theme[%selectedBGTheme%]!%\e%[27m
