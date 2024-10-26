@@ -19,7 +19,10 @@ if /I "%~1"=="/forceoobe" (
 	call :createProcess 0	systemb-oobe.bat
 ) else (
 	if exist "!asset[\sounds\boot.mp3]!" start "<Shivtanium startup sound handeler> (ignore this)" /min cscript.exe //b core\playsound.vbs "!asset[\sounds\boot.mp3]!"
-	for %%a in (!sst.autorun!) do call :createProcess %%~a
+	for %%a in (!sst.autorun!) do (
+		>&2 echo=[!date! !time!] Launching startup process: %%~a
+		call :createProcess %%~a
+	)
 )
 set sst.autorun=
 set sys.keys=
@@ -331,7 +334,10 @@ for /l %%# in () do (
 			if not exist "!sst.dir!\temp\DWM-offload" md "!sst.dir!\temp\DWM-offload" || call :kernelPanic "Function minimizeWindow failed" "Failed to create directory: ~\temp\DWM-offload\nProcess: %%~1\nWindow: %%~2"
 			if exist "!sst.dir!\temp\DWM-offload\snapshot.%%~2" call :kernelPanic "Function minimizeWindow failed" "Window is already minimized"
 			(
+				echo=¤CTRL	DUMP	wut[%%~2]=^^!win[%%~2]title^^!	nul
 				echo=¤CTRL	DUMP	win[%%~2]	"!sst.dir!\temp\DWM-offload\snapshot.%%~2"
+				echo=¤CTRL	DUMP	win[%%~2]title=^^!wut[%%~2]^^!	nul
+				echo=¤CTRL	DUMP	wut[%%~2]=	nul
 				echo=¤DW	%%~2
 			) >&3
 			set "win[%%~2]off=1"
@@ -349,7 +355,9 @@ for /l %%# in () do (
 			) else set /a ioTotal+=1
 			(
 				if defined win[%%~2]off (
+					echo=¤CTRL	DUMP	win[%%~2]	"!sst.dir!\temp\DWM-offload\pending.%%~2"
 					echo=¤CTRL	LOAD	"!sst.dir!\temp\DWM-offload\snapshot.%%~2"	/deleteAfterLoad
+					echo=¤CTRL	LOAD	"!sst.dir!\temp\DWM-offload\pending.%%~2"	/deleteAfterLoad
 					echo=¤MW	%%~2	x=!win[%%~2]X!	y=!win[%%~2]Y!
 				)
 				echo=¤FOCUS	%%~2
@@ -400,7 +408,7 @@ set PID=!random!
 if "!processes!" neq "!processes: %PID% =!" goto createProcess
 if exist "temp\proc\PID-!PID!" goto createProcess
 set args=%*
-for /f "tokens=1* delims=	" %%a in ("!args!") do (
+for /f "tokens=1*" %%a in ("!args!") do (
 	set "pid[!PID!]parent=%%~a"
 	set "pid[%%~a]subs=!pid[%%~a]subs! "!PID!""
 	set "args=%%b"
