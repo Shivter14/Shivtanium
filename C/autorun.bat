@@ -1,6 +1,6 @@
 @echo off & setlocal enabledelayedexpansion
 
-	%= Standard BEFI boot menu rev5 =%
+	%= Standard BEFI boot menu rev6 =%
 	     %= Created by Shivter =%
 
 if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
@@ -71,7 +71,7 @@ set /a sst.boot.more=current - (scrollE=scrollY+modeH-9)
 if !scrollE! geq !current! set /a scrollY+=sst.boot.more
 set /a sst.boot.more=current - (scrollE=scrollY+modeH-9)
 
-if not defined getInputInitialized set "sst.boot.control_ui=%\e%[4;3HControlls: W = up, S = down, X = select, E = quit, P = set parameters"
+if not defined SSVM.BEFI set "sst.boot.control_ui=%\e%[4;3HControlls: W = up, S = down, X = select, E = quit, P = set parameters"
 set "framebuffer=%\e%[?25l%\e%[0m%\e%[38;2;0;0;0;48;2;255;255;255m%\e%[H%\e%[2K BEFI Boot Menu%\e%[48;2;0;0;0;38;2;255;255;255m%\e%[E%\e%[3;3HSelect an operating system.!sst.boot.control_ui!%\e%[999;3H%\e%[A!parameters_disp!%\e%[5;3H"
 for /l %%a in (!scrollY! 1 !scrollE!) do if defined temp.bootentry[%%a] (
 	set "temp.prefix=%\e%[48;2;0;0;0m"
@@ -85,7 +85,7 @@ if !sst.boot.more! gtr 0 set "framebuffer=!framebuffer!%\e%[E   ... !sst.boot.mo
 
 if "%~0"==":bootmenu.main" exit /b
 :bootmenu.loop
-if defined getInputInitialized (
+if defined SSVM.BEFI (
 	for /l %%# in (1 1 500) do (
 		set "sst.boot.keys= !keysPressed!"
 		set "sst.boot.keysRN=!sst.boot.keys:-= !"
@@ -116,9 +116,12 @@ if defined getInputInitialized (
 		) else if "!click!"=="4" (
 			set input=3
 			<nul set /p "=%\e%[48;2;0;0;0;38;2;255;255;255m%\e%[H%\e%[2J"
+		) else if "!sst.boot.keysRN!" neq "!sst.boot.keysRN: 80 =!" (
+			set input=5
 		)
 	)
 	if "!input!" == "3" goto bootmenu.boot
+	if "!input!" == "5" goto bootmenu.setparams
 	goto bootmenu.loop
 )
 choice /C "swxep" /N !temp.choices! > nul
@@ -133,9 +136,11 @@ if "!input!"=="2" (
 	if !selection! lss 1 set selection=1
 )
 if "!input!"=="4" exit /b 0
+:bootmenu.setparams
 if "!input!"=="5" (
 	set parameters=
 	set /p "parameters=%\e%[?25h%\e%[0m%\e%[38;2;0;0;0;48;2;255;255;255m%\e%[H%\e%[2K BEFI Boot Menu%\e%[48;2;0;0;0;38;2;255;255;255m%\e%[E%\e%[0J%\e%[3;4HType your parameters:%\e%[5;4H%\e%[38;2;0;0;0;48;2;255;255;255m%\e%[2K"
+	set "sst.boot.keysPressedOld=!keysPressed!"
 	set "parameters_disp=!parameters:~0,%textW%!"
 )
 if "!input!" neq "3" goto bootmenu.main
