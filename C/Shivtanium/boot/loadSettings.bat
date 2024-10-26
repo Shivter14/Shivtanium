@@ -11,7 +11,7 @@ set "sys.fontW=8"
 set "sys.fontH=16"
 set "sys.font=MxPlus IBM VGA 8x16"
 
-if not defined sst.autorun set sst.autorun="0 systemb-login"
+if not defined sst.autorun set sst.autorun="0	systemb-login"
 
 for /f "usebackq tokens=1* delims==" %%a in ("!sst.dir!\settings.dat") do set "sys.%%~a=%%~b"
 if defined sys.autorun (
