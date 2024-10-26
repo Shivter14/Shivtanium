@@ -20,8 +20,8 @@ for /l %%# in () do (
 	)
 	@sys.pullEvents
 	@sys.onEventRaw "!kernelOut!;!focusedWindow!"=="click=1;systemb_taskbar"
-		if !mouseXpos! geq !launcherX! (
-			if !mouseXpos! leq !launcherBX! call :launcher
+		if !mouseXpos! geq !launcherX! if !mouseXpos! leq !launcherBX! (
+			call :launcher
 		) else (
 			set /a "temp.bY=(temp.bX=launcherBX+2)+WinDispW-1"
 			for %%w in (!windowsT!) do (
