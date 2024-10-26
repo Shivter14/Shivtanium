@@ -46,7 +46,7 @@ if not defined sys.username call systemb-dialog.bat (sys.modeW-w)/2 (sys.modeH-h
 if not defined sys.UPID     call systemb-dialog.bat (sys.modeW-w)/2 (sys.modeH-h)/2 48 6 "Control Panel" "l2=  Something went wrong:	l3=    Missing parameter: --UPID"     w-buttonW-2 h-2 7 " Close "
 set /a PID=PID
 set /a "pagesBY=5, currentPage=2, contentWp=(contentW=(win[!PID!.control]W=64)-(sidebarW=16)-4)-1, contentH=(inbH=(win[!PID!.control]H=16)-1)-1, win[!PID!.control]X=(sys.modeW-win[!PID!.control]W)/2+1, win[!PID!.control]Y=(sys.modeH-win[!PID!.control]H)/2"
-echo=¤CW	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!	Control Panel
+echo=¤CW	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!	¤ Control Panel
 @sys.call registerWindow	!PID!	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!
 
 set user.globalTheme=aero
