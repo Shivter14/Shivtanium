@@ -1,6 +1,6 @@
 tag=Beta
-ver=1.4.0
-subvinfo=[build 36.3426]
+ver=1.4.1
+subvinfo=[build 37.3503 GIT]
 font=MxPlus IBM VGA 8x16
 fontH=16
 fontW=8
@@ -11,5 +11,5 @@ noResize=True
 reduceMotion=False
 textMode=default
 useAltWinCtrlChars=False
-windowManager=dwm.bat
-activeResourcePacks=init
+windowManager=batchWindows.bat
+activeResourcePacks=init discord_themes
