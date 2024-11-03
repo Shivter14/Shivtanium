@@ -262,14 +262,14 @@ set bxf.failed=
 cd "!sst.dir!" || exit /b
 
 set BXF_toCompile=0
-for %%F in (dwm.bxf "systemb\*.bxf" "boot\*.bxf") do if not exist "%%~dpnF.bat" set /a BXF_toCompile+=1
+for %%F in ("*.bxf" "systemb\*.bxf" "boot\*.bxf") do if not exist "%%~dpnF.bat" set /a BXF_toCompile+=1
 if !BXF_toCompile! leq 0 exit /b 0
 call :startup.submsg "!sst.boot.msg!" "Starting !BXF_toCompile! threads" !BXF_toCompile! 0
 
 call "%~f0" :compileBXF.main | call "%~f0" :compileBXF.manageThreads
 exit /b
 :compileBXF.main
-for %%F in (dwm.bxf "systemb\*.bxf" "boot\*.bxf") do if not exist "%%~dpnF.bat" (
+for %%F in ("*.bxf" "systemb\*.bxf" "boot\*.bxf") do if not exist "%%~dpnF.bat" (
 	start /b cmd /c "%~f0" :compileBXF.thread %%F
 )
 exit /b
