@@ -134,6 +134,10 @@ for /l %%# in () do (
 					echo=win[!movingWindow!]Y=!tempY!
 					set movingWindow=& set tempX=& set tempY=& set movingWindowOffsetX=& set movingWindowOffsetY=
 				) else if defined resizingWindow (
+					if "!temp.pendingResize!"=="True" (
+						echo=¤CW	!resizingWindow!	!tempX!	!tempY!	!tempW!	!tempH!	^^!win[!resizingWindow!]title:~1^^!	^^!win[!resizingWindow!]theme^^!
+						echo=¤CTRL	DUMP	mainbuffer=^^!dwm.scene^^!	nul
+					) >&3
 					set /a ioTotal+=8
 					echo=win[!resizingWindow!]X=!tempX!
 					echo=win[!resizingWindow!]Y=!tempY!
@@ -183,9 +187,13 @@ for /l %%# in () do (
 			)
 			set x=& set low=
 			if "!sys.mouseXold!;!sys.mouseYold!" neq "!sys.mouseXpos!;!sys.mouseYpos!" (
+				set temp.pendingResize=True
+			)
+			if "!random:~0,1!;!temp.pendingResize!"=="1;True" (
 				echo=¤CW	!resizingWindow!	!tempX!	!tempY!	!tempW!	!tempH!	^^!win[!resizingWindow!]title:~1^^!	^^!win[!resizingWindow!]theme^^!
 				echo=¤CTRL	DUMP	mainbuffer=^^!dwm.scene^^!	nul
-			)>&3
+				set temp.pendingResize=
+			) >&3
 		) else if "!sys.click!" neq "0" (
 			if "!sys.mouseXpos!" neq "!sys.mouseXold!" if !sys.mouseXpos! geq 1 if !sys.mouseXpos! leq !sys.modeW! (
 				set /a ioTotal+=1
