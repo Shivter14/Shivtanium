@@ -1,0 +1,11 @@
+scene=[H[0;48;2;15;;m[2J
+sceneBGcolor=2;15;;
+BGcolor=2;15;;
+FGcolor=5;196
+TIcolor=5;52
+TTcolor=5;160
+NIcolor=2;64;;
+NTcolor=5;88
+CBUI=[38;5;231;48;2;127;;m - [48;2;191;;m □ [48;2;255;;m × 
+aero=
+winAero=
