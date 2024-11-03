@@ -17,7 +17,7 @@
 	if !posY! lss 0 set /a scrollpos+=posY
 	set addressbar=
 	for /f "delims==" %%a in ('set item 2^>nul') do set "%%a="
-	set /a "pos=0, spacingW=2, spacingH=1, iconC=(iconW=16)-1, iconVH=(iconH=7)-1, gridW=(ftW=rsW=win[!PID!.explorer]W - sidebarW - 4) / (iconW + spacingW), gfY=(rsH=win[!PID!.explorer]H - 3) / (iconH + spacingH), win[!PID!.explorer]RH=win[!PID!.explorer]H-1, ftW+=2, closeButtonX=win[!PID!.explorer]W-3+CBUIOffset"
+	set /a "pos=0, spacingW=2, spacingH=1, iconC=(iconW=16)-1, iconVH=(iconH=7)-1, gridW=(ftW=rsW=win[!PID!.explorer]W - sidebarW - 4) / (iconW + spacingW), gfY=(rsH=win[!PID!.explorer]H - 3) / (iconH + spacingH), contentH=(win[!PID!.explorer]RH=win[!PID!.explorer]H-1)-1, ftW+=2, closeButtonX=win[!PID!.explorer]W-3+CBUIOffset"
 	for /f "delims=^!*" %%F in ('dir /b /o:N /a:D 2^>nul ^& dir /b /o:N /a:-D 2^>nul') do (
 		set /a "posX=pos %% gridW, posY=(lines=pos / gridW) - scrollpos, pos+=1"
 		if !posY! geq 0 if !posY! leq !gfY! (
@@ -87,9 +87,13 @@
 	for /f %%f in ("!ftw!") do set "l1=%\e%[!sidebarW!C%\e%[D!dcd:~-%%f!"
 	set "o1=!o1!%\e%8 %\e%[7m ▲ %\e%[27m"
 	set "o!win[%PID%.explorer]RH!=%\e%[!win[%PID%.explorer]W!X"
-	set "pipe=¤MW	!PID!.explorer"
-	@dwm.preparePipe "targetWin=!PID!.explorer" "from=1" "to=!win[%PID%.explorer]RH!"
-	@dwm.flushPipe
+	for /l %%a in (2 1 !contentH!) do (
+		echo=¤TW	!PID!.explorer	l%%a=!l%%a!
+	)
+	set "pipe=¤MW	!PID!.explorer	l1=!l1!"
+	for /l %%a in (1 1 !win[%PID%.explorer]RH!) do set "pipe=!pipe!	o%%a=!o%%a!"
+	echo=!pipe!
+	set pipe=
 #end
 set /a "win[!PID!.explorer]W=sys.modeW*2/3, win[!PID!.explorer]H=sys.modeH*2/3, win[!PID!.explorer]X=3, win[!PID!.explorer]Y=2"
 if !win[%PID%.explorer]W! lss 32 (
