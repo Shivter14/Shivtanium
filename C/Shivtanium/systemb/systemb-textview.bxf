@@ -1,13 +1,18 @@
-#import sys.bxf
+#import sys.bxf, str.bxf
 set "filePath=%~f1"
 set "fileName=%~nx1"
 set /a "closeButtonX=(contentW=(win[!PID!.txt]W=sys.modeW/2)-2)-2, win[!PID!.txt]H=sys.modeH/2, win[!PID!.txt]X=sys.modeW/4+1, win[!PID!.txt]Y=sys.modeH/4, contentH=bufferedLines=win[!PID!.txt]H-2"
 echo=¤CW	!PID!.txt	!win[%PID%.txt]X!	!win[%PID%.txt]Y!	!win[%PID%.txt]W!	!win[%PID%.txt]H!	!fileName!
 >>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.txt	!win[%PID%.txt]X!	!win[%PID%.txt]Y!	!win[%PID%.txt]W!	!win[%PID%.txt]H!
+if not exist "!filePath!" goto filenotfound
 (
 set buffer=¤MW	!PID!.txt
 for /l %%a in (1 1 !bufferedLines!) do (
-	<&3 set /p "f%%a=" && set "f%%a=!f%%a:~0,%contentW%!"
+	<&3 set /p "f%%a=" && (
+		set "f%%a=!f%%a:	=  !"
+		set "f%%a=!f%%a:~0,%contentW%!"
+		set "f%%a=!f%%a:?=¿!"
+	)
 	set "buffer=!buffer!	l%%a=!f%%a!"
 )
 echo=!buffer!
@@ -22,3 +27,9 @@ for /l %%# in () do (
 	@sys.handleStdEvents
 )
 ) 3<"!filePath!"
+exit /b
+:filenotfound
+@str.getlen "str=%~1 " "return=errboxTW"
+set "filePath=%~1 "
+set /a "low=32, high=win[!PID!.txt]W-6, errwinW=(leq=((low-x)>>31)+1)*low+(geq=((x-high)>>31)+1)*high+^^^!(leq+geq)*x + 7, textW=errwinW-7"
+call systemb-dialog.bat !win[%PID%.txt]X!+3 !win[%PID%.txt]Y!+2 errwinW 8 "systemb-textview" "l2=  File not found:	l3=  %\e%[7m !filePath:~0,%textW%!%\e%[27m" w-buttonW-2 h-2 7 " Close "
