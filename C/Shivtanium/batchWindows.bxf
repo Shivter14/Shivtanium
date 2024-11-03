@@ -17,6 +17,10 @@
 	set temp.bl= & set temp.h=
 #end
 @echo off & setlocal enabledelayedexpansion
+if "%~1"=="--ver" (
+	echo=BatchWindows version 1.0.0
+	exit /b
+)
 if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
 set \x=^^!
 set \q=^?
@@ -49,7 +53,15 @@ for /l %%# in () do (
 	)
 	set /p input= && if "!input:~0,1!"=="¤" for /f "tokens=1-8* delims=	" %%0 in ("!input:~1!") do (
 		set win.redraw=!win.order!
-		if "%%~0"=="MW" (
+		if "%%~0"=="TW" (
+			if "%%~1"=="+" (
+				set "win[%%~2]%%~3"
+			) else (
+				set "args=!input:~4!"
+				set "win[%%~1]!args:*	=!"
+			)
+			set win.redraw=
+		) else if "%%~0"=="MW" (
 			set "oldX=!win[%%~1]X!"
 			set "oldY=!win[%%~1]Y!"
 			set "oldW=!win[%%~1]W!"
