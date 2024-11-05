@@ -14,13 +14,30 @@ set "sys.font=MxPlus IBM VGA 8x16"
 if not defined sst.autorun set sst.autorun="0	systemb-login"
 
 for /f "usebackq tokens=1* delims==" %%a in ("!sst.dir!\settings.dat") do set "sys.%%~a=%%~b"
+(
+	>&2 echo=[!date! !time!] Shivtanium version !sys.tag! !sys.ver! !sys.subvinfo!
+	>&2 echo=[!date! !time!] [Startup/loadSettings] Translating variables:
+	for %%a in (
+		sys.boot.fadeout:sst.boot.fadeout
+		sys.wmReqChainLimit:dwm.commandChainLimit
+		PROCESSOR_ARCHITECTURE:sys.CPU.architecture:1
+		PROCESSOR_IDENTIFIER:sys.CPU.identifier
+		PROCESSOR_LEVEL:sys.CPU.level
+		PROCESSOR_REVISION:sys.CPU.revision
+		NUMBER_OF_PROCESSORS:sys.CPU.count:1
+	) do for /f "tokens=1-3 delims=:" %%i in ("%%~a") do if defined %%i (
+		set "%%j=!%%i!"
+		set "%%i="
+		if defined %%j (
+			>&2 echo=    %%i -^> %%j ^| !%%i!
+		) else if "%%~k"=="1" call main.bat :halt "%~n0" "Failed to translate variable: %%i -> %%j"
+	)
+)
+
 if defined sys.autorun (
+	>&2 echo=[!date! !time!] [Startup/loadSettings] Additional startup tasks: !sys.autorun!
 	set sst.autorun=!sst.autorun! !sys.autorun!
 	set sys.autorun=
-)
-if defined sys.boot.fadeout (
-	set sst.boot.fadeout=!sys.boot.fadeout!
-	set sys.boot.fadeout=
 )
 if defined sys.textMode if /I "!sys.textMode!" neq "default" (
 	for /f "delims=" %%a in ("!sys.textMode!") do set "sys.textMode=!sst.boot.textmode[%%~a]!"
@@ -29,6 +46,7 @@ if defined sys.textMode (
 	set /a "sys.modeW=!sys.textMode:,=,sys.modeH=!"
 	if !sys.modeW! lss 64 set sys.modeW=64
 	if !sys.modeH! lss 16 set sys.modeW=16
+	>&2 echo=[!date! !time!] [Startup/loadSettings] Changing text mode to !sys.modeW! columns, !sys.modeH! lines
 	>>"!sys.dir!\temp\bootStatus-!sst.localtemp!" echo=¤MODE !sys.modeW!,!sys.modeH!
 	set sys.textMode=
 )
@@ -42,20 +60,6 @@ set dwm.TTcolor=5;231
 set dwm.NIcolor=5;4
 set dwm.NTcolor=5;7
 set dwm.CBUI=%\e%[38;5;231m%\e%[48;2;0;192;192m - %\e%[48;2;0;255;255m □ %\e%[48;2;255;0;0m × 
-
-for %%a in (
-	"PROCESSOR_ARCHITECTURE=sys.CPU.architecture"
-	"PROCESSOR_IDENTIFIER=sys.CPU.identifier"
-	"PROCESSOR_LEVEL=sys.CPU.level"
-	"PROCESSOR_REVISION=sys.CPU.revision"
-	"NUMBER_OF_PROCESSORS=sys.CPU.count"
-	"FIRMWARE_TYPE=sys.FIRMWARE_TYPE"
-	"USERNAME=sys.host.USERNAME"
-) do for /f "tokens=1,2 delims==" %%b in ("%%~a") do (
-	set "%%~c=!%%~b!"
-	set "%%~b="
-	if "!%%~c!"=="" call main.bat :halt "%~nx0:loadSettings" "Failed to define variable translation:\n%%~c = %%~b"
-)
 
 if not defined \a for /f "delims=" %%A in ('forfiles /p "%~dp0." /m "%~nx0" /c "cmd /c echo(0x07"') do set "\a=%%A"
 
