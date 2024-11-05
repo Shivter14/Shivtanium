@@ -1,7 +1,26 @@
 # Shivtanium Changelog
 This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
-## Beta 1.4.1 [build 36.3423]
+## Beta 1.4.1 [build 37.3505]
+- Added system logs. Usefull for diagnosing issues and realtime monitoring.
+  Logs are always redirected to `temp\kernelErr`. With this change, an old
+  feature was restored: Processes now output errors to their files
+  (`temp\PID\PID-<Process ID>`). The first line still contains the launch
+  command.
+- Changes to DWM:
+  - It has been renamed to *BatchWindows*
+  - Added new command: `TW` - Allows you to quickly modify a single attribute of
+    a window without re-drawing it. It allows all special characters such as:
+      `!`, `*`, `?`, `	` (TAB)
+    If you want remote expansion (unsafe exclamation mark handeling), you can
+    use the `+` switch. Syntax:
+      `¤TW   <window ID>   <attribute>=<string>`
+      `¤TW   <window ID>   +   <attribute>=<string (remote expansion allowed)>`
+    The following programs have been optimized to use this feature:
+      `systemb-explorer`, `systemb-textview`, `systemb-dwmtest`
+- Added Safe Mode
+  This feature can be enabled by adding the following line to `befi.dat`:
+  `boot\safemodebootlauncher.bat:--> Safe mode`
 - Windows can now be moved by holding the Windows/Super key and dragging a
   window from any point.
 - Added more icons.
@@ -10,6 +29,15 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
   This variable can contain processes that will be started on boot.
   Format: `"<PID of parent> <command> [<parameters>]"`
   Example: `"0 programs\ExampleService\svc.bat" "0 systemb-textview test.txt"`
+- Added NoGUIBoot.
+  This feature can be enabled by adding the following line to `befi.dat`:
+  `boot\noguibootlauncher.bat:--> No GUI Boot`
+- Bugfixes:
+  - Compiling many BXF applications at once causing lag on low-end processors
+    Now the maximum amount of compiling threads that can be run at once will
+    always be lower than the thread count of the host CPU.
+  - Startup processes failing on startup not showing an error message
+  - Task bar not responding to window switching/minimizing/restoring
 
 ## Beta 1.4.0 [build 35.3412]
 - Added window resizing. This applies to all windows with the 3rd index of
@@ -238,15 +266,16 @@ This also includes the updated Desktop Window Manager with better window moving.
 - Resource packs (functionallity/concept)
 - Fixing issues on Windows 11 + bugfixes & optimizations
 - Window resizing
+- Task bar
 
 [current progress]
 
-- Task bar
-- Finish Ivy Chat
 - System updates
+- Text viewer
 
 ## Milestone 5 Plans
-- Text viewer
+- Finish Ivy Chat
+- Keyboard layout switching
 - Notifications
 - Multilanguism
 - Sprite Viewer
