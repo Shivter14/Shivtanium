@@ -1,6 +1,7 @@
 @if not defined sst.dir (
 	@echo off & setlocal enableDelayedExpansion & for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a" & call :kernelPanic "Invalid environment" "The Shivtanium kernel requires to be run in main.bat"
 )
+for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t2=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100"
 for /f "tokens=1 delims==" %%a in ('set dwm. 2^>nul ^& set spr. 2^>nul ^& set ssvm. 2^>nul') do set "%%a="
 cd "!sst.dir!" || call :kernelPanic "Unable to locate system directory" "The system failed to start:\nValue sst.dir: '!sst.dir!'\n ^^^^^^  Invalid directory."
 if not exist "temp\proc" md "temp\proc"
@@ -11,17 +12,19 @@ if !sys.CPU.count! lss 4 (
 	set temp.nr=
 )
 if /I "%~1"=="/forceoobe" (
-	call :createProcess 0	systemb-oobe.bat
+	>&2 echo=[!date! !time!] [Main/INFO] Starting out-of-box experience
+	call :createProcess 0	systemb-oobe.bat || call :kernelPanic "Startup process failed to start" "The out-of-box experience was unable to start.\nThe following file might be missing/corrupt: <^%path^%>\systemb-oobe.bat"
 ) else if "%~1"=="/autorun" (
 	set args=%*
+	>&2 echo=[!date! !time!] [Main/INFO] Launching startup process: !args:*/autorun=!
 	call :createProcess 0	!args:*/autorun=!
 ) else if not exist "!sst.root!\users" (
-	call :createProcess 0	systemb-oobe.bat
+	call :createProcess 0	systemb-oobe.bat || call :kernelPanic "Startup process failed to start" "The out-of-box experience was unable to start.\nThe following file might be missing/corrupt: <^%path^%>\systemb-oobe.bat"
 ) else (
 	if exist "!asset[\sounds\boot.mp3]!" start "<Shivtanium startup sound handeler> (ignore this)" /min cscript.exe //b core\playsound.vbs "!asset[\sounds\boot.mp3]!"
 	for %%a in (!sst.autorun!) do (
-		>&2 echo=[!date! !time!] Launching startup process: %%~a
-		call :createProcess %%~a
+		>&2 echo=[!date! !time!] [Main/INFO] Launching startup process: %%~a
+		call :createProcess %%~a || call :kernelPanic "Startup process failed to start" "The out-of-box experience was unable to start.\nThe following file might be missing/corrupt: %%~a"
 	)
 )
 set sst.autorun=
@@ -30,17 +33,22 @@ set keysPressedOld=
 set "windows= "
 set "windowsT= "
 set ioTotal=0
+set frame=0
 title Shivtanium OS !sys.tag! !sys.ver! !sys.subvinfo!
 
 set "clamp=(leq=((low-x)>>31)+1)*low+(geq=((x-high)>>31)+1)*high+^^^!(leq+geq)*x"
 (
 set clamp=
 for /l %%# in () do (
-	set "keysPressedOld=!sys.keys:-= !"
+	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100, deltaTime=(t1 - t2), t2=t1, tpsTicks+=1, timer.100cs+=deltaTime"
+	if !timer.100cs! geq 100 (
+		set /a "timer.100cs%%=100, tps=tpsTicks, tpsTicks=0"
+	)
 	
+	set "keysPressedOld=!sys.keys:-= !"	
 	if "!sys.keys:~0,8!"==" -17-18-" if defined sys.keysRN (
 		if "!sys.keysRN!"=="  82 " (
-			call :kernelPanic "User triggered crash" "Shivtanium OS !sys.tag! !sys.ver! !sys.subvinfo!\nTotal IO transfers: !ioTotal!\nA memory dump has been created at: ~:\Shivtanium\temp\KernelMemoryDump\nA window manager dump has been created at: ~:\Shivtanium\temp\DWM-!sst.localtemp!-memoryDump"
+			call :kernelPanic "User triggered crash" "Shivtanium !sys.tag! !sys.ver! !sys.subvinfo!\nTotal IO transfers: !ioTotal!\nA memory dump has been created at: ~:\Shivtanium\temp\KernelMemoryDump\nA window manager dump has been created at: ~:\Shivtanium\temp\DWM-!sst.localtemp!-memoryDump"
 		) else if "!sys.keysRN!"=="  84 " (
 			echo=exit
 			set /a ioTotal+=1
@@ -157,7 +165,7 @@ for /l %%# in () do (
 	)
 	set sys.mouseXold=!sys.mouseXpos!
 	set sys.mouseYold=!sys.mouseYpos!
-	if "!random:~0,1!"=="1" (
+	if "!tpsTicks:~-1!"=="1" (
 		set sys.mouseXpos=!mouseXpos!
 		set sys.mouseYpos=!mouseYpos!
 		if "!sys.mouseXold!;!sys.mouseYold!" neq "!sys.mouseXpos!;!sys.mouseYpos!" if defined movingWindow (
@@ -189,7 +197,7 @@ for /l %%# in () do (
 			if "!sys.mouseXold!;!sys.mouseYold!" neq "!sys.mouseXpos!;!sys.mouseYpos!" (
 				set temp.pendingResize=True
 			)
-			if "!random:~0,1!;!temp.pendingResize!"=="1;True" (
+			if "!tpsTicks:~-1!;!temp.pendingResize!"=="1;True" (
 				echo=¤CW	!resizingWindow!	!tempX!	!tempY!	!tempW!	!tempH!	^^!win[!resizingWindow!]title:~1^^!	^^!win[!resizingWindow!]theme^^!
 				echo=¤CTRL	DUMP	mainbuffer=^^!dwm.scene^^!	nul
 				set temp.pendingResize=
@@ -363,7 +371,8 @@ for /l %%# in () do (
 			) else set /a ioTotal+=1
 			(
 				if defined win[%%~2]off (
-					echo=¤CTRL	DUMP	win[%%~2]	"!sst.dir!\temp\DWM-offload\pending.%%~2"
+					echo=¤CTRL	DUMP	win[%%~2]l	"!sst.dir!\temp\DWM-offload\pending.%%~2"
+					echo=¤CTRL	DUMP	win[%%~2]o	"!sst.dir!\temp\DWM-offload\pending.%%~2"	/append
 					echo=¤CTRL	LOAD	"!sst.dir!\temp\DWM-offload\snapshot.%%~2"	/deleteAfterLoad
 					echo=¤CTRL	LOAD	"!sst.dir!\temp\DWM-offload\pending.%%~2"	/deleteAfterLoad
 					echo=¤MW	%%~2	x=!win[%%~2]X!	y=!win[%%~2]Y!
@@ -422,16 +431,15 @@ for /f "tokens=1*" %%a in ("!args!") do (
 	set "args=%%b"
 )
 (
-	echo=!args!
-)>"temp\proc\PID-!PID!"
-
-set "pid[!pid!]windows= "
-set "pid[!pid!]subs= "
-set "pid[!pid!]=%~2"
-set "processes=!processes!!PID! "
-if not defined processes call :kernelPanic "Process list overflow" "The system has started too many processes,\nand it seems like the list has overflown.\nThe system cannot continue."
-set "startTime=!time!"
-start /b cmd /c preparePipe.bat !args! <"temp\kernelOut" >&3
+	>&2 echo=!args!
+	set "pid[!pid!]windows= "
+	set "pid[!pid!]subs= "
+	set "pid[!pid!]=%~2"
+	set "processes=!processes!!PID! "
+	if not defined processes call :kernelPanic "Process list overflow" "The system has started too many processes,\nand it seems like the list has overflown.\nThe system cannot continue."
+	set "startTime=!time!"
+	start /b cmd /c preparePipe.bat !args! <"temp\kernelOut" >&3
+) 2>"temp\proc\PID-!PID!"
 exit /b
 :killProcessTree
 set "PID=%~1"
@@ -508,9 +516,10 @@ echo=exit
 for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "timeOut=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100 + 100"
 :shutdown.waitForDWM
 for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t2=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100"
-if not exist "!sst.dir!\temp\shutdown\DWM-memoryDump" if !t2! leq !timeOut! goto shutdown.waitForDWM
-for /l %%y in (1 1 !sys.modeH!) do set "dmp.dwm.aero[%%y]=2;%%y;%%y;%%y"
-if exist "!sst.dir!\temp\shutdown\DWM-memoryDump" for /f "usebackq tokens=1* delims==" %%a in ("!sst.dir!\temp\shutdown\DWM-memoryDump") do set "dmp.%%~a=%%~b"
+if not exist "!sst.dir!\temp\shutdown\DWM-memoryDump" if !t2! leq !timeOut! (
+	goto shutdown.waitForDWM
+) else exit %1
+for /f "usebackq tokens=1* delims==" %%a in ("!sst.dir!\temp\shutdown\DWM-memoryDump") do set "dmp.%%~a=%%~b"
 
 set "ts=!t2!"
 set "anim=0"
