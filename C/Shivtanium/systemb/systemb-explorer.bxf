@@ -89,9 +89,17 @@
 	set "o!win[%PID%.explorer]RH!=%\e%[!win[%PID%.explorer]W!X"
 	for /l %%a in (2 1 !contentH!) do (
 		echo=¤TW	!PID!.explorer	l%%a=!l%%a!
+		set l%%a=
+	)
+	for /l %%a in (10 1 !win[%PID%.explorer]RH!) do (
+		echo=¤TW	!PID!.explorer	o%%a=!o%%a!
+		set o%%a=
 	)
 	set "pipe=¤MW	!PID!.explorer	l1=!l1!"
-	for /l %%a in (1 1 !win[%PID%.explorer]RH!) do set "pipe=!pipe!	o%%a=!o%%a!"
+	for /l %%a in (1 1 9) do (
+		set "pipe=!pipe!	o%%a=!o%%a!"
+		set o%%a=
+	)
 	echo=!pipe!
 	set pipe=
 #end
@@ -174,7 +182,7 @@ for /l %%# in () do (
 							set scrollpos=0
 							call :reload
 						) else if "%%~xF"==".bat" (
-							>>"!sst.dir!\temp\kernelPipe" echo=createProcess	!sys.UPID!	%%~F	--UPID	!sys.UPID!	--username "!sys.username!"
+							@sys.call createProcess	!sys.UPID!	%%~F	--UPID	!sys.UPID!	--username "!sys.username!"
 						) else (
 							pushd "%%~dpF"
 							start %%~nxF
