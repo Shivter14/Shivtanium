@@ -1,22 +1,22 @@
 #import sys.bxf, str.bxf
 set "filePath=%~f1"
 set "fileName=%~nx1"
-set /a "closeButtonX=(contentW=(win[!PID!.txt]W=sys.modeW/2)-2)-2, win[!PID!.txt]H=sys.modeH/2, win[!PID!.txt]X=sys.modeW/4+1, win[!PID!.txt]Y=sys.modeH/4, contentH=bufferedLines=win[!PID!.txt]H-2"
+set "fileSize=%~z1"
+set "fileAttr=%~a1"
+set /a "closeButtonX=(contentW=(win[!PID!.txt]W=sys.modeW/2)-2)-2, win[!PID!.txt]H=sys.modeH/2, win[!PID!.txt]X=sys.modeW/4+1, win[!PID!.txt]Y=sys.modeH/4, contentH=bufferedLines=(chrbY=win[!PID!.txt]H-1)-1"
 echo=¤CW	!PID!.txt	!win[%PID%.txt]X!	!win[%PID%.txt]Y!	!win[%PID%.txt]W!	!win[%PID%.txt]H!	!fileName!
 >>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.txt	!win[%PID%.txt]X!	!win[%PID%.txt]Y!	!win[%PID%.txt]W!	!win[%PID%.txt]H!
 if not exist "!filePath!" goto filenotfound
 (
-set buffer=¤MW	!PID!.txt
 for /l %%a in (1 1 !bufferedLines!) do (
 	<&3 set /p "f%%a=" && (
-		set "f%%a=!f%%a:	=  !"
+		set "f%%a=!f%%a:	=    !"
 		set "f%%a=!f%%a:~0,%contentW%!"
-		set "f%%a=!f%%a:?=¿!"
 	)
-	set "buffer=!buffer!	l%%a=!f%%a!"
+	echo=¤TW	!PID!.txt	l%%a=!f%%a!
 )
-echo=!buffer!
-set buffer=
+set "infobar=length: !fileSize! ^| Attr: !fileAttr!"
+echo=¤MW	!PID!.txt	o!chrbY!= !infobar:~0,%contentW%!
 for /l %%# in () do (
 	@sys.pullEvents
 	@sys.onEventRaw "!kernelOut!;!focusedWindow!"=="click=1;!PID!.txt"
