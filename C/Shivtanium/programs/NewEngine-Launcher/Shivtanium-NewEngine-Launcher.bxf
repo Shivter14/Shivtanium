@@ -1,36 +1,19 @@
-@echo off & setlocal enableDelayedExpansion
-if not defined PID (
-	echo This program requires to be run in:
-	echo   Shivtanium Kernel Beta 1.2.1 or higher.
-	set /p "=Press any key to exit. . ."
-	exit /b 1
-)
-for %%a in (%*) do (
-	if defined next (
-		set "!next!=%%~a"
-		set next=
+#import sys.bxf, dwm.bxf
+#function renderSidebarPages
+	for /l %%a in (2 1 4) do if /I "!page[%%a]!"=="!currentMenu!" (
+		set "o%%a=%\e%[7m%\e%[!sidebarW!X !page[%%a]!%\e%[27m"
 	) else (
-		set next=
-		if "%%a"=="--username" (
-			set next=sys.username
-		) else if "%%a"=="--UPID" (
-			set next=sys.UPID
-		)
+		set "o%%a=!o%%a! !page[%%a]!"
 	)
-)
+#end
+@sys.handleStdParams
 set "contentServer=http://newengine.org"
-(set \n=^^^
+set "page[2]=Store"
+set "page[3]=Library"
+set "page[4]=Runtimes"
 
-)
-set @preparePipe=for /l %%y in (1 1 ^^!avlH^^!) do (%\n%
-	if "^!pipe:~700,1^!" neq "" (%\n%
-		echo=^^!pipe^^!%\n%
-		set "pipe=¤MW	^!PID^!.NEL"%\n%
-	)%\n%
-	set "pipe=^!pipe^!	l%%y=^!l%%y^!	o%%y=^!o%%y^!"%\n%
-)
 if /I "!sys.lowPerformanceMode!"=="True" set "sys.reduceMotion=True"
-set /a "offsetY=scrollY=-1, scrollpos=0, tileC=(tileW=18)-1, tileH=6, sidebarW=11, descriptionW=(win[!PID!.NEL]W=96)-sidebarW-6, avlH=(contentH=(win[!PID!.NEL]H=29)-2)+1, win[!PID!.NEL]X=(sys.modeW - win[!PID!.NEL]W) / 2, win[!PID!.NEL]Y=(sys.modeH - win[!PID!.NEL]H) / 2, closeButtonX=win[!PID!.NEL]W-4"
+set /a "offsetY=scrollY=-1, scrollpos=0, tileC=(tileW=18)-1, tileH=6, sidebarW=10, descriptionW=(win[!PID!.NEL]W=96)-sidebarW-6, avlH=(contentH=(win[!PID!.NEL]H=29)-2)+1, win[!PID!.NEL]X=(sys.modeW - win[!PID!.NEL]W) / 2, win[!PID!.NEL]Y=(sys.modeH - win[!PID!.NEL]H) / 2, closeButtonX=win[!PID!.NEL]W-4"
 
 echo=¤CW	!PID!.NEL	!win[%PID%.NEL]X!	!win[%PID%.NEL]Y!	!win[%PID%.NEL]W!	!win[%PID%.NEL]H!	NewEngine Launcher	eyeburn
 >>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.NEL	!win[%PID%.NEL]X!	!win[%PID%.NEL]Y!	!win[%PID%.NEL]W!	!win[%PID%.NEL]H!
@@ -44,7 +27,7 @@ for /l %%# in () do (
 		if "!keysPressed!" neq "!keysPressed:-38-=!" (
 			if !scrollTimer! geq 10 (
 				set /a "scrollTimer%%=100, scrollY-=scrollTimer / 10, scrollpos=scrollY / (tileH + spacingH), offsetY=scrollY %% (tileH + spacingH), scrollTimer%%=10"
-				call :!currentmenu!
+				call :!currentMenu!
 			)
 		) else if "!keysPressed!" neq "!keysPressed:-40-=!" (
 			if !scrollTimer! geq 10 (
@@ -54,50 +37,36 @@ for /l %%# in () do (
 		) else set scrollTimer=0
 	) else set scrollTimer=0
 	
-	set kernelOut=
-	set /p "kernelOut="
-	if defined kernelOut if "!kernelOut!"=="click=1" (
-		if "!focusedWindow!"=="!PID!.NEL" (
-			set /a "relativeMouseX=mouseXpos - win[!PID!.NEL]X, relativeMouseY=mouseYpos - win[!PID!.NEL]Y"
-			if !relativeMouseX! lss !sidebarW! (
-				if "!relativeMouseY!"=="2" (
-					call :store
-				) else if "!relativeMouseY!"=="3" (
-					call :library
-				)
-			) else if "!relativeMouseY!"=="0" (
-				if !relativeMouseX! geq !closeButtonX! (
-					>>"!sst.dir!\temp\kernelPipe" echo=exitProcess	!PID!
-					exit 0
-				)
-			) else if defined buttons (
-				for %%b in (!buttons!) do (
-					if "!relativeMouseY!"=="!btn[%%~b]Y!" if !relativeMouseX! geq !btn[%%~b]X! if !relativeMouseX! leq !btn[%%~b]BX! (
-						for /f "delims=" %%y in ("!btn[%%~b]Y!") do echo=¤MW	!PID!.NEL	o%%y=!o%%y!%\e%8%\e%[7m%\e%[!btn[%%~b]X!C!btn[%%~b]title!%\e%[27m
-					)
-				)
-			) else for /l %%Y in (0 1 !gfY!) do for /l %%X in (0 1 !gridW!) do if defined tile[%%Xx%%Y] (
-				if !relativeMouseY! geq !tile[%%Xx%%Y]Y! if !relativeMouseY! leq !tile[%%Xx%%Y]BY! if !relativeMouseX! geq !tile[%%Xx%%Y]X! if !relativeMouseX! leq !tile[%%Xx%%Y]BX! (
-					set /a "transitionSX=tile[%%Xx%%Y]X, transitionEX=sidebarW + 3, transitionSY=tile[%%Xx%%Y]Y, transitionEY=2, transitionDX=transitionSX - transitionEX, transitionDY=transitionSY - transitionEY"
-					call :!currentMenu!.gamepage !tile[%%Xx%%Y]!
-				)
+	@sys.pullEvents
+	@sys.onEventRaw "!kernelOut!;!focusedWindow!"=="click=1;!PID!.NEL"
+		set /a "relativeMouseX=mouseXpos - win[!PID!.NEL]X, relativeMouseY=mouseYpos - win[!PID!.NEL]Y"
+		if !relativeMouseX! lss !sidebarW! (
+			if defined page[!relativeMouseY!] for %%a in (!relativeMouseY!) do call :!page[%%a]!
+		) else if "!relativeMouseY!"=="0" (
+			if !relativeMouseX! geq !closeButtonX! (
+				@sys.exit
 			)
-		)
-	) else if "!kernelOut!"=="click=0" (
-		if "!focusedWindow!"=="!PID!.NEL" (
-			set /a "relativeMouseX=mouseXpos - win[!PID!.NEL]X, relativeMouseY=mouseYpos - win[!PID!.NEL]Y"
-			if defined buttons for %%b in (!buttons!) do (
+		) else if defined buttons (
+			for %%b in (!buttons!) do (
 				if "!relativeMouseY!"=="!btn[%%~b]Y!" if !relativeMouseX! geq !btn[%%~b]X! if !relativeMouseX! leq !btn[%%~b]BX! (
-					for /f "delims=" %%y in ("!btn[%%~b]Y!") do echo=¤MW	!PID!.NEL	o%%y=!o%%y!%\e%8%\e%[!btn[%%~b]X!C!btn[%%~b]title!
-					call !btn[%%~b]!
+					for /f "delims=" %%y in ("!btn[%%~b]Y!") do echo=¤MW	!PID!.NEL	o%%y=!o%%y!%\e%8%\e%[7m%\e%[!btn[%%~b]X!C!btn[%%~b]title!%\e%[27m
 				)
 			)
+		) else for /l %%Y in (0 1 !gfY!) do for /l %%X in (0 1 !gridW!) do if defined tile[%%Xx%%Y] (
+			if !relativeMouseY! geq !tile[%%Xx%%Y]Y! if !relativeMouseY! leq !tile[%%Xx%%Y]BY! if !relativeMouseX! geq !tile[%%Xx%%Y]X! if !relativeMouseX! leq !tile[%%Xx%%Y]BX! (
+				set /a "transitionSX=tile[%%Xx%%Y]X, transitionEX=sidebarW + 3, transitionSY=tile[%%Xx%%Y]Y, transitionEY=2, transitionDX=transitionSX - transitionEX, transitionDY=transitionSY - transitionEY"
+				call :!currentMenu!.gamepage !tile[%%Xx%%Y]!
+			)
 		)
-	) else if "!kernelOut!"=="exitProcess=!PID!" (
-		exit 0
-	) else if "!kernelOut!"=="exit" (
-		exit 0
-	) else set "!kernelOut!">nul 2>&1
+	@sys.onEventRaw "!kernelOut!;!focusedWindow!"=="click=0;!PID!.NEL"
+		set /a "relativeMouseX=mouseXpos - win[!PID!.NEL]X, relativeMouseY=mouseYpos - win[!PID!.NEL]Y"
+		if defined buttons for %%b in (!buttons!) do (
+			if "!relativeMouseY!"=="!btn[%%~b]Y!" if !relativeMouseX! geq !btn[%%~b]X! if !relativeMouseX! leq !btn[%%~b]BX! (
+				for /f "delims=" %%y in ("!btn[%%~b]Y!") do echo=¤MW	!PID!.NEL	o%%y=!o%%y!%\e%8%\e%[!btn[%%~b]X!C!btn[%%~b]title!
+				call !btn[%%~b]!
+			)
+		)
+	@sys.handleStdEvents
 )
 
 exit /b
@@ -108,6 +77,7 @@ for /l %%y in (1 1 !avlH!) do (
 	set "o%%y=%\e%[!sidebarW!X"
 	set "l%%y="
 )
+@renderSidebarPages
 if !scrollY! lss -1 (
 	set scrollpos=0
 	set scrollY=-1
@@ -115,8 +85,6 @@ if !scrollY! lss -1 (
 )
 set /a "scrollbarX=win[!PID!.NEL]W - 3, pos=0, spacingW=2, spacingH=1, ftW=(gridW=(rsW=win[!PID!.NEL]W - sidebarW - 4) / (tileW + spacingW)) + 2, gfY=(rsH=win[!PID!.NEL]H - 3) / (tileH + spacingH) + 1"
 
-set "o2=!o2! %\e%[7m  Store  %\e%[27m"
-set "o3=!o3!  Library"
 set "l!avlH!=%\e%8%\e%[!sidebarW!C   %\e%[!rsW!X"
 for /f %%a in ('set tile[ 2^>nul') do set "%%a="
 for %%g in (!games!) do (
@@ -162,13 +130,10 @@ if !lines! geq !gfY! (
 )
 
 
-set pipe=¤MW	!PID!.NEL
-%@preparePipe%
-echo=!pipe!
-set pipe=
+@dwm.preparePipe "targetWin=!PID!.NEL" "from=1" "to=!avlH!"
+@dwm.flushPipe
 
 for /f "tokens=1 delims==" %%a in ('set o') do set "%%a="
-
 set > "!sst.dir!\temp\proc\PID-!PID!-MemoryDump"
 exit /b 0
 :store.gamepage
@@ -178,8 +143,7 @@ for /l %%y in (1 1 !avlH!) do (
 	set "o%%y=%\e%[!sidebarW!X"
 	set "l%%y="
 )
-set "o2=%\e%[!sidebarW!X   Store "
-set "o3=%\e%[!sidebarW!X  Library"
+@renderSidebarPages
 
 for /f "usebackq tokens=1* delims=:" %%a in ("!sst.dir!\temp\NEL\game_!gameID!.dat") do set "game.%%a=%%b"
 
@@ -248,23 +212,16 @@ set "btn[add]title= Add to library "
 set "o!btn[back]Y!=!o%btn[back]Y%!%\e%8%\e%[!btn[add]X!C!btn[add]title!%\e%[2C!btn[back]title!"
 
 if /I "!sys.reduceMotion!"=="True" (
-	set "pipe=¤MW	!PID!.NEL	o!btn[back]Y!=!o%btn[back]Y%!"
 	for /l %%t in (1 1 !temp.descriptionH!) do if defined gp[%%t] (
-		if "!pipe:~720,1!" neq "" (
-			echo=!pipe!
-			set "pipe=¤MW	!PID!.NEL"
-		)
-		set /a "y=%%t+3"
-		set "pipe=!pipe!	!PID!.NEL	l!y!=%\e%[!sidebarW!C !gp[%%t]!"
+		echo=¤TW	!PID!.NEL	!gp[%%t]:~0,%descriptionW%!
 	)
-	echo=!pipe!
-	set pipe=
+	echo=¤MW	!PID!.NEL	o!btn[back]Y!=!o%btn[back]Y%!
 ) else (
 	for /l %%t in (1 1 !temp.descriptionH!) do if defined gp[%%t] (
 		set /a "y=%%t+3"
-		echo=¤MW	!PID!.NEL	l!y!=%\e%[!sidebarW!C     !gp[%%t]!
-		echo=¤MW	!PID!.NEL	l!y!=%\e%[!sidebarW!C   !gp[%%t]!
-		echo=¤MW	!PID!.NEL	l!y!=%\e%[!sidebarW!C !gp[%%t]!
+		echo=¤MW	!PID!.NEL	l!y!=%\e%[!sidebarW!C     !gp[%%t]:~0,%descriptionW%!
+		echo=¤MW	!PID!.NEL	l!y!=%\e%[!sidebarW!C   !gp[%%t]:~0,%descriptionW%!
+		echo=¤MW	!PID!.NEL	l!y!=%\e%[!sidebarW!C !gp[%%t]:~0,%descriptionW%!
 	)
 	echo=¤MW	!PID!.NEL	o!btn[back]Y!=!o%btn[back]Y%!
 )
@@ -298,15 +255,32 @@ for /l %%y in (1 1 !avlH!) do (
 	set "o%%y=%\e%[!sidebarW!X"
 	set "l%%y="
 )
-set "o2=%\e%[!sidebarW!X   Store "
-set "o3=%\e%[!sidebarW!X %\e%[7m Library %\e%[27m"
+@renderSidebarPages
 set "l2=%\e%[!sidebarW!C Currently unavaliable."
 set "o4=!o4!%\e%8%\e%[!btn[back]X!C!btn[back]title!"
 
-set pipe=¤MW	!PID!.NEL
-%@preparePipe%
-echo=!pipe!
-set pipe=
+@dwm.preparePipe "targetWin=!PID!.NEL" "from=1" "to=!avlH!"
+@dwm.flushPipe
+exit /b
+:runtimes
+set currentMenu=runtimes
+for /f %%a in ('set tile[ 2^>nul ^&^& set game. 2^>nul') do set "%%a="
+
+set /a "btn[back]Y=4, btn[back]X=sidebarW + 2, btn[back]BX=btn[back]X + 19"
+set btn[back]=:store
+set "btn[back]title= Back to store page "
+set "buttons= back "
+
+for /l %%y in (1 1 !avlH!) do (
+	set "o%%y=%\e%[!sidebarW!X"
+	set "l%%y="
+)
+@renderSidebarPages
+set "l2=%\e%[!sidebarW!C Currently unavaliable."
+set "o4=!o4!%\e%8%\e%[!btn[back]X!C!btn[back]title!"
+
+@dwm.preparePipe "targetWin=!PID!.NEL" "from=1" "to=!avlH!"
+@dwm.flushPipe
 exit /b
 :downloadGamesList
 set pipe=¤MW	!PID!.NEL
@@ -317,7 +291,7 @@ if exist "!sst.dir!\temp\NEL" rd /s /q "!sst.dir!\temp\NEL" > nul 2>&1 || call :
 md "!sst.dir!\temp\NEL"
 set serviceStatus=unknown
 set response=
-for /f "delims=" %%a in ('curl "!contentServer!:3000/v1/getServerStatus" 2^>^&1') do (
+for /f "delims=" %%a in ('curl -s "!contentServer!:3000/v1/getServerStatus" 2^>^&1') do (
 	set "temp=%%a"
 	if /I "!temp:~0,7!"=="status:" (
 		set "serviceStatus=!temp:~7!"
@@ -434,7 +408,7 @@ for %%a in (%*) do (
 )
 set /a "halt.winH=lines + 4"
 
->>"!sst.dir!\temp\kernelPipe" echo=createProcess	!sys.UPID!	systemb-dialog !win[%PID%.NEL]X!+!sidebarW!+2 !win[%PID%.NEL]Y!+2 !halt.winW! !halt.winH! "!halt.title!	eyeburn" "!halt.winparams!" w-buttonW-2 h-2 7 " Close "
+@sys.call createProcess	!sys.UPID!	systemb-dialog !win[%PID%.NEL]X!+!sidebarW!+2 !win[%PID%.NEL]Y!+2 !halt.winW! !halt.winH! "!halt.title!	eyeburn" "!halt.winparams!" w-buttonW-2 h-2 7 " Close "
 exit /b 0
 
 < This will never execute. >
