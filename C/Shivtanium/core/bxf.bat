@@ -1,6 +1,6 @@
 @echo off & setlocal enableDelayedExpansion
 if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
-set bxf.ver=1.0.7
+set bxf.ver=1.0.8
 
 if not defined subRoutineN (
 	echo=BXF - Batch Expanded Functions ^| version !bxf.ver!
@@ -125,7 +125,7 @@ for /l %%# in (1 1 100) do for /l %%# in (1 1 100) do (
 				set "expandFunction=%%A"
 				if "!expandFunction!" == "!expandFunction:.=!" set "expandFunction=@!prefix!!expandFunction:~1!"
 				if defined f!expandFunction! (
-					if "!expandFunction:~0,1!"=="@" call :expandFunction || exit /b
+					if not defined currentFunction if "!expandFunction:~0,1!"=="@" call :expandFunction || exit /b
 				) else if not defined currentFunction (
 					if "!expandFunction:~0,1!"=="@" if /I "!expandFunction!" neq "@echo" (
 						>&2 echo=[WARN] Failed to expand function ^(Possibly a forced ECHO OFF command^): !expandFunction!
