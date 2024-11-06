@@ -6,7 +6,7 @@
 [![Commits](https://img.shields.io/github/commit-activity/m/Shivter14/Shivtanium?label=commits&style=for-the-badge)](https://github.com/Shivter14/Shivtanium/commits "Commit History")
 [![Last Commit](https://img.shields.io/github/last-commit/Shivter14/Shivtanium/main?label=Latest%20commit&style=for-the-badge&display_timestamp=committer)](https://github.com/Shivter14/Shivtanium/pulse/monthly "Last activity")
 
-## Shivtanium is a Batch OS subsystem, along with `systemb` and `bxf` making it the ultimate Batch OS.
+## Shivtanium is a Batch OS subsystem, along with BatchWindows and `bxf` making it the ultimate Batch OS.
 (Screenshots are avaliable at the bottom of this document.)
 </div>
 
@@ -33,9 +33,9 @@ Shivtanium has a compiler called BXF, which adds expanded functions that don't h
 
 Shivtanium also has desktop environments. The default & original one is `systemb`. You can find screenshots at the bottom of this document.
 
-Graphics & windows are handled by the Desktop Window Manager. It uses many kinds of VT sequences, optimizations, and all sorts of techniques in order to render windows quickly and smoothly.
+Graphics & windows are handled by BatchWindows. It uses many kinds of VT sequences, optimizations, and all sorts of techniques in order to render windows quickly and smoothly.
 
-## The Desktop Window Manager
+## BatchWindows - The Desktop Window Manager
 
 Shivtanium uses a custom-made Desktop Window Manager to render windows with themes.
 These themes can be customized with resource packs.
@@ -58,7 +58,7 @@ aero=
 winAero=
 ```
 - `scene` is the background. It should contain VT sequences that erase the screen.
-- `sceneBGcolor` is the color for the background. Since DWM uses window moving techniques that don't redraw the background, a generic background color is needed.
+- `sceneBGcolor` is the color for the background. Since BatchWindows uses window moving techniques that don't redraw the background, a generic background color is needed.
 
 - `BGcolor` is the background color for a window.
 - `FGcolor` is the foreground color for a window.
@@ -76,7 +76,7 @@ winAero=
 
 * To modify the window button controls, change the `CBUI` value which should add 9 characters. If more are needed, `\e[#E` can be used to expand the limit by # characters.
 
-* For more help, head to the [DWM Wiki](https://github.com/Shivter14/Shivtanium/wiki/Desktop-Window-Manager).
+* For more help, head to the [BatchWindows Wiki](https://github.com/Shivter14/Shivtanium/wiki/Desktop-Window-Manager).
 
 It's even easier to create sprites, it's just raw ASCII art located in: `C\Shivtanium\resourcepacks\init\sprites\`
 
