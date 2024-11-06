@@ -182,7 +182,20 @@ for /l %%# in () do (
 							set scrollpos=0
 							call :reload
 						) else if "%%~xF"==".bat" (
-							@sys.call createProcess	!sys.UPID!	%%~F	--UPID	!sys.UPID!	--username "!sys.username!"
+							@sys.call createProcess	!sys.UPID!	%%~F --UPID !sys.UPID! --username "!sys.username!"
+						) else if exist "!sst.dir!\assoc.dat" (
+							set temp.st=
+							for /f "usebackq tokens=1* delims==" %%a in ("!sst.dir!\assoc.dat") do if not defined temp.st if "%%~a"=="%%~xF" (
+								set "temp.st=%%b"
+								@sys.call createProcess	!sys.UPID!	%%b "%%~fF" --UPID !sys.UPID! --username "!sys.username!"
+							)
+							if not defined temp.st (
+								pushd "%%~dpF"
+								start %%~nxF
+								popd
+							)
+							set temp.st=
+							call :reload
 						) else (
 							pushd "%%~dpF"
 							start %%~nxF
