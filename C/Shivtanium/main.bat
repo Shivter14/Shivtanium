@@ -37,12 +37,20 @@ for /f "tokens=2 delims=:" %%a in ('mode con') do (
 set counter=
 <nul set /p "=%\e%[H%\e%[48;2;0;0;0m%\e%[38;2;255;255;255m"
 for %%a in (kernelPipe kernelOut kernelErr) do copy nul temp\%%a > nul 2>&1 || call :halt "preparePipe" "Failed to prepare pipe:\n'temp\%%a'"
+set "@log=>&2 echo=[^!date^! ^!time^!] [Startup]"
+(
+set @log=
+%@log% Starting Shivtanium from "%~nx0"
 if not exist "temp\bootStatus-!sst.localtemp!" copy nul "temp\bootStatus-!sst.localtemp!" > nul || call :halt "preparePipe" "Failed to prepare pipe:\n'temp\bootStatus-!sst.localtemp!'"
 if /I "!sst.noguiboot!" neq "True" (
+	%@log% Starting boot screen renderer
 	start /b "" cmd /c boot\renderer.bat "temp\bootStatus-!sst.localtemp!" < "temp\bootStatus-!sst.localtemp!"
-) else copy nul "!sst.dir!\temp\pf-bootanim" > nul
+) else (
+	%@log% Using 'noguiboot'
+	copy nul "!sst.dir!\temp\pf-bootanim" > nul
+)
 
-(for %%a in (
+for %%a in (
 	":clearEnv|Clearing environment"
 	"boot\loadSettings.bat|Loading settings"
 	":loadresourcepacks|Loading resources"
@@ -51,9 +59,9 @@ if /I "!sst.noguiboot!" neq "True" (
 	":compileBXF|Compiling BXF applications"
 	":startServices|Starting services"
 	"boot\cfmsf.bat|Checking for missing files"
-	"boot\updateCheckSvc.bat|Checking for updates"
 	":injectDLLs|Injecting DLLs"
-) do for /f "tokens=1-2* delims=|" %%b in (%%a) do (
+) do for /f "tokens=1* delims=|" %%b in (%%a) do (
+	%@log% Reached point: %%c ^| %%b
 	set "sst.boot.command=%%~b"
 	set sst.boot.command=!sst.boot.command:'="!
 	if "%%~c" neq "" (
@@ -88,6 +96,7 @@ set "sst.boot.msg=%~1"
 set "sst.boot.submsg=%~2"
 set "sst.boot.barMax=%~3"
 set "sst.boot.barVal=%~4"
+>&2 echo=[!date! !time!] [Startup/INFO] !sst.boot.msg! ~ !sst.boot.submsg!
 >>"temp\bootStatus-!sst.localtemp!" echo(!sst.boot.msg!;!sst.boot.submsg!;!sst.boot.barMax!;!sst.boot.barVal!
 exit /b
 
@@ -103,27 +112,28 @@ for %%A in (memoryDump) do (
 )
 exit /b
 :loadresourcepacks
-if not defined sys.activeResourcePacks call :halt "%~nx0:loadresourcepacks" "Active Resource Packs are not defined."
+if not defined sys.activeResourcePacks call :halt "%~nx0%~0" "Active Resource Packs are not defined."
+md "!sst.dir!\temp\themes" || call :halt "%~nx0%~0" "Failed to create temp directory for themes\n(temp\themes)"
 for %%a in (!sys.activeResourcePacks!) do (
 	call :startup.submsg "!sst.boot.msg!" "Loading resource pack: %%~a"
 	call :loadresourcepack "%%~a"
 )
 exit /b
 :loadresourcepack
-if not exist "!sst.dir!\resourcepacks\%~1" exit /b 1
+if not exist "!sst.dir!\resourcepacks\%~1" (
+	set "sst.boot.tpn=%~1 "
+	>>"!sst.dir!\temp\kernelPipe" echo=createProcess	-90	systemb-dialog.bat 3 sys.modeH-7 64 6 "Resource Pack management" "l2=  Failed to load the following resource pack:	l3=  %\e%[7m !sst.boot.tpn:~0,60!%\e%[27m	l4=  Reason: Folder not found." w-buttonW-2 h-2 7 " Close "
+	exit /b 1
+)
 for /f "delims=" %%a in ('dir /b /a:-D "!sst.dir!\resourcepacks\%~1\sprites\*.spr" 2^>nul') do call :loadsprite "!sst.dir!\resourcepacks\%~1\sprites\%%~a" %%~a
 for /f "delims=" %%a in ('dir /b /a:-D "!sst.dir!\resourcepacks\%~1\sounds\*.*" 2^>nul') do set "asset[\sounds\%%~a]=!sst.dir!\resourcepacks\%~1\sounds\%%~a"
 if exist "!sst.dir!\resourcepacks\%~1\textmodes.dat" for /f "usebackq tokens=1* delims=:" %%a in ("!sst.dir!\resourcepacks\%~1\textmodes.dat") do set "sst.boot.textmode[%%~a]=%%~b"
 set /a "sst.boot.logoX=(sys.modeW-spr.[bootlogo.spr].W)/2+1", "sst.boot.logoY=(sys.modeH-spr.[bootlogo.spr].H)/2+1"
-for /f "delims=" %%A in ('dir /b /a:-D "!sst.dir!\resourcepacks\%~1\themes\*"') do (
-	set "theme[%%~nA]= "
-	(for /f "usebackq delims==" %%x in ("!sst.dir!\resourcepacks\%~1\themes\%%~A") do (
-		set /p "io="
-		if /I "%%~x" neq "CBUIOffset" set theme[%%~nA]=!theme[%%~nA]! "!io!"
-	)) < "!sst.dir!\resourcepacks\%~1\themes\%%~A"
-	set "theme[%%~nA]=!theme[%%~nA]:~2!"
-	set io=
-)
+if exist "!sst.dir!\resourcepacks\%~1\themes\" (
+	echo=[!date! !time!] [Startup\loadresourcepacks] Copying themes from resource pack "%~1"
+	copy /Y /V "!sst.dir!\resourcepacks\%~1\themes\*" "!sst.dir!\temp\themes\"
+) >&2
+
 if exist "!sst.dir!\resourcepacks\%~1\keyboard_init.bat" call "!sst.dir!\resourcepacks\%~1\keyboard_init.bat"
 exit /b 0
 :loadSprite
@@ -239,6 +249,7 @@ set dwm.char.L=█
 set dwm.char.B=▄
 set dwm.char.R=█
 set dwm.char.S=█
+set "dwm.themeSourceDir=!sst.dir!\temp\themes"
 
 for /f "tokens=2 delims=:" %%a in ('mode con') do (
 	set "token=%%~a"
@@ -261,21 +272,27 @@ set bxf.failed=
 > "!sst.dir!\temp\BXFstartup.log" echo=Something went wrong while compiling BXF applications. This log has been saved to "temp\BXFstartup.log"
 cd "!sst.dir!" || exit /b
 
-set BXF_toCompile=0
-for %%F in ("*.bxf" "systemb\*.bxf" "boot\*.bxf") do if not exist "%%~dpnF.bat" set /a BXF_toCompile+=1
+set BXF_toCompile=
+for %%F in ("*.bxf" "systemb\*.bxf" "boot\*.bxf") do if not exist "%%~dpnF.bat" (
+	set /a BXF_toCompile+=1
+	set "bxf.thread[!BXF_toCompile!]=%%~F"
+)
 if !BXF_toCompile! leq 0 exit /b 0
-call :startup.submsg "!sst.boot.msg!" "Starting !BXF_toCompile! threads" !BXF_toCompile! 0
-
-call "%~f0" :compileBXF.main | call "%~f0" :compileBXF.manageThreads
+setlocal enabledelayedexpansion
+for /l %%j in (1 !sys.CPU.count! !BXF_toCompile!) do (
+	call "%~f0" :compileBXF.main %%j | call "%~f0" :compileBXF.manageThreads %%j
+)
+endlocal
 exit /b
 :compileBXF.main
-for %%F in ("*.bxf" "systemb\*.bxf" "boot\*.bxf") do if not exist "%%~dpnF.bat" (
-	start /b cmd /c "%~f0" :compileBXF.thread %%F
+set /a "temp.e=(temp.s=%~1)+sys.CPU.count-1"
+if !temp.e! gtr !BXF_toCompile! set temp.e=!BXF_toCompile!
+for /l %%a in (!temp.s! 1 !temp.e!) do (
+	start /b cmd /c main.bat :compileBXF.thread "!bxf.thread[%%a]!"
 )
 exit /b
 :compileBXF.thread
 (
-	<nul set /p "=%\e%[48;2;0;0;0;38;2;255;255;255m"
 	call bxf.bat "%~f1" || (
 		echo="%~n1"¤!errorlevel!
 		exit 1
@@ -284,7 +301,11 @@ exit /b
 echo="%~n1"¤0
 exit /b 0
 :compileBXF.manageThreads
-for /l %%a in (1 1 !BXF_toCompile!) do (
+set /a "temp.e=(temp.v=(temp.s=%~1)-1)+sys.CPU.count"
+if !temp.e! gtr !BXF_toCompile! set temp.e=!BXF_toCompile!
+call :startup.submsg "!sst.boot.msg!" "Total: !BXF_toCompile! ^| Starting threads" !BXF_toCompile! !temp.v!
+
+for /l %%a in (!temp.s! 1 !temp.e!) do (
 	set io=
 	set /p "io=" && set "io=!io:"=!"
 	if "!io:*¤=!" neq "0" (
@@ -294,31 +315,6 @@ for /l %%a in (1 1 !BXF_toCompile!) do (
 		) else call :startup.submsg "!sst.boot.msg!" " " !BXF_toCompile! %%a
 	) else call :startup.submsg "!sst.boot.msg!" "Finished compiling '!io:~0,-2!'" !BXF_toCompile! %%a
 )
-if not defined bxf.failed (
-	del "!sst.dir!\temp\BXFstartup.log"
-	exit /b 0
-)
->>"!sst.dir!\temp\bootStatus-!sst.localtemp!" echo=¤EXITANIM
-call :waitForAnimations
-echo=%\e%[48;2;0;0;0;38;2;255;255;255m%\e%[H%\e%[2J
-call :compileBXF.failed < "!sst.dir!\temp\BXFstartup.log"
-set BXF_toCompile=
-exit 0
-:compileBXF.failed
-set lineDef=
-for /l %%# in (2 1 !sys.modeH!) do (
-	set line=
-	set /p "line="
-	echo(!line!
-)
-if not defined line (
-	pause<con>con
-	exit /b
-)
-<nul set /p "=-- More --"
-pause<con>nul
-echo=%\e%[2K%\e%[F
-goto compileBXF.failed
 exit /b 0
 :waitForAnimations
 if not exist "!sst.dir!\temp\pf-bootanim" goto waitForAnimations
