@@ -1,7 +1,14 @@
 # Shivtanium Changelog
 This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
-## Beta 1.4.1 [build 37.3505]
+## Beta 1.4.1 [build 37.3506]
+- Finished the text file viewer (`systemb-textview`). It can be started by
+  opening a text file in the file explorer. With that, there is a new file
+  association list located in `~:\Shivtanium\assoc.dat`. Format:
+  `.<file extension>=<command> [<parameters>]`
+  The application specified will be started with the following parameters being
+  the last (If parameters are specified, the following will be appended):
+  `"<full path to file>" --UPID <User PID> --username "<Shivtanium username>"`
 - Added system logs. Usefull for diagnosing issues and realtime monitoring.
   Logs are always redirected to `temp\kernelErr`. With this change, an old
   feature was restored: Processes now output errors to their files
@@ -38,6 +45,10 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
     always be lower than the thread count of the host CPU.
   - Startup processes failing on startup not showing an error message
   - Task bar not responding to window switching/minimizing/restoring
+  - Task bar being treated as a window in the kernel resulting in it attempting
+    to send a focus request to BatchWindows when focused
+	This introduces a new kernel window registery attribute in the 4th index
+	that specifies if focusing should send a BatchWindows request.
 
 ## Beta 1.4.0 [build 35.3412]
 - Added window resizing. This applies to all windows with the 3rd index of
