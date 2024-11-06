@@ -5,8 +5,6 @@ if not exist "!sst.dir!\temp" (
 )
 set msfl=
 for %%F in (
-	befi.dat
-	dwm.bat
 	main.bat
 	sstoskrnl.bat
 	core\config.bat
@@ -17,12 +15,9 @@ for %%F in (
 	core\sys.bxf
 	core\dwm.bxf
 	core\str.bxf
-	resourcepacks\init\sprites\bootlogo.spr
 	resourcepacks\init\themes\aero
 	resourcepacks\init\themes\classic
 	resourcepacks\init\themes\lo-fi
-	resourcepacks\init\themes\noCBUI.themeMod
-	resourcepacks\init\themes\noUnfocusedColors.themeMod
 ) do if not exist "!sst.dir!\%%~F" set msfl=!msfl! "%%~F"
 if defined msfl (
 	>"!sst.dir!\temp\pf-%~n0" echo=Missing files:!msfl:\=/!
