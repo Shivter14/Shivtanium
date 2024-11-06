@@ -46,3 +46,20 @@ set /a PID=PID
 #end
 #function call; >>"!sst.dir!\temp\kernelPipe" echo=$$
 #end
+#function log; >&2 echo=[!date! !time!] [PID-!PID!] $$
+#end
+#function handleStdParams
+	for %%a in (%*) do (
+		if defined next (
+			set "!next!=%%~a"
+			set next=
+		) else (
+			set next=
+			if "%%a"=="--username" (
+				set next=sys.username
+			) else if "%%a"=="--UPID" (
+				set next=sys.UPID
+			)
+		)
+	)
+#end
