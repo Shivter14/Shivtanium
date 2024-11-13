@@ -3,7 +3,15 @@
 	set /p "update.tag="
 	set /p "update.ver="
 	set /p "update.subvinfo="
+	set /p "update.link="
 ) < "!sst.dir!\temp\update.dat"
+if "%~1"=="/r" (
+	if not defined @statusReport set "@statusReport=%~2"
+	set embeddedMode=1
+	call :updateNow /r
+	exit /b 0
+)
+set "@statusReport=echo=¤MW	svc.update	l4=  ^> "
 set "btn[later]T= Later "
 set "btn[update]T= More Info "
 set "verString=!update.tag! !update.ver! !update.subvinfo!"
@@ -75,41 +83,68 @@ if not exist "!sst.root!" (
 	call :errorbox "Update failed" "'sst.root' does not exist."
 	exit /b 1
 )
-set "targetdir=!sst.root!\Shivtanium !update.tag! !update.ver! !update.subvinfo!"
-if exist "!targetdir!" (
-	call :errorbox "Update failed" "The destination already exists:" "~:\Shivtanium !update.tag! !update.ver! !update.subvinfo!" "You might have already updated." "Reboot into the newer installation."
-	exit /b 1
+set "targetdir=Shivtanium !update.tag! !update.ver! !update.subvinfo!"
+set "targetdir=!targetdir: =_!"
+set "targetdir=!targetdir:..=!"
+set "targetdir=!targetdir:\=_!"
+set "targetdir=!targetdir:/=_!"
+set "targetdir=!sst.root!\!targetdir!"
+if exist "!targetdir!" call :errorbox "Update failed" "The destination already exists:" "~:\Shivtanium !update.tag! !update.ver! !update.subvinfo!" "You might have already updated." "Reboot into the newer installation."
+
+md "!sst.dir!\temp\update" || (
+	call :errorbox "Update failed" "Failed to create temp folder:" "temp\update"
 )
-
-md "!targetdir!" || (
-	call :errorbox "Update failed" "Failed to create destination folder:" "~:\Shivtanium !update.tag! !update.ver! !update.subvinfo!"
-	exit /b 1
+pushd "!sst.dir!\temp\update" || (
+	call :errorbox "Update failed" "Failed to PUSHD into temp folder:" "temp\update"
 )
-call :errorbox "Update failed" "Unfinished. Developer bugcheck."
-exit /b 1
+%@statusReport%Downloading
 
-
-echo=¤CW	!PID!.getAssets	5	3	84	8	Downloading assets	classic noCBUI
->>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.getAssets	5	3	84	8
-set contentW=80
-echo=¤MW	!PID!.getAssets	l2=  Downloading %\e%[7m %%~a %\e%[27m . . .	l4=  %% Total    %% Received %% Xferd  Average Speed   Time    Time     Time  Current	l5=                                 Dload  Upload   Total   Spent    Left  Speed
-cd "!sst.dir!\resourcepacks\init\sounds" || exit 1
-curl -o "%%~a" "https://raw.githubusercontent.com/Shivter14/Shivtanium/main/C/Shivtanium/resourcepacks/init/sounds/%%~a" 2>&1 | call "!sst.dir!\core\streamIntoWindow" !PID!.getAssets	l6=  
+echo=¤CW	!PID!.getAssets	5	3	84	8	Downloading update files	classic noCBUI
+@sys.call registerWindow	!PID!	!PID!.getAssets	5	3	84	8
+echo=¤MW	!PID!.getAssets	l2=  Downloading %\e%[7m package.zip %\e%[27m . . .	l4=  %% Total    %% Received %% Xferd  Average Speed   Time    Time     Time  Current	l5=                                 Dload  Upload   Total   Spent    Left  Speed
+curl -Lo "package.zip" "!update.link!" 2>&1 | call "!sst.dir!\core\streamIntoWindow" !PID!.getAssets	l6=  
 if errorlevel 1 (
-	call :errorbox "Failed to download assets" "The following file failed to download:" "%\e%[7m %%~a %\e%[27m" "Reason: %\e%[7m curl error !errorlevel! %\e%[27m"
-) else if not exist "%%a" (
-	call :errorbox "Failed to download assets" "The following file failed to download:" "%\e%[7m %%~a %\e%[27m" "Reason: Generic error !errorlevel!"
+	call :errorbox "Failed to download assets" "The following file failed to download:" "%\e%[7m package.zip %\e%[27m" "Reason: %\e%[7m curl error !errorlevel! %\e%[27m"
+) else if not exist "package.zip" (
+	call :errorbox "Failed to download assets" "The following file failed to download:" "%\e%[7m package.zip %\e%[27m" "Reason: Generic error !errorlevel!"
+)
+%@statusReport%Extracting
+echo=¤MW	!PID!.getAssets	l2=  Extracting %\e%[7m package.zip %\e%[27m . . .	l4=	l6=
+tar -xf "package.zip" > tar.log 2>&1 || (
+	@sys.call createProcess	!PID!	systemb-textview tar.log
+	call :errorbox "Failed to extract assets" "Failed to extract the package." "The TAR logs should be opened. If not, you can find them in:" " %\e%[7m ~:\Shivtanium !update.tag! !update.ver! !update.subvinfo!\temp\tar.log %\e%[7m"
 )
 echo=¤DW	!PID!.getAssets
->>"!sst.dir!\temp\kernelPipe" echo=unRegisterWindow	!PID!.getAssets
+@sys.call unRegisterWindow	!PID!.getAssets
+%@statusReport%Validating
+if not exist "C\Shivtanium\main.bat" (
+	call :errorbox "Update failed" "Failed to validate the downloaded installation." "File not found:" "%\e%[7m C\Shivtanium\main.bat %\e%[27m"
+)
+%@statusReport%Moving files
+move C\Shivtanium "!targetdir!" < nul > move.log 2>&1 || (
+	call :errorbox "Update failed" "Failed to move the downloaded installation;" "Source: %\e%[7m temp\update\C\Shivtanium %\e%[27m" "Destination: %\e%[7m ~:\Shivtanium !update.tag! !update.ver! !update.subvinfo! %\e%[27m"
+)
+%@statusReport%Finishing
+(
+	echo=# This file contains information about the installation that installed this
+	echo=# installation via the "Install Upgrade" option.
+	echo=# ( Wow that's a lot of installation :D )
+	echo=tag=!sys.tag!
+	echo=ver=!sys.ver!
+	echo=subvinfo=!sys.subvinfo!
+	echo=dir=!sys.dir!
+) > "upgrade.dat"
+
+echo=¤DW	!PID!.getAssets
+@sys.call unRegisterWindow	!PID!.getAssets
 cd "!sst.dir!" || exit 1
-set "asset[\sounds\%%~a]=!sst.dir!\resourcepacks\init\sounds\%%~a"
 
-@sys.call unRegisterWindow	svc.update
-echo=¤DW	svc.update
-
-exit /b
+call :errorbox "Update finished" "The first part of the update was finished successfully." "Reboot, and there should be new boot entries."
 :errorbox
+if exist "!sst.dir!\temp\update" (
+	popd
+	rd /s /q "!sst.dir!\temp\update" > nul
+)
 set halt.title=
 set halt.winparams=
 set halt.winW=16
@@ -132,6 +167,6 @@ for %%a in (%*) do (
 	if !msglen! gtr !halt.winW! set "halt.winW=!msglen!"
 )
 set /a "halt.winH=lines + 4"
-
-@sys.call createProcess	!PID!	systemb-dialog 5 3 !halt.winW! !halt.winH! "!halt.title!	classic noCBUI" "!halt.winparams!" w-buttonW-2 h-2 7 " Close "
-exit /b 0
+call systemb-dialog.bat 5 3 !halt.winW! !halt.winH! "!halt.title!	classic noCBUI" "!halt.winparams!" w-buttonW-2 h-2 7 " Close " True
+if defined embeddedMode exit 0
+@sys.exit 0
