@@ -100,7 +100,7 @@ for /l %%. in () do (
 				if !sys.modeH! lss 30 (
 					set /a "bar.width=sys.modeW, bar.fill=%%d*bar.width/%%c, bar.X=1, bar.Y=sys.modeH"
 				)
-				if !sys.modeH! lss 80 (
+				if !sys.modeW! lss 80 (
 					set /a "bar.width=sys.modeW, bar.fill=%%d*bar.width/%%c, bar.X=1, bar.Y=sys.modeH"
 				)
 				set "barbuffer=%\e%[!bar.Y!;!bar.X!H%\e%[48;2;127;127;127m%\e%[!bar.width!X%\e%[48;2;255;255;255m%\e%[!bar.fill!X"
