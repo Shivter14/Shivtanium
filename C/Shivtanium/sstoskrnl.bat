@@ -40,7 +40,7 @@ set "clamp=(leq=((low-x)>>31)+1)*low+(geq=((x-high)>>31)+1)*high+^^^!(leq+geq)*x
 (
 set clamp=
 for /l %%# in () do (
-	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100, deltaTime=(t1 - t2), t2=t1, tpsTicks+=1, timer.100cs+=deltaTime"
+	for /f "tokens=1-4 delims=:.," %%a in ("!time: =0!") do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100, deltaTime=(t1 - t2), t2=t1, tpsTicks+=1, tpsX2=tpsTicks*2, timer.100cs+=deltaTime"
 	if !timer.100cs! geq 100 (
 		set /a "timer.100cs%%=100, tps=tpsTicks, tpsTicks=0"
 	)
@@ -85,7 +85,9 @@ for /l %%# in () do (
 						if "%%~w" neq "!_focusedWindow!" (
 							set "windows= %%w!windows: %%w = !"
 							echo=focusedWindow=%%~w
-							>&3 echo=¤FOCUS	%%~w
+							if "!win[%%~w]D:~3,1!" neq "1" (
+								echo=¤FOCUS	%%~w
+							) >&3
 							set /a ioTotal+=1
 						)
 						set "focusedWindow=%%~w"
@@ -165,7 +167,7 @@ for /l %%# in () do (
 	)
 	set sys.mouseXold=!sys.mouseXpos!
 	set sys.mouseYold=!sys.mouseYpos!
-	if "!tpsTicks:~-1!"=="1" (
+	if "!tpsX2:~-1!"=="0" (
 		set sys.mouseXpos=!mouseXpos!
 		set sys.mouseYpos=!mouseYpos!
 		if "!sys.mouseXold!;!sys.mouseYold!" neq "!sys.mouseXpos!;!sys.mouseYpos!" if defined movingWindow (
@@ -195,12 +197,8 @@ for /l %%# in () do (
 			)
 			set x=& set low=
 			if "!sys.mouseXold!;!sys.mouseYold!" neq "!sys.mouseXpos!;!sys.mouseYpos!" (
-				set temp.pendingResize=True
-			)
-			if "!tpsTicks:~-1!;!temp.pendingResize!"=="1;True" (
 				echo=¤CW	!resizingWindow!	!tempX!	!tempY!	!tempW!	!tempH!	^^!win[!resizingWindow!]title:~1^^!	^^!win[!resizingWindow!]theme^^!
 				echo=¤CTRL	DUMP	mainbuffer=^^!dwm.scene^^!	nul
-				set temp.pendingResize=
 			) >&3
 		) else if "!sys.click!" neq "0" (
 			if "!sys.mouseXpos!" neq "!sys.mouseXold!" if !sys.mouseXpos! geq 1 if !sys.mouseXpos! leq !sys.modeW! (
@@ -311,7 +309,9 @@ for /l %%# in () do (
 		set /a ioTotal+=2
 		echo=focusedWindow=!focusedWindow!
 		echo=windowsT=!windowsT!
-		>&3 echo=¤FOCUS	!focusedWindow!
+		for /f "delims=" %%w in ("!focusedWindow!") do if "!win[%%~w]D:~3,1!" neq "1" (
+			echo=¤FOCUS	!focusedWindow!
+		) >&3
 		for /f %%a in ("!pid[%%~1]parent!") do set "pid[%%~a]subs=!pid[%%~a]subs: "%%~1"=!"
 		for /f "tokens=1 delims==" %%a in ('set pid[%%1] 2^>nul') do set "%%a="
 	) else if "%%~0"=="createProcess" (
@@ -343,7 +343,9 @@ for /l %%# in () do (
 				for %%w in (!windows!) do if not defined focusedWindow set "focusedWindow=%%~w"
 				set /a ioTotal+=1
 				echo=focusedWindow=!focusedWindow!
-				>&3 echo=¤FOCUS	!focusedWindow!
+				for /f "delims=" %%w in ("!focusedWindow!") do if "!win[%%~w]D:~3,1!" neq "1" (
+					echo=¤FOCUS	!focusedWindow!
+				) >&3
 			)
 			if "!movingWindow!"=="%%~2" set movingWindow=
 			if defined win[%%~2]off call :kernelPanic "Function minimizeWindow failed" "Tried to minimize a window, which was already minimized.\nProcess: %%~1\nWindow: %%~2"
@@ -377,7 +379,7 @@ for /l %%# in () do (
 					echo=¤CTRL	LOAD	"!sst.dir!\temp\DWM-offload\pending.%%~2"	/deleteAfterLoad
 					echo=¤MW	%%~2	x=!win[%%~2]X!	y=!win[%%~2]Y!
 				)
-				echo=¤FOCUS	%%~2
+				if "!win[%%~2]D:~3,1!" neq "1" echo=¤FOCUS	%%~2
 			) >&3
 			set "windows= "%%~2"!windows: "%%~2"=!"
 			echo=focusedWindow=!focusedWindow!
@@ -462,7 +464,9 @@ if "!processes: =!"=="" (
 		for %%w in (!windows!) do if not defined focusedWindow set "focusedWindow=%%~w"
 		set /a ioTotal+=1
 		echo=focusedWindow=!focusedWindow!
-		>&3 echo=¤FOCUS	!focusedWindow!
+		for /f "delims=" %%w in ("!focusedWindow!") do if "!win[%%~w]D:~3,1!" neq "1" (
+			echo=¤FOCUS	!focusedWindow!
+		) >&3
 	)
 	for /f "delims==" %%a in ('set temp 2^>nul ^& set origin 2^>nul') do set "%%a="
 	if "%%~w"=="!movingWindow!" set movingWindow=
