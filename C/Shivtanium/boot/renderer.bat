@@ -12,21 +12,26 @@ set "sst.boot.msg= "
 
 set /a "sst.boot.logoX=(sys.modeW-58)/2+1", "sst.boot.logoY=(sys.modeH-9)/2+1, l=1, j=2"
 
-set "s2=▓▓▓▒▒░░                                             ░░▒▒▓▓"
-set "s3=▓▓▒▒░░   ▄▄▄ ▄    ▄      ▄            ▄            ░░▒▒▓▓▓"
-set "s4=▓▓▓▒▒░░ █    █          ▄█▄                         ░░▒▒▓▓"
-set "s5=▓▓▒▒░░   ▀▀▄ █▀▀▄ █ █ █  █  ▄▀▀▄ █▀▀▄ █ █  █ █▀▄▀▄ ░░▒▒▓▓▓"
-set "s6=▓▓▓▒▒░░ ▄▄▄▀ █  █ █ ▀█▀  █  ▀▄▄█ █  █ █ ▀▄▄█ █ █ █  ░░▒▒▓▓"
-set "s7=▓▓▒▒░░          ▀         ▀         ▀        ▀     ░░▒▒▓▓▓"
-set "s8=▓▓▓▒▒░░                                             ░░▒▒▓▓"
+set "s2=██▓▓▒▒░░                                            ░░▒▒▓▓██████████████████" %= The buffer on the right is     =%
+set "s3=█▓▓▒▒░░   ▄▄▄ ▄    ▄      ▄            ▄             ░░▒▒▓▓█████████████████" %= here just in case someone      =%
+set "s4=█▓▓▒▒░░  █    █          ▄█▄                         ░░▒▒▓▓█████████████████" %= changes the '@n' value, maybe  =%
+set "s5=█▓▓▒▒░░   ▀▀▄ █▀▀▄ █ █ █  █  ▄▀▀▄ █▀▀▄ █ █  █ █▀▄▀▄  ░░▒▒▓▓█████████████████" %= to improve performance on a    =%
+set "s6=█▓▓▒▒░░  ▄▄▄▀ █  █ █ ▀█▀  █  ▀▄▄█ █  █ █ ▀▄▄█ █ █ █  ░░▒▒▓▓█████████████████" %= custom boot screen fork, which =%
+set "s7=█▓▓▒▒░░          ▀         ▀         ▀        ▀      ░░▒▒▓▓█████████████████" %= would cause the right part of  =%
+set "s8=██▓▓▒▒░░                                            ░░▒▒▓▓██████████████████" %= the logo to break.             =%
 
 set "buildstring=MA+=deltaTime"
-set "echostring=%\e%7%\e%[38;2;;;m"
-for /l %%a in (0 2 57) do (
-	set "echostring=!echostring!%\e%[48;2;^!c%%a^!;^!c%%a^!;^!c%%a^!m%\e%8%\e%[B!s2:~%%a,2!%\e%8%\e%[2B!s3:~%%a,2!%\e%8%\e%[3B!s4:~%%a,2!%\e%8%\e%[4B!s5:~%%a,2!%\e%8%\e%[5B!s6:~%%a,2!%\e%8%\e%[6B!s7:~%%a,2!%\e%8%\e%[7B!s8:~%%a,2!%\e%8%\e%[2C%\e%7"
+set "echostring=%\e%[38;2;;;m"
+
+set @n=2
+set "@sep=%\e%[B%\e%[%@n%D"
+
+for /l %%a in (0 !@n! 59) do (
+	set "echostring=!echostring!%\e%[48;2;^!c%%a^!;^!c%%a^!;^!c%%a^!m!s2:~%%a,%@n%!%\e%7%@sep%!s3:~%%a,%@n%!%@sep%!s4:~%%a,%@n%!%@sep%!s5:~%%a,%@n%!%@sep%!s6:~%%a,%@n%!%@sep%!s7:~%%a,%@n%!%@sep%!s8:~%%a,%@n%!%\e%8"
 	set "buildstring=!buildstring!,c%%a=l*^!sinr:x=((MA+%%a)*420)^!+j"
 )
-
+set @sep=
+set @n=
 
 for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "t2=t1", "MA=0"
 echo=%\e%[48;2;;;;38;2;255;255;255m%\e%[2J
@@ -76,9 +81,14 @@ set l=127
 set j=128
 exit /b
 :main
+set timer.100cs=0
+set fpsFrames=0
 for /l %%. in () do (
-	for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "deltaTime=(t1 - t2)", "t2=t1", "offsetX=t1 %% 3 - 1, offsetY=(t1 - 1) %% 3 - 1"
-	
+	for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "deltaTime=(t1 - t2)", "t2=t1", "offsetX=t1 %% 3 - 1, offsetY=(t1 - 1) %% 3 - 1, timer.100cs+=deltaTime, fpsFrames+=1"
+	if !timer.100cs! geq 100 (
+		set /a "timer.100cs%%=100, fps=fpsFrames, fpsFrames=0"
+		title Shivtanium !sys.tag! !sys.ver! !sys.subvinfo! ^| !fps! FPS
+	)
 	set input=
 	set /p input=
 	if "!input:~-9!"=="¤EXITANIM" (
@@ -116,7 +126,7 @@ for /l %%. in () do (
 			set /a "sst.boot.submsglen|=1<<%%b"
 			for %%c in (!sst.boot.submsglen!) do if "!sst.boot.submsg:~%%c,1!" equ "" set /a "sst.boot.submsglen&=~1<<%%b"
 		)
-		set /a "sst.boot.msgY=!sys.modeH!/2+7, sst.boot.msgX=(sys.modeW-sst.boot.msglen)/2, sst.boot.submsgX=(sys.modeW-sst.boot.submsglen)/2"
+		set /a "sst.boot.msgY=!sys.modeH!/2+7, sst.boot.msgX=(sys.modeW-sst.boot.msglen)/2+1, sst.boot.submsgX=(sys.modeW-sst.boot.submsglen)/2+1"
 	)
 	set /a "%buildstring%"
 	echo=%\e%[48;2;;;m%\e%[2J%\e%[!sst.boot.logoY!;!sst.boot.logoX!H%echostring%%\e%[48;2;;;;38;2;255;255;255m%\e%[!sst.boot.msgY!;!sst.boot.msgX!H!sst.boot.msg:~1!%\e%[2E%\e%[!sst.boot.submsgX!G!sst.boot.submsg:~1!!barbuffer!%\e%[H
@@ -124,9 +134,9 @@ for /l %%. in () do (
 :exitAnim
 for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100,t2=t1, sst.boot.fadeout=255"
 for /l %%. in () do (
-	for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "DeltaTime=(t1-t2)", "t2=t1", "j=(l=(sst.boot.fadeout-=deltaTime*4)/2)+1"
+	for /f "tokens=1-4 delims=:.," %%a in ( "!time: =0!" ) do set /a "t1=(((1%%a*60)+1%%b)*60+1%%c)*100+1%%d-36610100", "DeltaTime=(t1-t2)", "t2=t1", "j=(l=(sst.boot.fadeout-=deltaTime*4)/2)+1", "textFadeout=127 * %sinr:x=(sst.boot.fadeout*PI/255+PI32)% + 128"
 	if "!deltaTime!" neq "0" (
-		set /a "%buildstring%, textFadeout=127 * %sinr:x=(sst.boot.fadeout*PI/255+PI32)% + 128"
+		set /a "%buildstring%"
 		echo=%\e%[!sst.boot.logoY!;!sst.boot.logoX!H%echostring%%\e%[48;2;;;;38;2;!textFadeout!;!textFadeout!;!textFadeout!m%\e%[!sst.boot.msgY!;!sst.boot.msgX!H%\e%[2K!sst.boot.msg:~1!
 	) < nul
 	if !sst.boot.fadeout! lss 1 call :fadein
