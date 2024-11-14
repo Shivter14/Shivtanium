@@ -1,6 +1,37 @@
 # Shivtanium Changelog
 This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
+## Beta 1.4.2 [Milestone 4]
+- Finished system updates. Currently, it works in the following way:
+  - When an update is avaliable, you will get a notification.
+  - When you click on the ` More info ` button, it shows more information about
+    the update. The button also changes itself into the ` Update ` button.
+  - When you click on the ` Update ` button, it immediately starts downloading
+    the package from the latest update.
+  - After that, it extracts the package, it validates that it contains a
+    Shivtanium installation, and finally moves the installation into the root
+	directory (`~:\` / `\C\`).
+  - Finally, you are prompted to reboot. After rebooting, you will see new boot
+    entries from the new installation.
+  You can also check for system updates in the control panel.
+- Changed the timings in the Shivtanium Kernel for window movement & resizing to
+  be less choppy / more smooth & consistent.
+- Finished the utility for benchmarking window managers (`systemb-wmtest`).
+- Modified the boot logo sprite a bit.
+- Changes to BatchWindows:
+  - Themes are now offloaded to `temp\themes`. Advantages:
+    - Lower BatchWindows memory usage
+    - Themes can be easily listed from this directory
+    - New themes can be created while Shivtanium is running
+    - Programs can create their own themes
+- Updated `textmodes.dat` in the `init` resource pack.
+- Bugfixes:
+  - Fixed many issues in `systemb-oobe` with the new theme selectors having
+    graphical issues.
+  - Fixed some graphical & saving issues in `systemb-control-panel`.
+  - Fixed the boot screen renderer's loading progress bar using the snapped
+    layout instead of the normal one on the standard text mode.
+
 ## Beta 1.4.1 [build 37.3506]
 - Finished the text file viewer (`systemb-textview`). It can be started by
   opening a text file in the file explorer. With that, there is a new file
@@ -24,7 +55,7 @@ This changelog contains changes made after Shivtanium version Beta 1.1.0.
       `¤TW   <window ID>   <attribute>=<string>`
       `¤TW   <window ID>   +   <attribute>=<string (remote expansion allowed)>`
     The following programs have been optimized to use this feature:
-      `systemb-explorer`, `systemb-textview`, `systemb-dwmtest`
+      `systemb-explorer`, `systemb-textview`, `systemb-wmtest`
 - Added Safe Mode
   This feature can be enabled by adding the following line to `befi.dat`:
   `boot\safemodebootlauncher.bat:--> Safe mode`
@@ -270,7 +301,7 @@ This also includes the updated Desktop Window Manager with better window moving.
 
 # Future plans
 
-## Milestone 4 Plans
+## Milestone 4 Plans (finished)
 - Unfocusing windows changing colors
 - The compiler with non-called functions (BXF)
 - Window minimizing & restoring
@@ -278,13 +309,13 @@ This also includes the updated Desktop Window Manager with better window moving.
 - Fixing issues on Windows 11 + bugfixes & optimizations
 - Window resizing
 - Task bar
+- Text viewer
+- System updates
 
 [current progress]
 
-- System updates
-- Text viewer
-
 ## Milestone 5 Plans
+- Custom themes
 - Finish Ivy Chat
 - Keyboard layout switching
 - Notifications
@@ -296,12 +327,12 @@ This also includes the updated Desktop Window Manager with better window moving.
 ## Full release plans
 - Window snapping
 - Desktop items
-- Better login screen
 - Trailer
 - Youtube videos
 - Finish up the Wiki
 
 ## Post release plans
+- Better login screen
 - Desktop items/files
 - MetroTyper
 - DOOM
