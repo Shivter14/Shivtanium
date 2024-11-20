@@ -6,7 +6,7 @@
 	set "pipe=¤MW	!PID!.control"
 	for /l %%y in (1 1 !inbH!) do set "pipe=!pipe!	o%%y=!o%%y!	l%%y="
 	@dwm.flushPipe
-	for %%p in (!currentPage!) do (
+	if !currentPage! leq !contentH! for %%p in (!currentPage!) do (
 		if /I "!sys.reduceMotion!" neq "True" for /l %%w in (1 2 !sidebarW!) do echo=¤MW	!PID!.control	o!currentPage!=!o%%p!%\e%8%\e%[7m!page[%%p]:~0,%%w!%\e%[27m
 		set "o!currentPage!=%\e%[!sidebarW!X%\e%[7m!page[%%p]!%\e%[27m"
 		echo=¤MW	!PID!.control	o!currentPage!=!o%%p!
@@ -176,10 +176,13 @@ set user.globalTheme=aero
 for /f "usebackq tokens=1* delims==" %%a in ("!sst.root!\Users\!sys.username!\userprofile.dat") do (
 	set "user.%%a=%%b" > nul 2>&1
 )
-set buttons=PickTheme
+set buttons=PickTheme CustomThemes
 set btn[PickTheme]Y=5
-set /a "btn[PickTheme]X=sidebarW+2, btn[PickTheme]BX=win[!PID!.control]W-4"
+set btn[CustomThemes]Y=11
+set "btn[CustomThemes]title= Custom Themes "
+set /a "btn[CustomThemes]BX=(btn[CustomThemes]X=btn[PickTheme]X=sidebarW+2)+14, btn[PickTheme]BX=win[!PID!.control]W-4"
 set btn[PickTheme]=:page[3].PickTheme
+set btn[CustomThemes]=:page[3].CustomThemes
 
 for %%R in (!sys.activeResourcePacks!) do for /f "delims=" %%T in ('dir /b /a:-D "!sst.dir!\resourcepacks\%%~R\themes"') do if /I "%%~xT" neq ".themeMod" (
 	set /a themeCount+=1
@@ -194,14 +197,14 @@ for /f "delims=" %%a in ('call "!sst.dir!\core\config.bat" --get useAltWinCtrlCh
 
 @dwm.clearBuffers "from=1" "to=!inbH!" "o=%\e%[!sidebarW!X" "l="
 for /l %%y in (2 1 !pagesBY!) do set "o%%y=!o%%y!!page[%%y]!"
-:page[3].qrld
 set "o!currentPage!=%\e%[!sidebarW!X%\e%[7m!page[%currentPage%]!%\e%[27m"
-
 set "l2=%\e%[!sidebarW!C Appearance"
 set "l4=%\e%[!sidebarW!C User theme:"
-set "l5=%\e%[!sidebarW!C %\e%[7m%\e%[!contentWp!X !theme[%selectedTheme%]:~0,%contentW%!%\e%[27m"
 set "l8=%\e%[!sidebarW!C ( This fixes issues on non-UTF-8 fonts,"
 set "l9=%\e%[!sidebarW!C   restart required.%\e%[21C)"
+set "o11=!o11!%\e%[!btn[CustomThemes]X!C!btn[CustomThemes]title!"
+:page[3].qrld
+set "l5=%\e%[!sidebarW!C %\e%[7m%\e%[!contentWp!X !theme[%selectedTheme%]:~0,%contentW%!%\e%[27m"
 
 for %%b in (
 	"useAltWinCtrlChars	sys.useAltWinCtrlChars	7	Alternatative Window Control Characters"
@@ -212,6 +215,10 @@ for %%b in (
 set "pipe=¤MW	!PID!.control"
 @dwm.preparePipe "targetWin=!PID!.control" "from=1" "to=!inbH!"
 @dwm.flushPipe
+exit /b 0
+:page[3].CustomThemes
+set currentPage=C
+@loadPage
 exit /b 0
 :page[2] Performance
 for /l %%y in (1 1 !inbH!) do (
@@ -372,3 +379,32 @@ if "!startupUpdChck!"=="False" (
 	call "!sst.dir!\core\config.bat" --set boot.disableUpdateChecks=True
 ) else call "!sst.dir!\core\config.bat" --set boot.disableUpdateChecks=False
 goto page[5]
+:page[C]
+@dwm.clearBuffers "from=1" "to=!inbH!" "o=%\e%[!sidebarW!X" "l="
+for /l %%y in (2 1 !pagesBY!) do set "o%%y=!o%%y!!page[%%y]!"
+set "o!currentPage!=%\e%[!sidebarW!X%\e%[7m!page[%currentPage%]!%\e%[27m"
+for /f "tokens=1 delims==" %%a in ('set btn[ 2^>nul') do set "%%a="
+set buttons=create edit import export duplicate delete
+set "btn[create]title=  + Create "
+set "btn[edit]title=  ¤ Edit "
+set "btn[import]title= →□ Import "
+set "btn[export]title= □→ Export "
+set "btn[duplicate]title= □■ Duplicate "
+set "btn[delete]title=  × Delete "
+
+
+
+set "l2=%\e%[!sidebarW!C Custom themes"
+set temp.Y=4
+for %%a in (!buttons!) do (
+	set /a "btn[%%a]BX=(btn[%%a]X=sidebarW+16), btn[%%a]Y=temp.Y, temp.Y+=1"
+	set "o!btn[%%a]Y!=%\e%[!sidebarW!C!btn[%%a]title!"
+	set "btn[%%a]=:launchThemeApplet %%aTheme"
+)
+
+set "pipe=¤MW	!PID!.control"
+for /l %%y in (1 1 !inbH!) do set "pipe=!pipe!	l%%y=!l%%y!	o%%y=!o%%y!"
+@dwm.flushPipe
+exit /b 0
+:launchApplet
+@sys.call createProcess	!PID!	systemb\control-panel-applets\%*
