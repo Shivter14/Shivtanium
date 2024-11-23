@@ -1,6 +1,6 @@
 @echo off & setlocal enableDelayedExpansion
 if not defined \e for /f %%a in ('echo prompt $E^| cmd') do set "\e=%%a"
-set bxf.ver=1.0.8
+set bxf.ver=1.0.9
 
 if not defined subRoutineN (
 	echo=BXF - Batch Expanded Functions ^| version !bxf.ver!
@@ -109,6 +109,7 @@ for /l %%# in (1 1 100) do for /l %%# in (1 1 100) do (
 					set "cl=%%N"
 				)
 			)
+			set eof=0
 		) else if "!line:~0,4!"=="#end" (
 			if not defined currentFunction (
 				call :error Syntax error: Unexpected #end at line !cl!.
