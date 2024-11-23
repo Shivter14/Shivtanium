@@ -37,11 +37,11 @@ set /a PID=PID
 #end
 #function handleStdEvents
 	) else if "!kernelOut!"=="exitProcess=!PID!" (
-		exit 0
+		exit !$exitCode!
 	) else if "!kernelOut!"=="exit" (
 		if exist "!sst.dir!\temp\proc\PID-!PID!" del "!sst.dir!\temp\proc\PID-!PID!" <nul>nul 2>&1
 		del "!sst.dir!\temp\proc\PID-!PID!-*" <nul>nul 2>&1
-		exit 0
+		exit !$exitCode!
 	) else set "!kernelOut!">nul 2>&1
 #end
 #function call; >>"!sst.dir!\temp\kernelPipe" echo=$$
