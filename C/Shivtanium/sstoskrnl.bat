@@ -445,7 +445,7 @@ for /f "tokens=1*" %%a in ("!args!") do (
 exit /b
 :killProcessTree
 set "PID=%~1"
-set /a PID=PID, ioTotal+=1
+set /a PID=PID, ioTotal+=3
 if "!PID!" neq "%~1" call :kernelPanic "Invalid Process ID" "At function 'exitProcess':\n  Invalid Process ID: `%%~1` (NaN)\nThis is either a fatal error, or some program missbehaving.\nA memory dump has been created at: ~:\Shivtanium\temp\KernelMemoryDump"
 echo=exitProcess=!PID!
 for /l %%. in (1 1 100) do if exist "!sst.dir!\temp\proc\PID-!PID!" (
@@ -454,29 +454,27 @@ for /l %%. in (1 1 100) do if exist "!sst.dir!\temp\proc\PID-!PID!" (
 
 set "processes=!processes: %PID% = !"
 if "!processes: =!"=="" (
-	call :shutdown
-) else for %%w in (!pid[%PID%]windows!) do (
+	call :shutdown 0
+) else for %%w in (!pid[%~1]windows!) do (
 	>&3	echo=¤DW	%%~w
 	set "windows=!windows: "%%~w" = !"
 	set "windowsT=!windowsT: "%%~w" = !"
 	if "%%~w"=="!focusedWindow!" (
 		set focusedWindow=
 		for %%w in (!windows!) do if not defined focusedWindow set "focusedWindow=%%~w"
-		set /a ioTotal+=1
-		echo=focusedWindow=!focusedWindow!
-		for /f "delims=" %%w in ("!focusedWindow!") do if "!win[%%~w]D:~3,1!" neq "1" (
-			echo=¤FOCUS	!focusedWindow!
-		) >&3
 	)
 	for /f "delims==" %%a in ('set temp 2^>nul ^& set origin 2^>nul') do set "%%a="
 	if "%%~w"=="!movingWindow!" set movingWindow=
 	if "%%~w"=="!resizingWindow!" set resizingWindow=
 	for /f "tokens=1 delims==" %%a in ('set "win[%%~w]" 2^>nul') do set "%%a="
 )
-if exist "temp\proc\PID-!PID!" del "temp\proc\PID-!PID!" >nul 2>&1 <nul
-if defined pid[!pid[%PID%]parent!]subs for /f %%a in ("!pid[%PID%]parent!") do set "pid[%%~a]subs=!pid[%%~a]subs: "%PID%"=!"
-for %%p in (!pid[%PID%]subs!) do call :killProcessTree %%~p
-for /f "delims==" %%a in ('set "pid[%~1]" 2^>nul') do set "%%a="
+echo=focusedWindow=!focusedWindow!
+echo=windowsT=!windowsT!
+for /f "delims=" %%w in ("!focusedWindow!") do if "!win[%%~w]D:~3,1!" neq "1" (
+	echo=¤FOCUS	!focusedWindow!
+) >&3
+for /f %%a in ("!pid[%~1]parent!") do set "pid[%%~a]subs=!pid[%%~a]subs: "%~1"=!"
+for /f "tokens=1 delims==" %%a in ('set "pid[%~1]" 2^>nul') do set "%%a="
 exit /b
 :kernelPanic trace text
 >&3 echo=¤CTRL	BSOD	%1	%2
