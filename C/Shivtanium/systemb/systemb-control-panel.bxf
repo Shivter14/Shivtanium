@@ -45,7 +45,7 @@ for %%a in (%*) do (
 if not defined sys.username call systemb-dialog.bat (sys.modeW-w)/2 (sys.modeH-h)/2 48 6 "Control Panel" "l2=  Something went wrong:	l3=    Missing parameter: --username" w-buttonW-2 h-2 7 " Close "
 if not defined sys.UPID     call systemb-dialog.bat (sys.modeW-w)/2 (sys.modeH-h)/2 48 6 "Control Panel" "l2=  Something went wrong:	l3=    Missing parameter: --UPID"     w-buttonW-2 h-2 7 " Close "
 set /a PID=PID
-set /a "pagesBY=5, currentPage=2, contentWp=(contentW=(win[!PID!.control]W=64)-(sidebarW=16)-4)-1, contentH=(inbH=(win[!PID!.control]H=16)-1)-1, win[!PID!.control]X=(sys.modeW-win[!PID!.control]W)/2+1, win[!PID!.control]Y=(sys.modeH-win[!PID!.control]H)/2"
+set /a "pagesBY=5, currentPage=2, contentWp=(contentW=(win[!PID!.control]W=64)-(sidebarW=14)-4)-1, contentH=(inbH=(win[!PID!.control]H=16)-1)-1, win[!PID!.control]X=(sys.modeW-win[!PID!.control]W)/2+1, win[!PID!.control]Y=(sys.modeH-win[!PID!.control]H)/2"
 echo=¤CW	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!	¤ Control Panel
 @sys.call registerWindow	!PID!	!PID!.control	!win[%PID%.control]X!	!win[%PID%.control]Y!	!win[%PID%.control]W!	!win[%PID%.control]H!
 
@@ -56,10 +56,11 @@ for /f "usebackq tokens=1* delims==" %%a in ("!sst.root!\Users\!sys.username!\us
 @dwm.getThemeCBUIoffset "theme=!user.globalTheme!" "return=CBUIoffset"
 set /a "closeButtonX=win[!PID!.control]W-3+CBUIoffset"
 
-set "page[2]= Performance    "
-set "page[3]= Appearance     "
-set "page[4]= System         "
-set "page[5]= Updates        "
+set "page[2]= Performance  "
+set "page[3]= Appearance   "
+set "page[4]= System       "
+set "page[5]= Updates      "
+set "page[6]= Keyboard     "
 if /I "!sys.lowPerformanceMode!"=="True" set "sys.reduceMotion=True"
 
 set tempstr=
@@ -379,32 +380,41 @@ if "!startupUpdChck!"=="False" (
 	call "!sst.dir!\core\config.bat" --set boot.disableUpdateChecks=True
 ) else call "!sst.dir!\core\config.bat" --set boot.disableUpdateChecks=False
 goto page[5]
+:page[6]
+@dwm.clearBuffers "from=1" "to=!inbH!" "o=%\e%[!sidebarW!X" "l="
+for /l %%y in (2 1 !pagesBY!) do set "o%%y=!o%%y!!page[%%y]!"
+set "o!currentPage!=%\e%[!sidebarW!X%\e%[7m!page[%currentPage%]!%\e%[27m"
+for /f "tokens=1 delims==" %%a in ('set btn[ 2^>nul') do set "%%a="
+set buttons=
+exit /b
 :page[C]
 @dwm.clearBuffers "from=1" "to=!inbH!" "o=%\e%[!sidebarW!X" "l="
 for /l %%y in (2 1 !pagesBY!) do set "o%%y=!o%%y!!page[%%y]!"
 set "o!currentPage!=%\e%[!sidebarW!X%\e%[7m!page[%currentPage%]!%\e%[27m"
 for /f "tokens=1 delims==" %%a in ('set btn[ 2^>nul') do set "%%a="
 set buttons=create edit import export duplicate delete
-set "btn[create]title=  + Create "
-set "btn[edit]title=  ¤ Edit "
-set "btn[import]title= →□ Import "
-set "btn[export]title= □→ Export "
+set    "btn[create]title=  + Create    "
+set      "btn[edit]title=  ¤ Edit      "
+set    "btn[import]title= →□ Import    "
+set    "btn[export]title= □→ Export    "
 set "btn[duplicate]title= □■ Duplicate "
-set "btn[delete]title=  × Delete "
-
-
+set    "btn[delete]title=  × Delete    "
 
 set "l2=%\e%[!sidebarW!C Custom themes"
 set temp.Y=4
 for %%a in (!buttons!) do (
-	set /a "btn[%%a]BX=(btn[%%a]X=sidebarW+16), btn[%%a]Y=temp.Y, temp.Y+=1"
-	set "o!btn[%%a]Y!=%\e%[!sidebarW!C!btn[%%a]title!"
-	set "btn[%%a]=:launchThemeApplet %%aTheme"
+	set /a "btn[%%a]BX=(btn[%%a]X=sidebarW+2)+13, btn[%%a]Y=temp.Y, temp.Y+=1"
+	for /f "delims=" %%y in ("!btn[%%a]Y!") do set "o%%y=!o%%y!%\e%8%\e%[!btn[%%a]X!C!btn[%%a]title!"
+	set "btn[%%a]=:launchApplet %%aTheme"
 )
-
+set "l3=%\e%[!sidebarW!C %\e%[38;^!win[!PID!.control]TIcolor^!m▄▄▄▄▄▄▄▄▄▄▄▄▄▄"
+set "l!temp.Y!=%\e%[!sidebarW!C %\e%[38;^!win[!PID!.control]TIcolor^!m▀▀▀▀▀▀▀▀▀▀▀▀▀▀"
+:page[C]qrld
 set "pipe=¤MW	!PID!.control"
 for /l %%y in (1 1 !inbH!) do set "pipe=!pipe!	l%%y=!l%%y!	o%%y=!o%%y!"
 @dwm.flushPipe
 exit /b 0
 :launchApplet
-@sys.call createProcess	!PID!	systemb\control-panel-applets\%*
+@sys.call createProcess	!PID!	systemb\control-panel-applets\%* --UPID !sys.UPID! --username "!sys.username!"
+if defined currentPage goto page[!currentPage!]qrld
+exit /b 0
