@@ -1,0 +1,86 @@
+#import sys.bxf, themeCustomization.bxf
+set lsux.itemCount=0
+set lsux.list=theme
+for /f "delims=" %%T in ('dir /b /a:-D "!sst.dir!\temp\themes"') do if /I "%%~xT" neq ".themeMod" (
+	set /a lsux.itemCount+=1
+	set "theme[!lsux.itemCount!]=%%T"
+)
+if "!lsux.itemCount!"=="0" (
+	call systemb-dialog "(sys.modeW-w)/2+1" "(sys.modeH-h)/2" 48 7 "Theme management" "l2=  Application error in createTheme:	l3=    No themes are loaded.	l4=    Failed to select a default template." w-buttonW-2 h-2 7 " Close "
+	exit /b 1
+)
+set "selectedTheme=1"
+if defined user.selectedTheme set "selectedTheme=!user.selectedTheme!"
+set "theme[!selectedTheme!]o=x"
+
+set /a "tsbW=(ibW=contentW-4)-12"
+echo=¤MW	!PID!.tch	o1= %\e%[!contentW!X^> Create theme^
+	l3=  Enter a name for the new theme:	l4=  %\e%[7m%\e%[!ibW!X%\e%[27m	l6=  Base theme: %\e%[7m%\e%[!tsbW!X !theme[%selectedTheme%]:~0,%tsbW%!%\e%[27m	o8=%\e%[3C Continue 
+
+set "themeName= "
+
+for /l %%# in () do (
+	@sys.pullEvents
+	@sys.onEventRaw "!focusedWindow!;!kernelOut:~0,14!"=="!PID!.tch;keysPressedRN="
+		set "keysPressedRN=!kernelOut:~14!"
+		for %%k in (!keysPressedRN!) do (
+			set "char=!charset_L:~%%k,1!"
+			if "!keysPressed!" neq "!keysPressed:-16-=!" set "char=!charset_U:~%%k,1!"
+			if "!keysPressed!" neq "!keysPressed:-18-=!" set "char=!charset_A:~%%k,1!"
+			if "!char!"==" " (
+				if "%%~k"=="32" set "themeName=!themeName! "
+				if "%%~k"=="8" (
+					if "!themeName!" neq " " set "themeName=!themeName:~0,-1!"
+				) else if "%%~k"=="27" (
+					set "themeName= "
+				)
+			) else (
+				set "themeName=!themeName!!char!"
+				for %%a in (. \ / ; "<" ">" "|" ^" ^^) do set "themeName=!themeName:%%~a=!"
+			)
+			echo=¤MW	!PID!.tch	l4=  %\e%[7m%\e%[!ibW!X!themeName:~-%ibW%!%\e%[27m
+		)
+		if "!keysPressedRN!" neq "!keysPressedRN: 13 =!" (
+			call :continue || exit 0
+		)
+	@sys.onEventRaw "!focusedWindow!;!kernelOut!"=="!PID!.tch;click=1"
+		set /a "relativeMouseX=mouseXpos-win[!PID!.tch]X, relativeMouseY=mouseYpos-win[!PID!.tch]Y"
+		if "!relativeMouseY!"=="0" (if !relativeMouseX! geq !closeButtonX! (
+			@sys.exit
+		)) else if "!relativeMouseY!"=="6" (if !relativeMouseX! geq 14 if !relativeMouseX! lss !contentW! (
+			set /a "win[!PID!.lsux]X=win[!PID!.tch]X+15, win[!PID!.lsux]Y=win[!PID!.tch]Y+6"
+			cmd /c listSelectionUX.bat
+			if errorlevel 1 (
+				set "theme[!selectedTheme!]o="
+				set "selectedTheme=!errorlevel!"
+				set "theme[!selectedTheme!]o=x"
+				for /f "" %%T in ("!selectedTheme!") do echo=¤MW	!PID!.tch	l6=  Base theme: %\e%[7m%\e%[!tsbW!X !theme[%%T]:~0,%tsbW%!%\e%[27m
+			) else if !errorlevel! lss 0 exit 0
+		)) else if "!relativeMouseY!"=="8" if !relativeMouseX! geq 3 if !relativeMouseX! leq 12 (
+			echo=¤MW	!PID!.tch	o8=%\e%[3C%\e%[7m Continue %\e%[27m
+		)
+	@sys.onEventRaw "!focusedWindow!;!kernelOut!"=="!PID!.tch;click=0"
+		echo=¤MW	!PID!.tch	o8=%\e%[3C Continue 
+		set /a "win[!PID!.lsux]X=win[!PID!.tch]X+15, win[!PID!.lsux]Y=win[!PID!.tch]Y+6"
+		if "!relativeMouseY!"=="6" if !relativeMouseX! geq 3 if !relativeMouseX! leq 12 call :continue || exit 0
+	@sys.handleStdEvents
+)
+:continue
+set embed=True
+set $exitCode=1
+if "!themeName: =!"=="" (
+	cmd /c systemb-dialog.bat "(sys.modeW-w)/2+1" "(sys.modeH-h)/2" 48 6 "Failed to create a theme" "l2=  Please enter a name for the theme." w-buttonW-2 h-2 4 " OK "
+	exit /b
+)
+if exist "!themesDir!\!themeName:~1!" (
+	cmd /c systemb-dialog.bat "(sys.modeW-w)/2+1" "(sys.modeH-h)/2" 64 8 "Failed to create a theme" "l2=  A theme with the following name already exists in your	l3=  user profile:	l4=  %\e%[7m%\e%[58X!themeName:~0,58!%\e%[27m" w-buttonW-2 h-2 7 " Close "
+	exit /b
+)
+copy "!sst.dir!\temp\themes\!theme[%selectedTheme%]!" "!themesDir!\!themeName:~1!" < nul >&2 || (
+	cmd /c systemb-dialog.bat "(sys.modeW-w)/2+1" "(sys.modeH-h)/2" 64 7 "Failed to create a theme" "l2=  The following name of the new theme is invalid:	l3=  %\e%[7m%\e%[58X!themeName:~0,58!%\e%[27m" w-buttonW-2 h-2 7 " Close "
+	exit /b
+)
+echo=¤MW	!PID!.tch	o1=	l3=	l4=	l6=
+set "file=!themesDir!\!themeName:~1!"
+call "%~dp0editTheme.bat" /e
+@sys.exit
