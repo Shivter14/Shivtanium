@@ -160,11 +160,8 @@ for /l %%# in () do (
 		set "!kernelOut!">nul 2>&1
 		set /a "relativeMouseX=mouseXpos - win[!PID!.explorer]X, relativeMouseY=mouseYpos - win[!PID!.explorer]Y"
 		if "!relativeMouseY!"=="0" (
-			if "!click!"=="1" (
-				if !relativeMouseX! geq !closeButtonX! (
-					>>"!sst.dir!\temp\kernelPipe" echo=exitProcess	!PID!
-					exit 0
-				)
+			if "!click!"=="1" if !relativeMouseX! geq !closeButtonX! (
+				@sys.exit
 			)
 		) else if !relativeMouseX! geq !sidebarW! (
 			if "!relativeMouseY!"=="1" (
