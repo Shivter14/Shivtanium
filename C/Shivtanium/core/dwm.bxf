@@ -24,7 +24,7 @@
 #function getThemeCBUIoffset
 	set "!$return!=0"
 	if exist "!sst.dir!\temp\themes\!$theme!" (
-		for /f "usebackq tokens=1* delims==" %%x in ("!sst.dir!\resourcepacks\%%~a\themes\!$theme!") do (
+		for /f "usebackq tokens=1* delims==" %%x in ("!sst.dir!\temp\themes\!$theme!") do (
 			if /I "%%~x"=="CBUIoffset" set "!$return!=%%~y"
 		)
 	)
