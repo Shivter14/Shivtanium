@@ -1,0 +1,134 @@
+#import sys.bxf
+if "%~1"=="/e" (
+	if not defined file set "file=%~2"
+	goto transferApplet
+)
+#import themeCustomization.bxf
+
+for /f "delims==" %%a in ('set lsux. 2^>nul ^&^& set theme 2^>nul') do set "%%a="
+set lsux.itemCount=0
+set lsux.list=theme
+for /f "delims=" %%T in ('dir /b /a:-D "!themesDir!"') do if /I "%%~xT" neq ".themeMod" (
+	set /a lsux.itemCount+=1
+	set "theme[!lsux.itemCount!]=%%T"
+)
+if "!lsux.itemCount!"=="0" (
+	call systemb-dialog.bat "(sys.modeW-w)/2+1" "(sys.modeH-h)/2" 56 7 "Failed to edit a theme" "l2=  You don't have any custom themes in your user	l3=  profile to edit. Create or import a theme first." w-buttonW-2 h-2 7 " Close "
+	exit /b 0
+)
+set /a "ibW=contentW-4"
+
+echo=¤MW	!PID!.tch	o1= %\e%[!contentW!X^> Edit theme^
+	l3=  Select a theme to edit	l4=  %\e%[7m%\e%[!ibW!X !theme[%selectedTheme%]:~0,%ibW%!%\e%[27m	o6=%\e%[3C Continue 
+
+for /l %%# in () do (
+	@sys.pullEvents
+	@sys.onEventRaw "!focusedWindow!;!kernelOut!"=="!PID!.tch;click=1"
+		set /a "relativeMouseX=mouseXpos-win[!PID!.tch]X, relativeMouseY=mouseYpos-win[!PID!.tch]Y"
+		if "!relativeMouseY!"=="0" (if !relativeMouseX! geq !closeButtonX! (
+			@sys.exit
+		)) else if "!relativeMouseY!"=="4" (if !relativeMouseX! geq 3 if !relativeMouseX! lss !contentW! (
+			set /a "win[!PID!.lsux]X=win[!PID!.tch]X+3, win[!PID!.lsux]Y=win[!PID!.tch]Y+4"
+			cmd /c listSelectionUX.bat
+			if errorlevel 1 (
+				set "theme[!selectedTheme!]o="
+				set selectedTheme=!errorlevel!
+				set "theme[!selectedTheme!]o=x"
+				for /f "" %%T in ("!selectedTheme!") do echo=¤MW	!PID!.tch	l4=  %\e%[7m%\e%[!ibW!X !theme[%%T]:~0,%ibW%!%\e%[27m
+			) else if !errorlevel! lss 0 exit 0
+		)) else if "!relativeMouseY!"=="6" if !relativeMouseX! geq 3 if !relativeMouseX! leq 12 (
+			for /f "" %%T in ("!selectedTheme!") do set "file=!themesDir!\!theme[%%T]!"
+			call :transferApplet
+		)
+	@sys.handleStdEvents
+)
+:transferApplet
+if not exist "!file!" (
+	call systemb-dialog.bat "(sys.modeW-w)/2+1" "(sys.modeH-h)/2" 64 7 "Failed to open a theme" "l2=  File not found:	l3=  %\e%[7m%\e%[58X !file:~0,57!%\e%[27m" w-buttonW-2 h-2 7 " Close "
+	exit /b 1
+)
+
+(
+	for /f "usebackq" %%a in ("!file!") do (
+		set /p "io=" && (
+			set "theme.!io!"
+			set /p "io=" && set "theme.!io!"
+		)
+	)
+) < "!file!" > nul
+set io=
+
+set elements=1
+for %%a in (
+	"Text color pallete;FGcolor:color,BGcolor:color;AND"
+	"Window color pallete;TTcolor:color,TIcolor:color;AND"
+	"Inactive window color pallete;NTcolor:color,NIcolor:color;AND"
+	"Wallpaper color;scene:scenebg,aero:gradient;OR"
+	"Window background gradient;winAero:gradient;OPT"
+) do for /f "tokens=1-4 delims=;" %%0 in ("!elements!;%%~a") do (
+	set "element[%%0]=%%1"
+	set "temp.s=1"
+	for %%s in (%%2) do for /f "tokens=1-2 delims=:" %%i in ("%%~s") do (
+		set "element[%%0]s!temp.s!=%%i"
+		set "element[%%0]t!temp.s!=%%j"
+		set /a temp.s+=1
+	)
+	set "element[%%0]m=%%3"
+	set /a elements+=1
+)
+set temp.s=
+set /a "elements-=1, selectedElement=1, selectedMode=1"
+#function reload
+	for /l %%a in (2 1 !contentH!) do (
+		set "l%%a="
+		set "o%%a="
+	)
+	set "l3= Element:%\e%[23C"
+	set "l4= %\e%[7m%\e%[30X !element[%selectedElement%]:~0,29!%\e%8%\e%[33C"
+	set "l6=%\e%[32C"
+	set "l7=%\e%[32C%\e%[7m"
+	for %%a in (!selectedElement!) do (
+		if "!element[%%a]m!"=="OR" (
+			set "l6= Mode:%\e%[27C"
+			for %%b in (!selectedMode!) do set "l7= %\e%[7m%\e%[30X !element[%%a]t%%b:~0,29!%\e%8%\e%[33C"
+		) else for %%v in (
+			"!element[%%a]s1!:1:3:4"
+		) do for /f "tokens=1-4 delims=:" %%w in ("%%~v") do if defined element[%%a]s%%x (
+			set "l%%y=!l%%y!!element[%%a]s%%x!:"
+			if "!element[%%a]t%%x!"=="color" (
+				if defined theme.%%w (
+					set "l%%z=!l%%z!%\e%[29X !theme.%%w:~0,26!%\e%[27m%\e%[38;!theme.%%w!m ●"
+				) else set "l%%z=!l%%z!%\e%[29X%\e%[27m"
+			) else if "!element[%%a]t%%x!"=="gradient" (
+				if defined theme.%%w (
+					set "l%%z=!l%%z!%\e%[27m"
+					set "modeH=30"
+					for /l %%i in (1 1 30) do (
+						set /a "x=%%i, !theme.%%w!"
+						set "l%%z=!l%%z!%\e%[48;2;!r!;!g!;!b!m "
+					)
+				)
+			)
+		) else set "l%%z=!l%%z!%\e%[27m"
+	)
+	
+	for /l %%a in (2 1 !contentH!) do (
+		echo=¤TW	!PID!.tch	l%%a=!l%%a!
+		echo=¤TW	!PID!.tch	o%%a=!o%%a!
+	)
+#end
+@reload
+for /f "delims=" %%F in ("!file!") do set "fileName=%%~nF"
+echo=¤TW	!PID!.tch	l1=%\e%[7m%\e%[!contentW!X!fileName:~0,%contentW%!%\e%[27m
+echo=¤MW	!PID!.tch	o1=
+
+
+for /l %%# in () do (
+	@sys.pullEvents
+	@sys.onEventRaw "!focusedWindow!;!kernelOut!"=="!PID!.tch;click=1"
+		set /a "relativeMouseX=mouseXpos-win[!PID!.tch]X, relativeMouseY=mouseYpos-win[!PID!.tch]Y"
+		if "!relativeMouseY!"=="0" if !relativeMouseX! geq !closeButtonX! (
+			@sys.exit
+		)
+	@sys.handleStdEvents
+)
