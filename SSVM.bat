@@ -13,9 +13,9 @@ reg add "HKCU\Console\SSVM Launcher" /v FontSize /t reg_dword /d 1048576 /f
 reg add "HKCU\Console\SSVM Launcher" /v FaceName /t reg_sz /d "MxPlus IBM VGA 8x16" /f
 reg add "HKCU\Console\SSVM Launcher" /v QuickEdit /t reg_dword /d 0 /f
 echo=: Starting console host
-
+cd %~dp0
 set "ssvm.temp.con=Starting console host%\e%[S%\e%[999E: Applying configuration with reg%\e%[S%\e%[999E: Starting console host%\e%[S%\e%[999E: Exitting launcher session"
-start "SSVM Launcher" conhost.exe "!ComSpec!" /c "%~f0" :init %*
+start conhost SSVM.bat :init %*
 echo=: Exitting launcher session
 exit /b
 :init
