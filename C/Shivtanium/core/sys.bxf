@@ -1,8 +1,14 @@
 @echo off & setLocal enableDelayedExpansion
+if defined --getBuildInfo (
+	if /I "!--getBuildInfo!"=="getSysLibVer" exit /b 1
+	echo=Shivtanium system library version: 41
+	exit /b 0
+)
 if not defined PID (
 	echo=This program requires to be run in the Shivtanium Kernel with DWM enabled.
 	<nul set /p "=Press any key to exit. . ."
 	pause>nul
+	exit /b 0
 )
 set /a PID=PID
 #function createWindow
