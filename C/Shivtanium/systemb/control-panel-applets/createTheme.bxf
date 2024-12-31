@@ -36,7 +36,7 @@ for /l %%# in () do (
 				)
 			) else (
 				set "themeName=!themeName!!char!"
-				for %%a in (. \ / ; "<" ">" "|" ^" ^^) do set "themeName=!themeName:%%~a=!"
+				for %%a in (. \ / ; "<" ">" "|" ^" ^^ "?") do set "themeName=!themeName:%%~a=!"
 			)
 			echo=¤MW	!PID!.tch	l4=  %\e%[7m%\e%[!ibW!X!themeName:~-%ibW%!%\e%[27m
 		)
