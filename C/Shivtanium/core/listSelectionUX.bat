@@ -31,7 +31,7 @@ for /l %%a in (1 1 !lsux.itemCount!) do (
 if not defined win[!PID!.lsux]X set "win[!PID!.lsux]X=!mouseXpos!"
 if not defined win[!PID!.lsux]Y set "win[!PID!.lsux]Y=!mouseYpos!"
 if !win[%PID%.lsux]W! lss 8 set "win[!PID!.lsux]W=8"
-set /a "bx=win[!PID!.lsux]X+(win[!PID!.lsux]W=(win[!PID!.lsux]W)+4)-1, win[!PID!.lsux]H=sys.modeH-win[!PID!.lsux]Y-2"
+set /a "bx=win[!PID!.lsux]X+(win[!PID!.lsux]W+=4)-1, win[!PID!.lsux]H=sys.modeH-win[!PID!.lsux]Y-2"
 if !win[%PID%.lsux]W! geq !sys.modeW! set /a "win[!PID!.lsux]W=sys.modeW-4, win[!PID!.lsux]X=3, bx=sys.modeW-3"
 if !bx! gtr !sys.modeW! set /a "win[!PID!.lsux]X=sys.modeW-win[!PID!.lsux]W+1"
 
@@ -66,7 +66,8 @@ echo=!pipe!
 set pipe=
 set cl=
 
->>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.lsux	!win[%PID%.lsux]X!	!win[%PID%.lsux]Y!	!win[%PID%.lsux]W!	!win[%PID%.lsux]H!	1
+>>"!sst.dir!\temp\kernelPipe" echo=registerWindow	!PID!	!PID!.lsux	!win[%PID%.lsux]X!	!win[%PID%.lsux]Y!	!win[%PID%.lsux]W!	!win[%PID%.lsux]H!	11
+set click=
 for /l %%# in () do (
 	set kernelOut=
 	set /p kernelOut= && if "!kernelOut:~0,6!"=="click=" (
@@ -150,7 +151,7 @@ for /l %%# in () do (
 			set scroll=
 		)
 	) else if "!kernelOut:~0,14!"=="focusedWindow=" (
-		if "!kernelOut:~14!" neq "!PID!.lsux" call :exit 0
+		if "%~1" neq "/noexit" if "!kernelOut:~14!" neq "!PID!.lsux" call :exit 0
 	) else if "!kernelOut:~0,10!"=="mouseYpos=" (
 		if "!prevClick!;!click!"=="1;1" (
 			set /a "scroll=(!kernelOut:~10!-win[!PID!.lsux]Y-relativeMouseY), scrollS-=scroll, scrollE-=scroll"
