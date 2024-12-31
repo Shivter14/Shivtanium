@@ -59,6 +59,7 @@ for %%a in (
 	":compileBXF|Compiling BXF applications"
 	":startServices|Starting services"
 	"boot\cfmsf.bat|Checking for missing files"
+	"boot\updateCheckSvc.bat|Checking for updates"
 	":injectDLLs|Injecting DLLs"
 ) do for /f "tokens=1* delims=|" %%b in (%%a) do (
 	%@log% Reached point: %%c ^| %%b
@@ -273,7 +274,7 @@ set bxf.failed=
 cd "!sst.dir!" || exit /b
 
 set BXF_toCompile=
-for %%F in ("*.bxf" "systemb\*.bxf" "boot\*.bxf") do if not exist "%%~dpnF.bat" (
+for %%F in ("*.bxf" "systemb\*.bxf" "systemb\control-panel-applets\*.bxf" "boot\*.bxf") do if not exist "%%~dpnF.bat" (
 	set /a BXF_toCompile+=1
 	set "bxf.thread[!BXF_toCompile!]=%%~F"
 )
@@ -283,6 +284,7 @@ for /l %%j in (1 !sys.CPU.count! !BXF_toCompile!) do (
 	call "%~f0" :compileBXF.main %%j | call "%~f0" :compileBXF.manageThreads %%j
 )
 endlocal
+for /f "delims==" %%a in ('set bxf 2^>nul') do set "%%a="
 exit /b
 :compileBXF.main
 set /a "temp.e=(temp.s=%~1)+sys.CPU.count-1"
