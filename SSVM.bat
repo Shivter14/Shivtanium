@@ -144,18 +144,18 @@ set /a "ssvm.boot.mpX=(ssvm.modeW-ssvm.boot.mpW)/2+1", "ssvm.boot.mpY=(ssvm.mode
 			if "!ssvm.boot.mouseY!"=="!ssvm.temp.counter!" (
 				set "ssvm.boot.bg=!ssvm.boot.bg!%\e%[38;5;231;48;2;63;127;255m%\e%[B%\e%[!ssvm.boot.mpX!G%\e%[!ssvm.boot.mpW!X  !temp.prefix!%%~1: %%~2"
 				if "!click!"=="1" (
-					<nul set /p "=%\e%[38;2;255;255;255;48;2;;;m%\e%[2J%\e%[!ssvm.boot.logoY!;!ssvm.boot.logoX!H!spr.[SSVM]!%\e%[?25l"
+					<&2 set /p "=%\e%[38;2;255;255;255;48;2;;;m%\e%[2J%\e%[!ssvm.boot.logoY!;!ssvm.boot.logoX!H!spr.[SSVM]!%\e%[?25l"
 					call :boot "%%~1"
-					mode !ssvm.modeW!,!ssvm.modeH!
-					<nul set /p "=%\e%[0m%\e%[H%\e%[38;5;231;48;2;;63;255m%\e%[2K SSVM !ssvm.ver! boot menu%\e%[E%\e%[38;5;231;48;5;12m%\e%[0J%\e%[?25l"
+					cmd /c mode !ssvm.modeW!,!ssvm.modeH!
+					<&2 set /p "=%\e%[0m%\e%[H%\e%[38;5;231;48;2;;63;255m%\e%[2K SSVM !ssvm.ver! boot menu%\e%[E%\e%[38;5;231;48;5;12m%\e%[0J%\e%[?25l"
 				)
 			) else (
 				set "ssvm.boot.bg=!ssvm.boot.bg!%\e%[38;5;231;48;2;;63;255m%\e%[B%\e%[!ssvm.boot.mpX!G%\e%[!ssvm.boot.mpW!X  !temp.prefix!%%~1: %%~2"
 			)
 		)
-		set /p "=!ssvm.boot.bg!%\e%[38;5;231;48;2;;63;255m%\e%[B%\e%[!ssvm.boot.mpX!G%\e%[!ssvm.boot.mpW!X"
+		<&2 set /p "=!ssvm.boot.bg!%\e%[38;5;231;48;2;;63;255m%\e%[B%\e%[!ssvm.boot.mpX!G%\e%[!ssvm.boot.mpW!X"
 	)
-)) < nul
+)) 2<nul
 exit /b
 :loadsprites
 if not exist "%~1" exit 31232
