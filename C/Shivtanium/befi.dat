@@ -1,4 +1,4 @@
-main.bat:Shivtanium Beta 1.4.2 [build 38.3512 GIT]
+main.bat:Shivtanium Beta 1.4.2 [build 38.3701 GIT]
 main.bat /forceoobe:--> Force OOBE
 boot\noguibootlauncher.bat:--> No GUI/Fast boot
 boot\safemodebootlauncher.bat:----> Safe mode
