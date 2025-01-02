@@ -1,6 +1,18 @@
 # Shivtanium Changelog
 This changelog contains changes made after Shivtanium version Beta 1.1.0.
 
+## Beta 1.5.0 [build 40.3612]
+- Added custom themes! They can stored in your user profile.
+  Themes can be created, edited, cloned, imported and exported.
+- Added a forced environment argument to `sys.bxf`: `--getBuildInfo`
+- Bugfixes:
+  - `unRegisterWindow` kernel function not focusing the last focused window if
+                       the unregistered window was focused.
+  - BXF version 1.0.9: Fixed a bug where adding a newline after any `#import`
+                       would result in BXF thinking that this is the EOF.
+  - `exitProcessTree` kernel function not re-drawing the new focused window.
+  - listSelectionUX sometimes not registering the first click.
+
 ## Beta 1.4.2 [Milestone 4]
 - Finished system updates. Currently, it works in the following way:
   - When an update is avaliable, you will get a notification.
@@ -312,17 +324,15 @@ This also includes the updated Desktop Window Manager with better window moving.
 - Text viewer
 - System updates
 
-[current progress]
-
 ## Milestone 5 Plans
+[current progress]
 - Custom themes
-- Finish Ivy Chat
 - Keyboard layout switching
 - Notifications
-- Multilanguism
 - Sprite Viewer
 - Resource Packs (full implementation + store)
 - STORE
+- Finish Ivy Chat
 
 ## Full release plans
 - Window snapping
@@ -336,5 +346,6 @@ This also includes the updated Desktop Window Manager with better window moving.
 - Desktop items/files
 - MetroTyper
 - DOOM
+- Multilanguism
 
 ### And those are the predictions for the future by Shivter.
