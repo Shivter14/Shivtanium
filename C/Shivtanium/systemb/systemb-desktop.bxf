@@ -56,7 +56,7 @@ if "!sys.lowPerformanceMode!"=="True" (
 	set sys.reduceMotion=True
 ) else set theme=
 echo=¤CW	systemb_launcher	!win[systemb_launcher]X!	!tempY!	!win[systemb_launcher]W!	!win[systemb_launcher]H!	!sys.username!	!theme! noCBUI noWinAero
-@sys.call registerWindow	!PID!	systemb_launcher	!win[systemb_launcher]X!	!tempZ!	!win[systemb_launcher]W!	!win[systemb_launcher]H!	11
+@sys.call registerWindow	!PID!	systemb_launcher	!win[systemb_launcher]X!	!tempZ!	!win[systemb_launcher]W!	!win[systemb_launcher]H!	1101
 
 set "pipe=	pt=	l1=%\e%[38;^!win[systemb_launcher]TIcolor^!m▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀"
 if "!sys.reduceMotion!" neq "True" for /l %%y in (!tempY! -1 !win[systemb_launcher]Y!) do (
@@ -215,7 +215,7 @@ set "sys.hostOS="
 for /f "delims=" %%a in ('ver') do set "sys.hostOS=!sys.hostOS!%%a "
 set sys.hostOS=!sys.hostOS!
 set "secondary_window_params=l9=  Shivtanium version !sys.tag! !sys.ver! !sys.subvinfo!	l10=  Copyright © Shivter 2021 - 2024	l12=  Host OS: !sys.hostOS:~0,47!	l13=  Logged in as !sys.username:~0,43!"
-set "extended_window_params=l1=%\e%[48;5;15;38;5;16m▓▓▓▒▒░░%\e%[45X%\e%[45C░░▒▒▓▓	l2=%\e%[48;5;15;38;5;16m▓▓▒▒░░   ▄▄▄ ▄    ▄      ▄%\e%[12X%\e%[12C▄%\e%[12X%\e%[12C░░▒▒▓▓▓	l3=%\e%[48;5;15;38;5;16m▓▓▓▒▒░░ █    █          ▄█▄%\e%[25X%\e%[25C░░▒▒▓▓	l4=%\e%[48;5;15;38;5;16m▓▓▒▒░░   ▀▀▄ █▀▀▄ █ █ █  █  ▄▀▀▄ █▀▀▄ █ █  █ █▀▄▀▄ ░░▒▒▓▓▓	l5=%\e%[48;5;15;38;5;16m▓▓▓▒▒░░ ▄▄▄▀ █  █ █ ▀█▀  █  ▀▄▄█ █  █ █ ▀▄▄█ █ █ █  ░░▒▒▓▓	l6=%\e%[48;5;15;38;5;16m▓▓▒▒░░%\e%[45X%\e%[10C▀%\e%[9C▀%\e%[9C▀%\e%[8C▀     ░░▒▒▓▓▓	l7=%\e%[48;5;15;38;5;16m▓▓▓▒▒░░%\e%[45X%\e%[45C░░▒▒▓▓"
+set "extended_window_params=l1= %\e%[38;5;15m░░▒▒▓▓%\e%[44C▓▓▒▒░░%\e%[50D%\e%[48;5;15m%\e%[44X	l2=%\e%[38;5;15m░░▒▒▓▓%\e%[46C▓▓▒▒░░%\e%[52D%\e%[48;5;15;38;5;16m%\e%[46X   ▄▄▄ ▄    ▄      ▄%\e%[12C▄	l3=%\e%[38;5;15m░░▒▒▓▓%\e%[46C▓▓▒▒░░%\e%[52D%\e%[48;5;15;38;5;16m%\e%[46X  █    █%\e%[10C▄█▄	l4=%\e%[38;5;15m░░▒▒▓▓%\e%[46C▓▓▒▒░░%\e%[52D%\e%[48;5;15;38;5;16m   ▀▀▄ █▀▀▄ █ █ █  █  ▄▀▀▄ █▀▀▄ █ █  █ █▀▄▀▄  	l5=%\e%[38;5;15m░░▒▒▓▓%\e%[46C▓▓▒▒░░%\e%[52D%\e%[48;5;15;38;5;16m  ▄▄▄▀ █  █ █ ▀█▀  █  ▀▄▄█ █  █ █ ▀▄▄█ █ █ █  	l6=%\e%[38;5;15m░░▒▒▓▓%\e%[46C▓▓▒▒░░%\e%[52D%\e%[48;5;15;38;5;16m%\e%[46X%\e%[10C▀%\e%[9C▀%\e%[9C▀%\e%[8C▀	l7= %\e%[38;5;15m░░▒▒▓▓%\e%[44C▓▓▒▒░░%\e%[50D%\e%[48;5;15m%\e%[44X"
 call systemb-dialog.bat (sys.modeW-w)/2+1 3 60 16 "About Shivtanium" "" w-buttonW-2 h-2 7 " Close "
 exit /b
 :dialog.compile-run
