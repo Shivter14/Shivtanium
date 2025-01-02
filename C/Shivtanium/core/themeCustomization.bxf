@@ -1,3 +1,4 @@
+#import dwm.bxf
 @sys.handleStdParams
 if not exist "!sst.root!\Users\!sys.username!" set err=User Profile not found
 if not defined sys.username set err=Username not provided
@@ -11,7 +12,7 @@ if not exist "!themesDir!" md "!themesDir!" < nul || (
 	call systemb-dialog.bat "(sys.modeW-w)/2+1" "(sys.modeH-h)/2" 48 8 "Theme Customization Applet" "l2=  Something went wrong while starting this	l3=  application. Error info:	l4=  %\e%[7m Failed to create new themes directory. %\e%[27m" w-buttonW-2 h-2 7 " Close "
 	exit /b 0
 )
-set /a "win[!PID!.tch]X=(sys.modeW-(win[!PID!.tch]W=52))/2+1, win[!PID!.tch]Y=(sys.modeH-(win[!PID!.tch]H=10))/2, contentW=win[!PID!.tch]W-2, contentH=win[!PID!.tch]H-2"
+set /a "win[!PID!.tch]X=(sys.modeW-(win[!PID!.tch]W=64))/2+1, win[!PID!.tch]Y=(sys.modeH-(win[!PID!.tch]H=10))/2, contentW=win[!PID!.tch]W-2, contentH=win[!PID!.tch]H-2"
 echo=¤CW	!PID!.tch	!win[%PID%.tch]X!	!win[%PID%.tch]Y!	!win[%PID%.tch]W!	!win[%PID%.tch]H!	Theme management
 @sys.call registerWindow	!PID!	!PID!.tch	!win[%PID%.tch]X!	!win[%PID%.tch]Y!	!win[%PID%.tch]W!	!win[%PID%.tch]H!
 for /f "usebackq tokens=1* delims==" %%a in ("!sst.root!\Users\!sys.username!\userprofile.dat") do (
