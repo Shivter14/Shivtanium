@@ -1,0 +1,146 @@
+#function renderButtons
+	for %%b in (!buttons!) do for %%y in (!btn[%%~b]Y!) do set "o%%y=!o%%y!%\e%8%\e%[!btn[%%~b]X!C!btn[%%~b]T!"
+#end
+#function renderLocalizationScreen
+	@dwm.clearBuffers "from=2" "to=!contentH!"
+	@renderButtons
+	for /l %%y in (2 1 !contentH!) do (
+		echo=¤TW	!PID!.setup	l%%y=!lang.getlocalization.l%%y!
+		echo=¤TW	!PID!.setup	o%%y=!o%%y!
+	)
+	echo=¤MW	!PID!.setup	l1=!l1!
+#end
+#import sys.bxf, dwm.bxf, str.bxf
+set /a "win[!PID!.setup]X=(sys.modeW-(win[!PID!.setup]W=64))/2-1, win[!PID!.setup]Y=(sys.modeH-(win[!PID!.setup]H=16))/2-1, barW=win[!PID!.setup]W-7, contentW=win[!PID!.setup]W-6, contentH=win[!PID!.setup]H-2"
+echo=¤CW	!PID!.setup	!win[%PID%.setup]X!	!win[%PID%.setup]Y!	!win[%PID%.setup]W!	!win[%PID%.setup]H!	Shivtanium Installer	classic
+@sys.call registerWindow	!PID!	!PID!.setup	!win[%PID%.setup]X!	!win[%PID%.setup]Y!	!win[%PID%.setup]W!	!win[%PID%.setup]H!
+set "l1=%\e%[38;^!win[%PID%.setup]TIcolor^!m▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀"
+set focusedWindow=!PID!.setup
+set langCount=0
+for %%A in ("!sst.dir!\assets\*.lang") do (
+	set /a "langCount+=1"
+	set "lang[!langCount!]=%%~nA"
+	set /p "lang.desc=" < "%%~fA"
+	if "!lang.desc:~0,1!"=="#" (
+		set "lang.desc=!lang.desc:~2!"
+	) else set "lang.desc=%%~nA"
+	set "langD[!langCount!]=!lang.desc!"
+)
+if "!langCount!"=="0" exit /b 1
+set kbdLayoutCount=0
+for /f "delims=" %%A in ('dir /b "!sst.dir!\resourcepacks\init\keyboard_layouts\*.bklm"') do (
+	set /a "kbdLayoutCount+=1"
+	set "kbdl[!kbdLayoutCount!]=%%~nA"
+)
+
+set selectedLang=en_us
+call :loadLang
+:getLocalization
+for /f %%a in ('set btn 2^>nul') do set "%%a="
+set buttons=setLang setKbdLayout next
+set /a "btn[setLang]B=btn[setKbdLayout]B=barW+(btn[setLang]X=btn[setKbdLayout]X=3), btn[setLang]Y=3, btn[setKbdLayout]Y=6, btn[next]Y=contentH, btn[next]X=(btn[next]B=win[!PID!.setup]W-3)-lang.next.tw-1"
+set btn[setLang]=:setLang
+set btn[setKbdLayout]=:setKbdLayout
+set btn[next]=productSelection
+set "btn[next]T= !lang.next! "
+echo=¤CTRL	APPLYTHEME	aero
+@renderLocalizationScreen
+for /l %%# in () do (
+	@sys.pullEvents
+	@sys.onEventRaw "!kernelOut!;!focusedWindow!"=="click=1;!PID!.setup"
+		set /a "click=1, relativeMouseX=mouseXpos-win[!PID!.setup]X, relativeMouseY=mouseYpos-win[!PID!.setup]Y"
+		for %%b in (!buttons!) do if "!relativeMouseY!"=="!btn[%%~b]Y!" if !relativeMouseX! geq !btn[%%~b]X! if !relativeMouseX! leq !btn[%%~b]B! if not defined hoveringOver (
+			set "hoveringOver=%%~b"
+			for %%y in (!btn[%%~b]Y!) do echo=¤TW	!PID!.setup	o%%y=!o%%y!%\e%8%\e%[7m%\e%[!btn[%%~b]X!C!btn[%%~b]T!%\e%[27m
+			echo=¤MW	!PID!.setup
+		)
+	@sys.onEventRaw "!kernelOut!;!focusedWindow!"=="click=0;!PID!.setup"
+		set /a "click=1, relativeMouseX=mouseXpos-win[!PID!.setup]X, relativeMouseY=mouseYpos-win[!PID!.setup]Y"
+		if defined hoveringOver for /f "delims=" %%b in ("!hoveringOver!") do (
+			for %%y in (!btn[%%b]Y!) do echo=¤TW	!PID!.setup	o%%y=!o%%y!
+			if "!relativeMouseY!"=="!btn[%%b]Y!" if !relativeMouseX! geq !btn[%%b]X! if !relativeMouseX! leq !btn[%%b]B! (
+				call !btn[%%b]!
+			)
+			echo=¤MW	!PID!.setup
+		)
+	@sys.onEvent focusedWindow=!PID!.setup
+		set "focusedWindow=!PID!.setup"
+		echo=¤FOCUS	!PID!.setup
+		echo=¤MW	!PID!.setup	l1=!l1!
+	@sys.handleStdEvents
+)
+exit /b
+:loadLang
+for /f "delims==" %%a in ('set lang. 2^>nul') do set "%%a="
+for /f "usebackq eol=# tokens=1* delims==" %%a in ("!sst.dir!\assets\!selectedLang!.lang") do set "lang.%%a=%%b"
+set /p lang.desc=< "!sst.dir!\assets\!selectedLang!.lang"
+if "!lang.desc:~0,1!"=="#" (
+	set "lang.desc=!lang.desc:~2!"
+) else set lang.desc=!selectedLang!
+for %%a in (
+	prev next
+) do (
+	if not defined lang.%%a set lang.%%a=lang.%%a
+	@str.getlen "str=!lang.%%a!" "return=lang.%%a.tw"
+)
+
+
+if exist "!sst.dir!\resourcepacks\init\keyboard_layouts\!selectedLang!.bklm" set "selectedKbdLayout=!selectedLang!"
+set "btn[setLang]T= %\e%[!barW!X!lang.desc:~0,%barW%!"
+:loadKbdLayout
+(
+	set /p "charset_L="
+	set /p "charset_U="
+	set /p "charset_A="
+) < "!sst.dir!\resourcepacks\init\keyboard_layouts\!selectedKbdLayout!.bklm"
+set "btn[setKbdLayout]T= %\e%[!barW!X!selectedKbdLayout:~0,%barW%!"
+exit /b
+:setLang
+set lsux.list=langD
+set lsux.itemCount=!langCount!
+set /a "win[!PID!.lsux]X=win[!PID!.setup]X+3, win[!PID!.lsux]Y=win[!PID!.setup]Y+btn[setLang]Y, win[!PID!.lsux]W=barW+1"
+cmd /c listSelectionUX.bat
+if errorlevel 1 (
+	set "selectedLang=!lang[%ERRORLEVEL%]!"
+	call :loadLang
+	@renderLocalizationScreen
+) else if errorlevel 0 (
+	exit /b 0
+) else (
+	exit 0
+)
+exit /b 1
+# ^^ That should never happen
+:setKbdLayout
+set lsux.list=kbdl
+set lsux.itemCount=!kbdLayoutCount!
+set /a "win[!PID!.lsux]X=win[!PID!.setup]X+3, win[!PID!.lsux]Y=win[!PID!.setup]Y+btn[setKbdLayout]Y, win[!PID!.lsux]W=barW+1"
+cmd /c listSelectionUX.bat
+if errorlevel 1 (
+	set "selectedKbdLayout=!kbdl[%ERRORLEVEL%]!"
+	call :loadKbdLayout
+	@renderLocalizationScreen
+) else if errorlevel 0 (
+	exit /b 0
+) else (
+	exit 0
+)
+exit /b
+:productSelection
+for /f %%a in ('set btn 2^>nul') do set "%%a="
+set buttons=prev next
+set /a "btn[prev]B=(btn[prev]X=2)+lang.prev.tw+1, btn[next]X=(btn[next]B=win[!PID!.setup]W-3)-lang.next.tw-1, btn[prev]Y=btn[next]Y=contentH, boxE=contentH-3"
+set "btn[prev]T= !lang.prev! "
+set "btn[next]T= !lang.next! "
+set btn[prev]=:getlocalization
+set btn[next]=rem
+@dwm.clearBuffers "from=2" "to=!contentH!"
+@renderButtons
+set buffer=────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+echo=¤TW	!PID!.setup	l2=!lang.productSelection!
+echo=¤TW	!PID!.setup	l3= ┌!buffer:~0,%contentW%!┐
+for /l %%a in (4 1 !boxE!) do echo=¤TW	!PID!.setup	l%%a= │%\e%[!contentW!C│
+set /a boxE+=1
+echo=¤TW	!PID!.setup	l!boxE!=└!buffer:~0,%contentW%!┘
+for /l %%y in (2 1 !contentW!) do echo=¤TW	!PID!.setup	o%%a=!o%%a!
+echo=¤MW	!PID!.setup	l1=!l1!
