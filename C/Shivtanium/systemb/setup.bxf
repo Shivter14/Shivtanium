@@ -34,14 +34,14 @@ for /f "delims=" %%A in ('dir /b "!sst.dir!\resourcepacks\init\keyboard_layouts\
 )
 
 set selectedLang=en_us
-call :loadLang
 :getLocalization
 for /f %%a in ('set btn 2^>nul') do set "%%a="
+call :loadLang
 set buttons=setLang setKbdLayout next
 set /a "btn[setLang]B=btn[setKbdLayout]B=barW+(btn[setLang]X=btn[setKbdLayout]X=3), btn[setLang]Y=3, btn[setKbdLayout]Y=6, btn[next]Y=contentH, btn[next]X=(btn[next]B=win[!PID!.setup]W-3)-lang.next.tw-1"
 set btn[setLang]=:setLang
 set btn[setKbdLayout]=:setKbdLayout
-set btn[next]=productSelection
+set btn[next]=:productSelection
 set "btn[next]T= !lang.next! "
 echo=¤CTRL	APPLYTHEME	aero
 @renderLocalizationScreen
@@ -59,6 +59,7 @@ for /l %%# in () do (
 		if defined hoveringOver for /f "delims=" %%b in ("!hoveringOver!") do (
 			for %%y in (!btn[%%b]Y!) do echo=¤TW	!PID!.setup	o%%y=!o%%y!
 			if "!relativeMouseY!"=="!btn[%%b]Y!" if !relativeMouseX! geq !btn[%%b]X! if !relativeMouseX! leq !btn[%%b]B! (
+				set hoveringOver=
 				call !btn[%%b]!
 			)
 			echo=¤MW	!PID!.setup
@@ -135,12 +136,24 @@ set "btn[next]T= !lang.next! "
 set btn[prev]=:getlocalization
 set btn[next]=rem
 @dwm.clearBuffers "from=2" "to=!contentH!"
-@renderButtons
 set buffer=────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-echo=¤TW	!PID!.setup	l2=!lang.productSelection!
+echo=¤TW	!PID!.setup	l2=  !lang.productSelection!
 echo=¤TW	!PID!.setup	l3= ┌!buffer:~0,%contentW%!┐
-for /l %%a in (4 1 !boxE!) do echo=¤TW	!PID!.setup	l%%a= │%\e%[!contentW!C│
+(for /l %%a in (4 1 !boxE!) do (
+	echo=¤TW	!PID!.setup	l%%a= │%\e%[!contentW!C│
+	set /p "temp.product=" && (
+		set "buttons=!buttons! product.%%a"
+		set "btn[product.%%a]X=3"
+		set "btn[product.%%a]B=!contentW!"
+		set "btn[product.%%a]Y=%%a"
+		for /f "delims=;" %%b in ("!temp.product!") do set "btn[product.%%a]T=%\e%[!contentW!X%%b"
+		set "btn[product.%%a]=assets/!temp.product:*;=!"
+	)
+	set temp.product=
+)) < "!sst.dir!\assets\products.dat"
+set temp.product=
 set /a boxE+=1
-echo=¤TW	!PID!.setup	l!boxE!=└!buffer:~0,%contentW%!┘
-for /l %%y in (2 1 !contentW!) do echo=¤TW	!PID!.setup	o%%a=!o%%a!
+echo=¤TW	!PID!.setup	l!boxE!= └!buffer:~0,%contentW%!┘
+@renderButtons
+for /l %%y in (2 1 !contentH!) do echo=¤TW	!PID!.setup	o%%y=!o%%y!
 echo=¤MW	!PID!.setup	l1=!l1!
